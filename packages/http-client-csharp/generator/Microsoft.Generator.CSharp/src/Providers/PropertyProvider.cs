@@ -42,6 +42,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
+        public PropertyProvider? SpecProperty { get; internal set; }
+
         internal IEnumerable<AttributeData>? Attributes { get; init; }
 
         // for mocking

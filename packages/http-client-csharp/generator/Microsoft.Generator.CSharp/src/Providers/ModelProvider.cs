@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.WireInfo != null) ?? []).ToList();
+        internal IReadOnlyList<PropertyProvider> AllSpecProperties => Properties.Concat(CustomCodeView?.Properties.Where(p => p.SpecProperty != null).Select(p => p.SpecProperty!) ?? []).ToList();
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
