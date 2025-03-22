@@ -54,8 +54,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
-    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
-    name: sdkPackage.rootNamespace,
+    // TODO - is this deterministic?
+    name: sdkPackage.namespaces[0].name,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),
