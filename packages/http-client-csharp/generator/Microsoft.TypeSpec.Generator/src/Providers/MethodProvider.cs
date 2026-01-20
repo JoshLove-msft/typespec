@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public XmlDocProvider XmlDocs { get; private set; }
 
-        public TypeProvider EnclosingType { get; }
+        public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatement? bodyStatements = null,
             ValueExpression? bodyExpression = null,
             XmlDocProvider? xmlDocProvider = null,
-            IEnumerable<SuppressionStatement>? suppressions = default)
+            IEnumerable<SuppressionStatement>? suppressions = default,
+            TypeProvider? enclosingType = null)
         {
             if (signature != null)
             {
@@ -103,6 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (suppressions != null)
             {
                 Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+            }
+            if (enclosingType != null)
+            {
+                EnclosingType = enclosingType;
             }
         }
 

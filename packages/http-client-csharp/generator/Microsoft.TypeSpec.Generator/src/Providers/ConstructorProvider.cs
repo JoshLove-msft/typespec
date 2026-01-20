@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ValueExpression? BodyExpression { get; private set; }
         public XmlDocProvider XmlDocs { get; private set; }
 
-        public TypeProvider EnclosingType { get; }
+        public TypeProvider EnclosingType { get; private set; }
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
         // for mocking
@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorSignature? signature = null,
             ValueExpression? bodyExpression = null,
             XmlDocProvider? xmlDocs = null,
-            IEnumerable<SuppressionStatement>? suppressions = default)
+            IEnumerable<SuppressionStatement>? suppressions = default,
+            TypeProvider? enclosingType = null)
         {
             if (signature != null)
             {
@@ -103,6 +104,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (suppressions != null)
             {
                 Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [.. suppressions];
+            }
+
+            if (enclosingType != null)
+            {
+                EnclosingType = enclosingType;
             }
         }
     }

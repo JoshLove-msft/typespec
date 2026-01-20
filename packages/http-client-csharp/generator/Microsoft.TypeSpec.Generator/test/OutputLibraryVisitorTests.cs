@@ -226,6 +226,30 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task MatchingMethodSignatureIsNotFilteredWhenVisitorChangesSignature()
+        {
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(int))]),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(methods: [methodProvider]);
+            methodProvider.Update(enclosingType: typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new ChangeParameterTypeVisitor(typeof(string));
+
+            // Simulate an emitter that access the methods before visitors are applied
+            _ = typeProvider.Methods;
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+        }
+
+        [Test]
         public async Task MatchingConstructorSignatureIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();
@@ -244,6 +268,30 @@ namespace Microsoft.TypeSpec.Generator.Tests
             typeProvider.Update(constructors: typeProvider.FilterCustomizedConstructors(typeProvider.Constructors));
 
             Assert.AreEqual(0, typeProvider.Constructors.Count);
+        }
+
+        [Test]
+        public async Task MatchingConstructorSignatureIsNotFilteredWhenVisitorChangesSignature()
+        {
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(new TestTypeProvider().Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(int))]),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(constructors: [constructor]);
+            constructor.Update(enclosingType: typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Simulate an emitter that access the methods before visitors are applied
+            _ = typeProvider.Constructors;
+            var visitor = new ChangeParameterTypeVisitor(typeof(string));
+
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            typeProvider.Update(constructors: typeProvider.FilterCustomizedConstructors(typeProvider.Constructors));
+
+            Assert.AreEqual(1, typeProvider.Constructors.Count);
         }
 
         [Test]
@@ -267,6 +315,27 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task MatchingPropertyIsNotFilteredWhenVisitorChangesSignature()
+        {
+            var property = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "TestProperty", new AutoPropertyBody(true), new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(properties: [property]);
+            property.Update(enclosingType: typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestFilterVisitor();
+
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            typeProvider.Update(properties: typeProvider.FilterCustomizedProperties(typeProvider.Properties));
+
+            Assert.AreEqual(1, typeProvider.Properties.Count);
+        }
+
+        [Test]
         public async Task MatchingFieldIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();
@@ -286,6 +355,26 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task MatchingFieldIsNotFilteredWhenVisitorChangesSignature()
+        {
+            var field = new FieldProvider(FieldModifiers.Public, typeof(string), "TestField", new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(fields: [field]);
+            field.Update(enclosingType: typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestFilterVisitor();
+
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            typeProvider.Update(fields: typeProvider.FilterCustomizedFields(typeProvider.Fields));
+
+            Assert.AreEqual(1, typeProvider.Fields.Count);
+        }
+
+        [Test]
         public async Task MultipleVisitorsMutateMember()
         {
             var typeProvider = new TestTypeProvider();
@@ -299,7 +388,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var visitor1 = new RenameMethodVisitor("OriginalMethod", "TestMethod");
-            var visitor2 = new ChangeParameterTypeVisitor("TestMethod", typeof(int));
+            var visitor2 = new ChangeParameterTypeVisitor(typeof(int));
 
             visitor1.VisitLibrary(generator.Object.OutputLibrary);
             visitor2.VisitLibrary(generator.Object.OutputLibrary);
@@ -332,21 +421,22 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         private class ChangeParameterTypeVisitor : LibraryVisitor
         {
-            private readonly string _methodName;
             private readonly System.Type _newType;
 
-            public ChangeParameterTypeVisitor(string methodName, System.Type newType)
+            public ChangeParameterTypeVisitor(System.Type newType)
             {
-                _methodName = methodName;
                 _newType = newType;
+            }
+
+            protected override ConstructorProvider VisitConstructor(ConstructorProvider constructor)
+            {
+                constructor.Signature.Parameters[0].Update(type: _newType);
+                return constructor;
             }
 
             protected internal override MethodProvider? VisitMethod(MethodProvider method)
             {
-                if (method.Signature.Name == _methodName)
-                {
-                    method.Signature.Parameters[0].Update(type: _newType);
-                }
+                method.Signature.Parameters[0].Update(type: _newType);
                 return method;
             }
         }

@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator
             if (type != null)
             {
                 var methods = new List<MethodProvider>();
-                foreach (var methodProvider in typeProvider.Methods)
+                foreach (var methodProvider in typeProvider.SpecView.Methods)
                 {
                     var method = methodProvider.Accept(this);
                     if (method != null)
@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var constructors = new List<ConstructorProvider>();
-                foreach (var constructorProvider in typeProvider.Constructors)
+                foreach (var constructorProvider in typeProvider.SpecView.Constructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
                     if (constructor != null)
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var properties = new List<PropertyProvider>();
-                foreach (var propertyProvider in typeProvider.Properties)
+                foreach (var propertyProvider in typeProvider.SpecView.Properties)
                 {
                     var property = VisitProperty(propertyProvider);
                     if (property != null)
@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var fields = new List<FieldProvider>();
-                foreach (var fieldProvider in typeProvider.Fields)
+                foreach (var fieldProvider in typeProvider.SpecView.Fields)
                 {
                     var field = VisitField(fieldProvider);
                     if (field != null)
