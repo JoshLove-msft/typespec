@@ -211,5 +211,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
             Assert.AreEqual("ServiceVersion", keyVaultProvider.Name);
         }
+
+        [Test]
+        public void MultiServiceClient_WithCollidingLastSegments_UsesMinimumDisambiguation()
+        {
+            // Both namespaces end with "Tests" — should use next segment for disambiguation
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersion",
+                [("2024-01-01", "2024-01-01")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersion",
+                [("2024-06-01", "2024-06-01")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [serviceOneEnum, serviceTwoEnum],
+                inputClients: [client]);
+
+            var mockDeclaringType = new Mock<TypeProvider>();
+            mockDeclaringType.Protected().Setup<string>("BuildName").Returns("TestClientOptions");
+            mockDeclaringType.Protected().Setup<string>("BuildNamespace").Returns("Sample");
+
+            var serviceOneEnumType = EnumProvider.Create(serviceOneEnum, mockDeclaringType.Object);
+            Assert.IsTrue(serviceOneEnumType is ApiVersionEnumProvider);
+            var serviceOneProvider = (ApiVersionEnumProvider)serviceOneEnumType;
+
+            var serviceTwoEnumType = EnumProvider.Create(serviceTwoEnum, mockDeclaringType.Object);
+            Assert.IsTrue(serviceTwoEnumType is ApiVersionEnumProvider);
+            var serviceTwoProvider = (ApiVersionEnumProvider)serviceTwoEnumType;
+
+            // Names should be unique, using the minimum segments needed
+            Assert.AreNotEqual(serviceOneProvider.Name, serviceTwoProvider.Name);
+            Assert.AreEqual("ServiceOneTestsVersion", serviceOneProvider.Name);
+            Assert.AreEqual("ServiceTwoTestsVersion", serviceTwoProvider.Name);
+        }
     }
 }

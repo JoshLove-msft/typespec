@@ -38,7 +38,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
+                    var allNamespaces = apiVersionEnums
+                        .Select(e => e.Namespace)
+                        .Where(ns => !string.IsNullOrEmpty(ns))
+                        .ToList();
+                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix, allNamespaces);
                 }
             }
 

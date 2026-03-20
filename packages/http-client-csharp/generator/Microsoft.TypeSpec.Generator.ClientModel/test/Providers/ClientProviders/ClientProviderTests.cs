@@ -3803,6 +3803,71 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
         }
 
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_CollidingLastSegments_ProducesUniqueFields()
+        {
+            // Setup multiservice client where both services have "Tests" as the last segment
+            List<string> serviceOneVersions = ["2024-01-01"];
+            List<string> serviceTwoVersions = ["2024-06-01"];
+
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersion",
+                serviceOneVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersion",
+                serviceTwoVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceOne.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Trigger the lazy initialization of Fields which populates _apiVersionFields
+            _ = clientProvider!.Fields;
+
+            // Both services should produce unique field names (not crash with duplicates)
+            var fieldOne = clientProvider!.GetApiVersionFieldForService("Azure.ServiceOne.Tests");
+            var fieldTwo = clientProvider.GetApiVersionFieldForService("Azure.ServiceTwo.Tests");
+
+            Assert.IsNotNull(fieldOne);
+            Assert.IsNotNull(fieldTwo);
+            Assert.AreNotEqual(fieldOne!.Name, fieldTwo!.Name);
+        }
+
         [TestCase("{endpoint}")]
         [TestCase("{Endpoint}")]
         [TestCase("{ENDPOINT}")]

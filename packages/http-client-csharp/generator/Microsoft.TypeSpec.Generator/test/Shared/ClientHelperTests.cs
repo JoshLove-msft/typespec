@@ -167,5 +167,76 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             var result = ClientHelper.BuildNameForService("Sample.KeyVault", "Latest", "Version");
             Assert.AreEqual("LatestKeyVaultVersion", result);
         }
+
+        // Collision-aware overload tests
+
+        [Test]
+        public void BuildNameForService_NoCollision_UsesShortName()
+        {
+            var allNamespaces = new[] { "Sample.KeyVault", "Sample.Storage" };
+            var result = ClientHelper.BuildNameForService("Sample.KeyVault", "Service", "Version", allNamespaces);
+            Assert.AreEqual("ServiceKeyVaultVersion", result);
+        }
+
+        [Test]
+        public void BuildNameForService_CollisionOnLastSegment_UsesNextSegment()
+        {
+            // Both have "Tests" as last segment — need 2 segments to disambiguate
+            var allNamespaces = new[] { "Azure.ServiceOne.Tests", "Azure.ServiceTwo.Tests" };
+
+            var result1 = ClientHelper.BuildNameForService("Azure.ServiceOne.Tests", "Service", "Version", allNamespaces);
+            var result2 = ClientHelper.BuildNameForService("Azure.ServiceTwo.Tests", "Service", "Version", allNamespaces);
+
+            Assert.AreEqual("ServiceOneTestsVersion", result1);
+            Assert.AreEqual("ServiceTwoTestsVersion", result2);
+            Assert.AreNotEqual(result1, result2);
+        }
+
+        [Test]
+        public void BuildNameForService_CollisionOnTwoSegments_UsesThreeSegments()
+        {
+            // Last 2 segments both resolve to the same identifier — need 3 to disambiguate
+            var allNamespaces = new[] { "A.Same.Tests", "B.Same.Tests" };
+
+            var result1 = ClientHelper.BuildNameForService("A.Same.Tests", "Service", "Version", allNamespaces);
+            var result2 = ClientHelper.BuildNameForService("B.Same.Tests", "Service", "Version", allNamespaces);
+
+            Assert.AreNotEqual(result1, result2);
+        }
+
+        [Test]
+        public void BuildNameForService_SingleNamespace_UsesShortName()
+        {
+            var allNamespaces = new[] { "Sample.KeyVault" };
+            var result = ClientHelper.BuildNameForService("Sample.KeyVault", "Service", "Version", allNamespaces);
+            Assert.AreEqual("ServiceKeyVaultVersion", result);
+        }
+
+        [Test]
+        public void BuildNameForService_CollisionWithApiVersionSuffix_UsesNextSegment()
+        {
+            var allNamespaces = new[] { "Azure.ServiceOne.Tests", "Azure.ServiceTwo.Tests" };
+
+            var result1 = ClientHelper.BuildNameForService("Azure.ServiceOne.Tests", "Service", "ApiVersion", allNamespaces);
+            var result2 = ClientHelper.BuildNameForService("Azure.ServiceTwo.Tests", "Service", "ApiVersion", allNamespaces);
+
+            Assert.AreNotEqual(result1, result2);
+        }
+
+        [Test]
+        public void BuildNameForService_ThreeNamespacesOneCollision_OnlyCollidingOnesExtend()
+        {
+            // KeyVault is unique, but ServiceOne.Tests and ServiceTwo.Tests collide on "Tests"
+            var allNamespaces = new[] { "Sample.KeyVault", "Azure.ServiceOne.Tests", "Azure.ServiceTwo.Tests" };
+
+            var keyVault = ClientHelper.BuildNameForService("Sample.KeyVault", "Service", "Version", allNamespaces);
+            var svcOne = ClientHelper.BuildNameForService("Azure.ServiceOne.Tests", "Service", "Version", allNamespaces);
+            var svcTwo = ClientHelper.BuildNameForService("Azure.ServiceTwo.Tests", "Service", "Version", allNamespaces);
+
+            // KeyVault has no collision — keeps short name
+            Assert.AreEqual("ServiceKeyVaultVersion", keyVault);
+            // The two "Tests" services need disambiguation
+            Assert.AreNotEqual(svcOne, svcTwo);
+        }
     }
 }
