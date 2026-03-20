@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         .Select(e => e.Namespace)
                         .Where(ns => !string.IsNullOrEmpty(ns))
                         .ToList();
-                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix, allNamespaces);
+                    return ClientHelper.BuildNameForService(serviceNamespace, "", ApiVersionEnumName, allNamespaces);
                 }
             }
 

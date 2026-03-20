@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
                 var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? ClientHelper.BuildNameForService(inputEnum.Namespace, ServicePrefix, ApiVersionSuffix, allNamespaces!)
+                    ? ClientHelper.BuildNameForService(inputEnum.Namespace, "", ApiVersionSuffix, allNamespaces!)
                     : VersionSuffix;
 
                 var versionProperty = new PropertyProvider(

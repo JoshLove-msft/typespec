@@ -178,9 +178,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsTrue(storageEnumType is ApiVersionEnumProvider);
             var storageProvider = (ApiVersionEnumProvider)storageEnumType;
 
-            // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
-            Assert.AreEqual("ServiceKeyVaultVersion", keyVaultProvider.Name);
-            Assert.AreEqual("ServiceStorageVersion", storageProvider.Name);
+            // Verify enum names follow the multiservice naming pattern: {ServiceName}ServiceVersion
+            Assert.AreEqual("KeyVaultServiceVersion", keyVaultProvider.Name);
+            Assert.AreEqual("StorageServiceVersion", storageProvider.Name);
         }
 
         [Test]
@@ -247,8 +247,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
 
             // Names should be unique, using the minimum segments needed
             Assert.AreNotEqual(serviceOneProvider.Name, serviceTwoProvider.Name);
-            Assert.AreEqual("ServiceOneTestsVersion", serviceOneProvider.Name);
-            Assert.AreEqual("ServiceTwoTestsVersion", serviceTwoProvider.Name);
+            Assert.AreEqual("ServiceOneTestsServiceVersion", serviceOneProvider.Name);
+            Assert.AreEqual("ServiceTwoTestsServiceVersion", serviceTwoProvider.Name);
         }
     }
 }

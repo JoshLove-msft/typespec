@@ -238,5 +238,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             // The two "Tests" services need disambiguation
             Assert.AreNotEqual(svcOne, svcTwo);
         }
+
+        [Test]
+        public void BuildNameForService_NoPrefix_ServiceVersionSuffix_AppendsCorrectly()
+        {
+            // Matches the actual enum naming pattern: prefix="" suffix="ServiceVersion"
+            var allNamespaces = new[] { "Sample.KeyVault", "Sample.Storage" };
+
+            var result = ClientHelper.BuildNameForService("Sample.KeyVault", "", "ServiceVersion", allNamespaces);
+            Assert.AreEqual("KeyVaultServiceVersion", result);
+        }
+
+        [Test]
+        public void BuildNameForService_NoPrefix_CollisionFallsBackToNextSegment()
+        {
+            var allNamespaces = new[] { "Azure.ServiceOne.Tests", "Azure.ServiceTwo.Tests" };
+
+            var result1 = ClientHelper.BuildNameForService("Azure.ServiceOne.Tests", "", "ServiceVersion", allNamespaces);
+            var result2 = ClientHelper.BuildNameForService("Azure.ServiceTwo.Tests", "", "ServiceVersion", allNamespaces);
+
+            Assert.AreNotEqual(result1, result2);
+            Assert.AreEqual("ServiceOneTestsServiceVersion", result1);
+            Assert.AreEqual("ServiceTwoTestsServiceVersion", result2);
+        }
     }
 }
