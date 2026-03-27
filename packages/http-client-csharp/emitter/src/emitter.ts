@@ -12,9 +12,6 @@ import {
   Program,
   resolvePath,
 } from "@typespec/compiler";
-import fs, { statSync } from "fs";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 import {
   _minSupportedDotNetSdkVersion,
@@ -34,14 +31,21 @@ import { Configuration } from "./type/configuration.js";
 /**
  * Look for the project root by looking up until a `package.json` is found.
  * @param path Path to start looking
+ * @param statSyncFn The statSync function (injected to avoid top-level fs import)
  */
-function findProjectRoot(path: string): string | undefined {
+function findProjectRoot(
+  path: string,
+  statSyncFn: (p: string) => { isFile(): boolean },
+): string | undefined {
   let current = path;
   while (true) {
     const pkgPath = joinPaths(current, "package.json");
-    const stats = checkFile(pkgPath);
-    if (stats?.isFile()) {
-      return current;
+    try {
+      if (statSyncFn(pkgPath)?.isFile()) {
+        return current;
+      }
+    } catch {
+      // file doesn't exist
     }
     const parent = getDirectoryPath(current);
     if (parent === current) {
@@ -107,12 +111,6 @@ export async function emitCodeModel(
       // Apply optional code model update callback
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
-      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
-
-      if (!fs.existsSync(generatedFolder)) {
-        fs.mkdirSync(generatedFolder, { recursive: true });
-      }
-
       // emit tspCodeModel.json
       await writeCodeModel(sdkContext, updatedRoot, outputFolder);
 
@@ -122,45 +120,26 @@ export async function emitCodeModel(
       //emit configuration.json
       await writeConfiguration(sdkContext, configurations, outputFolder);
 
-      const csProjFile = resolvePath(
-        outputFolder,
-        "src",
-        `${configurations["package-name"]}.csproj`,
-      );
-      logger.info(`Checking if ${csProjFile} exists`);
-
-      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-      );
-
-      try {
-        const result = await execCSharpGenerator(sdkContext, {
-          generatorPath: generatorPath,
-          outputFolder: outputFolder,
-          generatorName: options["generator-name"],
-          newProject: options["new-project"] || !checkFile(csProjFile),
-          debug: options.debug ?? false,
-        });
-        if (result.exitCode !== 0) {
-          const isValid = diagnostics.pipe(
-            await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
-          );
-          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            throw new Error(
-              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
-            );
-          }
-        }
-      } catch (error: any) {
-        const isValid = diagnostics.pipe(
-          await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
+      if (options["playground-server-url"]) {
+        // Playground mode: send code model to remote server for C# generation
+        await generateViaPlaygroundServer(
+          options["playground-server-url"],
+          sdkContext,
+          outputFolder,
         );
-        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error, { cause: error });
+      } else {
+        // Local mode: run .NET generator via subprocess (requires Node.js + .NET SDK)
+        await runLocalGenerator(sdkContext, diagnostics, {
+          outputFolder,
+          packageName: configurations["package-name"] ?? "",
+          generatorName: options["generator-name"],
+          newProject: options["new-project"],
+          debug: options.debug ?? false,
+          emitterExtensionPath: options["emitter-extension-path"],
+          logger,
+        });
       }
+
       if (!options["save-inputs"]) {
         // delete
         context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
@@ -199,6 +178,7 @@ export function createConfiguration(
     "generate-protocol-methods",
     "generate-convenience-methods",
     "emitter-extension-path",
+    "playground-server-url",
   ];
   const derivedOptions = Object.fromEntries(
     Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
@@ -291,10 +271,120 @@ function validateDotNetSdkVersionCore(
   }
 }
 
-function checkFile(pkgPath: string) {
+/**
+ * Sends the code model and configuration to a playground server for C# generation.
+ * Used when the emitter runs in a browser environment.
+ */
+async function generateViaPlaygroundServer(
+  serverUrl: string,
+  sdkContext: CSharpEmitterContext,
+  outputFolder: string,
+): Promise<void> {
+  const codeModelContent = await sdkContext.program.host.readFile(
+    resolvePath(outputFolder, tspOutputFileName),
+  );
+  const configContent = await sdkContext.program.host.readFile(
+    resolvePath(outputFolder, configurationFileName),
+  );
+
+  if (!codeModelContent.text || !configContent.text) {
+    throw new Error("Failed to read code model or configuration files for playground server.");
+  }
+
+  const response = await fetch(`${serverUrl}/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      codeModel: codeModelContent.text,
+      configuration: configContent.text,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Playground server error (${response.status}): ${errorText}`);
+  }
+
+  const result: { files: Array<{ path: string; content: string }> } = await response.json();
+
+  for (const file of result.files) {
+    await sdkContext.program.host.writeFile(resolvePath(outputFolder, file.path), file.content);
+  }
+}
+
+/**
+ * Runs the .NET generator locally via subprocess.
+ * Uses dynamic imports for Node.js modules (fs, path, url) to keep the
+ * emitter module loadable in browser environments.
+ */
+async function runLocalGenerator(
+  sdkContext: CSharpEmitterContext,
+  diagnostics: ReturnType<typeof createDiagnosticCollector>,
+  options: {
+    outputFolder: string;
+    packageName: string;
+    generatorName: string;
+    newProject: boolean;
+    debug: boolean;
+    emitterExtensionPath?: string;
+    logger: Logger;
+  },
+): Promise<void> {
+  const fs = await import("fs");
+  const { dirname } = await import("path");
+  const { fileURLToPath } = await import("url");
+
+  const generatedFolder = resolvePath(options.outputFolder, "src", "Generated");
+
+  if (!fs.existsSync(generatedFolder)) {
+    fs.mkdirSync(generatedFolder, { recursive: true });
+  }
+
+  const csProjFile = resolvePath(
+    options.outputFolder,
+    "src",
+    `${options.packageName}.csproj`,
+  );
+  options.logger.info(`Checking if ${csProjFile} exists`);
+
+  const emitterPath = options.emitterExtensionPath ?? import.meta.url;
+  const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)), fs.statSync);
+  const generatorPath = resolvePath(
+    projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+  );
+
+  const checkFile = (path: string) => {
+    try {
+      return fs.statSync(path);
+    } catch {
+      return undefined;
+    }
+  };
+
   try {
-    return statSync(pkgPath);
-  } catch (error) {
-    return undefined;
+    const result = await execCSharpGenerator(sdkContext, {
+      generatorPath: generatorPath,
+      outputFolder: options.outputFolder,
+      generatorName: options.generatorName,
+      newProject: options.newProject || !checkFile(csProjFile),
+      debug: options.debug,
+    });
+    if (result.exitCode !== 0) {
+      const isValid = diagnostics.pipe(
+        await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
+      );
+      // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+      if (isValid) {
+        throw new Error(
+          `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+        );
+      }
+    }
+  } catch (error: any) {
+    const isValid = diagnostics.pipe(
+      await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
+    );
+    // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+    if (isValid) throw new Error(error, { cause: error });
   }
 }
