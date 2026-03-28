@@ -128,7 +128,7 @@ app.MapPost("/generate", async (HttpRequest request) =>
 
 var url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://localhost:5174";
 Console.WriteLine($"C# playground server listening on {url}");
-app.Run();
+app.Run(url);
 
 // --- Request/Response types ---
 
