@@ -8,18 +8,36 @@ export interface FileOutputProps {
   readonly filename: string;
   readonly content: string;
   readonly viewers: Record<string, FileOutputViewer>;
+  /** Line numbers to highlight as changed (1-based). */
+  readonly changedLineNumbers?: number[];
 }
 
 /**
  * Display a file output using different viewers.
  */
-export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, content, viewers }) => {
+export const FileOutput: FunctionComponent<FileOutputProps> = ({
+  filename,
+  content,
+  viewers,
+  changedLineNumbers,
+}) => {
   const resolvedViewers: Record<string, FileOutputViewer> = useMemo(
     () => ({
-      [RawFileViewer.key]: RawFileViewer,
+      [RawFileViewer.key]: changedLineNumbers
+        ? {
+            ...RawFileViewer,
+            render: ({ filename, content }: { filename: string; content: string }) => (
+              <OutputEditor
+                filename={filename}
+                value={content}
+                changedLineNumbers={changedLineNumbers}
+              />
+            ),
+          }
+        : RawFileViewer,
       ...viewers,
     }),
-    [viewers],
+    [viewers, changedLineNumbers],
   );
   const keys = Object.keys(resolvedViewers);
 

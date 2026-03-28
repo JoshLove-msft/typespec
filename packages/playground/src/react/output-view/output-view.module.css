@@ -41,3 +41,17 @@
 .viewer-error {
   padding: 20px;
 }
+
+.output-compiling {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.output-compiling-overlay {
+  position: absolute;
+  top: 8px;
+  right: 40px;
+  z-index: 10;
+}

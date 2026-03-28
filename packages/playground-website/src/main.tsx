@@ -68,6 +68,7 @@ const App = () => {
         "@typespec/openapi3": [SwaggerUIViewer],
         "@typespec/http-client-csharp": [],
       }}
+      emittersWithChangeHighlighting={new Set(["@typespec/http-client-csharp"])}
       defaultPlaygroundState={{
         compilerOptions: {
           options: {

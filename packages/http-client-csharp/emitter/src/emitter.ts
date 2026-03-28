@@ -114,12 +114,16 @@ export async function emitCodeModel(
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      if (options["playground-server-url"]) {
+      const playgroundServerUrl =
+        options["playground-server-url"] ||
+        (typeof globalThis.process === "undefined" ? "http://localhost:5174" : undefined);
+
+      if (playgroundServerUrl) {
         // Playground mode: serialize and send directly to server without writing to virtual FS
         const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
         const configJson = JSON.stringify(configurations, null, 2) + "\n";
         await generateViaPlaygroundServer(
-          options["playground-server-url"],
+          playgroundServerUrl,
           sdkContext,
           outputFolder,
           codeModelJson,
