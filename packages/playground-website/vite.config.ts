@@ -30,11 +30,16 @@ export default defineConfig(({ mode }) => {
   );
 
   const prNumber = getPrNumber();
-  if (prNumber) {
-    config.define = {
+  const playgroundServerUrl = env["VITE_PLAYGROUND_SERVER_URL"];
+  config.define = {
+    ...config.define,
+    ...(prNumber && {
       __PR__: JSON.stringify(prNumber),
       __COMMIT_HASH__: JSON.stringify(getCommit()),
-    };
-  }
+    }),
+    ...(playgroundServerUrl && {
+      __PLAYGROUND_SERVER_URL__: JSON.stringify(playgroundServerUrl),
+    }),
+  };
   return config;
 });

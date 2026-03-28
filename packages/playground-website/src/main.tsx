@@ -50,6 +50,13 @@ const onFileBug = () => {
   window.open(url, "_blank");
 };
 
+declare const __PLAYGROUND_SERVER_URL__: string | undefined;
+
+const playgroundServerUrl =
+  typeof __PLAYGROUND_SERVER_URL__ !== "undefined"
+    ? __PLAYGROUND_SERVER_URL__
+    : "http://localhost:5174";
+
 const App = () => {
   const importItem = useImportCommandBarItem();
 
@@ -60,6 +67,15 @@ const App = () => {
       emitterViewers={{
         "@typespec/openapi3": [SwaggerUIViewer],
         "@typespec/http-client-csharp": [],
+      }}
+      defaultPlaygroundState={{
+        compilerOptions: {
+          options: {
+            "@typespec/http-client-csharp": {
+              "playground-server-url": playgroundServerUrl,
+            },
+          },
+        },
       }}
       importConfig={{ useShim: true }}
       footer={<PlaygroundFooter />}

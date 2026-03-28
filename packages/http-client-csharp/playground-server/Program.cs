@@ -27,9 +27,9 @@ app.UseCors(policy => policy
     .AllowAnyMethod()
     .AllowAnyHeader());
 
-// Resolve the generator DLL path. Default: sibling dist/generator directory from the emitter package.
+// Resolve the generator DLL path. Default: dist/generator in the http-client-csharp package.
 var generatorPath = Environment.GetEnvironmentVariable("GENERATOR_PATH")
-    ?? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "dist", "generator", "Microsoft.TypeSpec.Generator.dll"));
+    ?? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "dist", "generator", "Microsoft.TypeSpec.Generator.dll"));
 
 if (!File.Exists(generatorPath))
 {
