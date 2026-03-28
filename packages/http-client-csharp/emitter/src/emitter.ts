@@ -12,7 +12,7 @@ import {
   Program,
   resolvePath,
 } from "@typespec/compiler";
-import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
+import { writeCodeModel, writeConfiguration, serializeCodeModel } from "./code-model-writer.js";
 import {
   _minSupportedDotNetSdkVersion,
   configurationFileName,
@@ -111,24 +111,25 @@ export async function emitCodeModel(
       // Apply optional code model update callback
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
-      // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
-
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      //emit configuration.json
-      await writeConfiguration(sdkContext, configurations, outputFolder);
-
       if (options["playground-server-url"]) {
-        // Playground mode: send code model to remote server for C# generation
+        // Playground mode: serialize and send directly to server without writing to virtual FS
+        const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
+        const configJson = JSON.stringify(configurations, null, 2) + "\n";
         await generateViaPlaygroundServer(
           options["playground-server-url"],
           sdkContext,
           outputFolder,
+          codeModelJson,
+          configJson,
         );
       } else {
-        // Local mode: run .NET generator via subprocess (requires Node.js + .NET SDK)
+        // Local mode: write files and run .NET generator
+        await writeCodeModel(sdkContext, updatedRoot, outputFolder);
+        await writeConfiguration(sdkContext, configurations, outputFolder);
+
         await runLocalGenerator(sdkContext, diagnostics, {
           outputFolder,
           packageName: configurations["package-name"] ?? "",
@@ -138,12 +139,11 @@ export async function emitCodeModel(
           emitterExtensionPath: options["emitter-extension-path"],
           logger,
         });
-      }
 
-      if (!options["save-inputs"]) {
-        // delete
-        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
-        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
+        if (!options["save-inputs"]) {
+          context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
+          context.program.host.rm(resolvePath(outputFolder, configurationFileName));
+        }
       }
     }
   }
@@ -279,24 +279,15 @@ async function generateViaPlaygroundServer(
   serverUrl: string,
   sdkContext: CSharpEmitterContext,
   outputFolder: string,
+  codeModelJson: string,
+  configJson: string,
 ): Promise<void> {
-  const codeModelContent = await sdkContext.program.host.readFile(
-    resolvePath(outputFolder, tspOutputFileName),
-  );
-  const configContent = await sdkContext.program.host.readFile(
-    resolvePath(outputFolder, configurationFileName),
-  );
-
-  if (!codeModelContent.text || !configContent.text) {
-    throw new Error("Failed to read code model or configuration files for playground server.");
-  }
-
   const response = await fetch(`${serverUrl}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      codeModel: codeModelContent.text,
-      configuration: configContent.text,
+      codeModel: codeModelJson,
+      configuration: configJson,
     }),
   });
 
