@@ -57,7 +57,10 @@ const App = () => {
     <StandalonePlayground
       {...PlaygroundManifest}
       samples={samples}
-      emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
+      emitterViewers={{
+        "@typespec/openapi3": [SwaggerUIViewer],
+        "@typespec/http-client-csharp": [],
+      }}
       importConfig={{ useShim: true }}
       footer={<PlaygroundFooter />}
       commandBarItems={[importItem]}
