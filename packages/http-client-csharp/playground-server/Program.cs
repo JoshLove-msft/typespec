@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,12 +22,26 @@ if (!string.IsNullOrEmpty(playgroundUrl) && Uri.TryCreate(playgroundUrl, UriKind
 }
 
 builder.Services.AddCors();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = 429;
+    options.AddFixedWindowLimiter("generate", limiter =>
+    {
+        limiter.PermitLimit = 10;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 2;
+        limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+});
+
 var app = builder.Build();
 
 app.UseCors(policy => policy
     .WithOrigins([.. allowedOrigins])
     .AllowAnyMethod()
     .AllowAnyHeader());
+
+app.UseRateLimiter();
 
 // Resolve the generator DLL path. Default: dist/generator in the http-client-csharp package.
 var generatorPath = Environment.GetEnvironmentVariable("GENERATOR_PATH")
@@ -124,7 +140,7 @@ app.MapPost("/generate", async (HttpRequest request) =>
         // Clean up temp directory
         try { Directory.Delete(tempDir, recursive: true); } catch { }
     }
-});
+}).RequireRateLimiting("generate");
 
 var url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://localhost:5174";
 Console.WriteLine($"C# playground server listening on {url}");
