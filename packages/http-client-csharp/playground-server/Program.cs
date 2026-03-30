@@ -90,11 +90,13 @@ app.MapPost("/generate", async (HttpRequest request) =>
         await File.WriteAllTextAsync(Path.Combine(tempDir, "tspCodeModel.json"), body.CodeModel);
         await File.WriteAllTextAsync(Path.Combine(tempDir, "Configuration.json"), body.Configuration);
 
+        var generatorName = body.GeneratorName ?? "ScmCodeModelGenerator";
+
         // Run the .NET generator as a subprocess (same approach as the TypeSpec emitter)
         var psi = new ProcessStartInfo
         {
             FileName = "dotnet",
-            ArgumentList = { "--roll-forward", "Major", generatorPath, tempDir, "-g", "ScmCodeModelGenerator", "--new-project" },
+            ArgumentList = { "--roll-forward", "Major", generatorPath, tempDir, "-g", generatorName, "--new-project" },
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -148,7 +150,7 @@ app.Run(url);
 
 // --- Request/Response types ---
 
-record GenerateRequest(string? CodeModel, string? Configuration);
+record GenerateRequest(string? CodeModel, string? Configuration, string? GeneratorName);
 record GeneratedFile(string Path, string Content);
 record GenerateResponse(List<GeneratedFile> Files);
 record GenerateErrorResponse(string Error, string? Details);

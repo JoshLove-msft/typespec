@@ -128,6 +128,7 @@ export async function emitCodeModel(
           outputFolder,
           codeModelJson,
           configJson,
+          options["generator-name"],
         );
       } else {
         // Local mode: write files and run .NET generator
@@ -285,6 +286,7 @@ async function generateViaPlaygroundServer(
   outputFolder: string,
   codeModelJson: string,
   configJson: string,
+  generatorName: string,
 ): Promise<void> {
   const response = await fetch(`${serverUrl}/generate`, {
     method: "POST",
@@ -292,6 +294,7 @@ async function generateViaPlaygroundServer(
     body: JSON.stringify({
       codeModel: codeModelJson,
       configuration: configJson,
+      generatorName,
     }),
   });
 
