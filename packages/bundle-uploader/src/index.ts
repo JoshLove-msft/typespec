@@ -21,25 +21,18 @@ export interface BundleAndUploadStandalonePackageOptions {
    * Absolute path to the package directory.
    */
   packagePath: string;
-
-  /**
-   * Name for the index (e.g. "@typespec/http-client-csharp").
-   * Defaults to the package name from package.json.
-   */
-  indexName?: string;
 }
 
 /**
  * Bundle and upload a standalone package that is not part of the pnpm workspace.
- * Creates both a versioned index and a latest.json index.
+ * Uploads the bundle files and writes a `latest.json` under the package's blob directory
+ * (e.g. `@typespec/http-client-csharp/latest.json`).
  */
 export async function bundleAndUploadStandalonePackage({
   packagePath,
-  indexName: indexNameOverride,
 }: BundleAndUploadStandalonePackageOptions) {
   const bundle = await createTypeSpecBundle(packagePath);
   const manifest = bundle.manifest;
-  const indexName = indexNameOverride ?? manifest.name;
   logInfo(`Bundling standalone package: ${manifest.name}@${manifest.version}`);
 
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
@@ -57,14 +50,11 @@ export async function bundleAndUploadStandalonePackage({
     importMap[joinUnix(manifest.name, key)] = value;
   }
 
-  const index = {
+  await uploader.updatePackageLatest(manifest.name, {
     version: manifest.version,
     imports: importMap,
-  };
-  await uploader.updateIndex(indexName, index);
-  logSuccess(`Updated index for ${indexName}@${manifest.version}.`);
-  await uploader.updateLatestIndex(indexName, index);
-  logSuccess(`Updated latest index for ${indexName}.`);
+  });
+  logSuccess(`Updated ${manifest.name}/latest.json for version ${manifest.version}.`);
 }
 
 export interface BundleAndUploadPackagesOptions {

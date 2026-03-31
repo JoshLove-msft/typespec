@@ -18,7 +18,7 @@ async function fetchAdditionalPackageImports(
 
   const results = await Promise.allSettled(
     packageNames.map(async (name) => {
-      const url = `${pkgsBaseUrl}/indexes/${name}/latest.json`;
+      const url = `${pkgsBaseUrl}/${name}/latest.json`;
       const response = await fetch(url);
       if (!response.ok) {
         console.warn(`Failed to load latest index for ${name}: ${response.status}`);
