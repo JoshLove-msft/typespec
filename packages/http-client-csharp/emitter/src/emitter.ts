@@ -116,7 +116,9 @@ export async function emitCodeModel(
 
       const playgroundServerUrl =
         options["playground-server-url"] ||
-        (typeof globalThis.process === "undefined" ? "http://localhost:5174" : undefined);
+        (typeof globalThis.process === "undefined"
+          ? ((globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ ?? "http://localhost:5174")
+          : undefined);
 
       if (playgroundServerUrl) {
         // Playground mode: serialize and send directly to server without writing to virtual FS
