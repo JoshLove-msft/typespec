@@ -15,9 +15,6 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/events",
     "@typespec/sse",
     "@typespec/xml",
-    "@azure-tools/typespec-azure-core",
-    "@azure-tools/typespec-client-generator-core",
-    "@typespec/http-client-csharp",
   ],
   samples,
 } as const;

@@ -6,9 +6,3 @@ body {
 .pr-footer {
   background-color: #ce662a;
 }
-
-/* Highlight changed lines in generated output */
-.playground-changed-line {
-  background-color: rgba(35, 134, 54, 0.2);
-  border-left: 3px solid #2ea043;
-}

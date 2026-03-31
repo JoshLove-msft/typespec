@@ -58,10 +58,6 @@ jobs:
       - name: Install
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build http-client-csharp emitter (for playground)
-        run: npm ci && npm run build:emitter
-        working-directory: core/packages/http-client-csharp
-
       - name: Install Playwright
         run: pnpm exec playwright install
 

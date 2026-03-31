@@ -70,10 +70,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build http-client-csharp emitter (for playground)
-        run: npm ci && npm run build:emitter
-        working-directory: packages/http-client-csharp
-
       - name: Restore .NET dependencies
         run: dotnet restore
         working-directory: packages/typespec-vs
