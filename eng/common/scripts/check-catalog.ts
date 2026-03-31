@@ -25,6 +25,12 @@ const catalog = workspaceConfig.catalog ?? {};
 const exceptions: Record<string, Set<string>> = {
   // vsce needs a real semver for @types/vscode to determine VS Code engine compatibility
   "packages/typespec-vscode/package.json": new Set(["@types/vscode"]),
+  // http-client-csharp is outside the pnpm workspace; these use link:/explicit versions
+  "packages/playground-website/package.json": new Set([
+    "@azure-tools/typespec-azure-core",
+    "@azure-tools/typespec-client-generator-core",
+    "@typespec/http-client-csharp",
+  ]),
 };
 
 const depTypes = ["dependencies", "devDependencies", "peerDependencies"] as const;
