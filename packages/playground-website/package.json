@@ -72,7 +72,7 @@
     "@typespec/xml": "workspace:^",
     "@azure-tools/typespec-azure-core": ">=0.66.0 <0.67.0",
     "@azure-tools/typespec-client-generator-core": ">=0.66.3 <0.67.0",
-    "@typespec/http-client-csharp": "file:../http-client-csharp",
+    "@typespec/http-client-csharp": "link:../http-client-csharp",
     "es-module-shims": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
