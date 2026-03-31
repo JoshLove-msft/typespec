@@ -64,6 +64,7 @@ extends:
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          UploadPlaygroundBundle: true
           AdditionalInitializeSteps:
             - task: UseDotNet@2
               inputs:

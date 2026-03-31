@@ -16,6 +16,57 @@ function logSuccess(message: string) {
   logInfo(pc.green(`✔ ${message}`));
 }
 
+export interface BundleAndUploadStandalonePackageOptions {
+  /**
+   * Absolute path to the package directory.
+   */
+  packagePath: string;
+
+  /**
+   * Name for the index (e.g. "@typespec/http-client-csharp").
+   * Defaults to the package name from package.json.
+   */
+  indexName?: string;
+}
+
+/**
+ * Bundle and upload a standalone package that is not part of the pnpm workspace.
+ * Creates both a versioned index and a latest.json index.
+ */
+export async function bundleAndUploadStandalonePackage({
+  packagePath,
+  indexName: indexNameOverride,
+}: BundleAndUploadStandalonePackageOptions) {
+  const bundle = await createTypeSpecBundle(packagePath);
+  const manifest = bundle.manifest;
+  const indexName = indexNameOverride ?? manifest.name;
+  logInfo(`Bundling standalone package: ${manifest.name}@${manifest.version}`);
+
+  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
+  await uploader.createIfNotExists();
+
+  const result = await uploader.upload(bundle);
+  if (result.status === "uploaded") {
+    logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
+  } else {
+    logInfo(`Bundle for package ${manifest.name} already exists for version ${manifest.version}.`);
+  }
+
+  const importMap: Record<string, string> = {};
+  for (const [key, value] of Object.entries(result.imports)) {
+    importMap[joinUnix(manifest.name, key)] = value;
+  }
+
+  const index = {
+    version: manifest.version,
+    imports: importMap,
+  };
+  await uploader.updateIndex(indexName, index);
+  logSuccess(`Updated index for ${indexName}@${manifest.version}.`);
+  await uploader.updateLatestIndex(indexName, index);
+  logSuccess(`Updated latest index for ${indexName}.`);
+}
+
 export interface BundleAndUploadPackagesOptions {
   repoRoot: string;
   /**
@@ -85,9 +136,12 @@ export async function bundleAndUploadPackages({
     }
   }
   logInfo(`Import map for ${indexVersion}:`, importMap);
-  await uploader.updateIndex(indexName, {
+  const index = {
     version: indexVersion,
     imports: importMap,
-  });
+  };
+  await uploader.updateIndex(indexName, index);
   logSuccess(`Updated index for version ${indexVersion}.`);
+  await uploader.updateLatestIndex(indexName, index);
+  logSuccess(`Updated latest index for ${indexName}.`);
 }
