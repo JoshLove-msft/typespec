@@ -344,7 +344,7 @@ stages:
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)
-                  - script: pnpm build --filter "@typespec/bundle-uploader..."
+                  - script: pnpm --filter "@typespec/bundle-uploader..." build
                     displayName: Build bundle-uploader
                     workingDirectory: $(Build.SourcesDirectory)
                   - task: AzureCLI@1
