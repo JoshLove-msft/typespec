@@ -10,6 +10,8 @@ if (!packageRelativePath) {
   process.exit(1);
 }
 
-const packagePath = resolve(repoRoot, packageRelativePath);
+// Strip leading "/" so resolve() doesn't treat it as an absolute path.
+// Pipeline PackagePath values start with "/" (e.g. "/packages/http-client-csharp").
+const packagePath = resolve(repoRoot, packageRelativePath.replace(/^\//, ""));
 
 await bundleAndUploadStandalonePackage({ packagePath });
