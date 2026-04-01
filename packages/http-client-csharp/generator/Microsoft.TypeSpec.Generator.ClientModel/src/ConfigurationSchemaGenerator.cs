@@ -117,6 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             // Add custom constructor parameters from custom code (e.g., hand-written constructors
             // added via partial classes) that are not already covered by generated parameters.
+            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
             var customConstructors = client.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -128,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName))
+                        if (!knownProps.Contains(propName) &&
+                            !ClientSettingsProvider.IsStandardParameterType(param.Type))
                         {
                             properties[propName] = GetJsonSchemaForType(param.Type, localDefinitions);
                             knownProps.Add(propName);
