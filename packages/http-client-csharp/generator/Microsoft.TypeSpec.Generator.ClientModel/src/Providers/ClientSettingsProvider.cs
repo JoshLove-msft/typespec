@@ -105,6 +105,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this));
             }
 
+            // Include custom constructor parameters from custom code (e.g., hand-written constructors
+            // added via partial classes) that are not already covered by generated parameters.
+            var knownProps = new HashSet<string>(properties.Select(p => p.Name));
+            knownProps.Add("Credential");
+            knownProps.Add("Options");
+            var customConstructors = _clientProvider.CustomCodeView?.Constructors;
+            if (customConstructors != null)
+            {
+                foreach (var ctor in customConstructors)
+                {
+                    foreach (var param in ctor.Signature.Parameters)
+                    {
+                        var propName = param.Name.ToIdentifierName();
+                        if (!knownProps.Contains(propName))
+                        {
+                            properties.Add(new PropertyProvider(
+                                null,
+                                MethodSignatureModifiers.Public,
+                                param.Type.WithNullable(true),
+                                propName,
+                                new AutoPropertyBody(true),
+                                this));
+                            knownProps.Add(propName);
+                        }
+                    }
+                }
+            }
+
             var clientOptions = _clientProvider.EffectiveClientOptions;
             if (clientOptions != null)
             {
@@ -134,6 +162,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var propName = param.Name.ToIdentifierName();
                 AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
+            }
+
+            // Bind custom constructor parameters from custom code
+            var knownProps = new HashSet<string>();
+            if (EndpointProperty != null)
+            {
+                knownProps.Add(EndpointProperty.Name);
+            }
+            foreach (var param in OtherRequiredParams)
+            {
+                knownProps.Add(param.Name.ToIdentifierName());
+            }
+            knownProps.Add("Credential");
+            knownProps.Add("Options");
+            var customConstructors = _clientProvider.CustomCodeView?.Constructors;
+            if (customConstructors != null)
+            {
+                foreach (var ctor in customConstructors)
+                {
+                    foreach (var param in ctor.Signature.Parameters)
+                    {
+                        var propName = param.Name.ToIdentifierName();
+                        if (!knownProps.Contains(propName))
+                        {
+                            AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
+                            knownProps.Add(propName);
+                        }
+                    }
+                }
             }
 
             var clientOptions = _clientProvider.EffectiveClientOptions;
