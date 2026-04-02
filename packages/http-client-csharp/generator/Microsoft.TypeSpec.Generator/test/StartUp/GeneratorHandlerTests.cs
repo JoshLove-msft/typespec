@@ -7,6 +7,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Moq;
 using NUnit.Framework;
 
@@ -182,6 +183,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             {
                 File.Delete(Path.Combine(plugin1Directory, "Plugin1.dll"));
                 File.Delete(Path.Combine(plugin2Directory, "Plugin2.dll"));
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_BuildsProjectAndReturnsDllPath()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Create a minimal .csproj
+                File.WriteAllText(Path.Combine(testDir, "TestPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                // Create a minimal .cs file (doesn't need to be a real plugin for the build test)
+                File.WriteAllText(Path.Combine(testDir, "TestPlugin.cs"), @"
+namespace TestPlugin
+{
+    public class Dummy { }
+}");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "TestPlugin.csproj"),
+                    emitter);
+
+                Assert.IsNotNull(result, "BuildPlugin should return a DLL path");
+                Assert.IsTrue(result!.EndsWith("TestPlugin.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_ThrowsOnInvalidProject()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Create an invalid .csproj
+                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
+
+                using var emitter = new Emitter(Stream.Null);
+
+                Assert.Throws<InvalidOperationException>(() =>
+                    GeneratorHandler.BuildPlugin(
+                        Path.Combine(testDir, "Bad.csproj"),
+                        emitter));
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
             }
         }
     }

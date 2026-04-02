@@ -201,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Builds a plugin .csproj and returns the path to the output DLL.
         /// </summary>
-        private static string? BuildPlugin(string csprojPath, Emitter emitter)
+        internal static string? BuildPlugin(string csprojPath, Emitter emitter)
         {
             emitter.Info($"Building plugin: {csprojPath}");
 
