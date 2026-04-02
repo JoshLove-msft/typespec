@@ -24,9 +24,13 @@ namespace Microsoft.TypeSpec.Generator
 
             AddPluginDlls(catalog);
 
+            // Load plugins specified via the 'plugin' configuration option
+            var configuration = Configuration.Load(options.OutputDirectory);
+            AddConfiguredPluginDlls(catalog, configuration);
+
             using CompositionContainer container = new(catalog);
 
-            container.ComposeExportedValue(new GeneratorContext(Configuration.Load(options.OutputDirectory)));
+            container.ComposeExportedValue(new GeneratorContext(configuration));
             container.ComposeParts(this);
 
             SelectGenerator(options);
@@ -84,6 +88,61 @@ namespace Microsoft.TypeSpec.Generator
                     emitter.Info($"Warning: Failed to load catalog for {kvp.Value.Path}: {ex.Message}");
                 }
             }
+        }
+
+        private const string PluginOptionKey = "plugin";
+
+        /// <summary>
+        /// Loads plugin assemblies from a path specified via the 'plugin' configuration option.
+        /// Supports both a single DLL path and a directory containing plugin assemblies.
+        /// </summary>
+        private static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
+        {
+            if (!configuration.AdditionalConfigurationOptions.TryGetValue(PluginOptionKey, out var value))
+            {
+                return;
+            }
+
+            var pluginPath = value.ToString().Trim('"');
+            if (string.IsNullOrEmpty(pluginPath))
+            {
+                return;
+            }
+
+            using var emitter = new Emitter(Console.OpenStandardOutput());
+
+            if (File.Exists(pluginPath) && pluginPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    catalog.Catalogs.Add(new AssemblyCatalog(pluginPath));
+                }
+                catch (Exception ex)
+                {
+                    emitter.Info($"Warning: Failed to load plugin from {pluginPath}: {ex.Message}");
+                }
+                return;
+            }
+
+            if (Directory.Exists(pluginPath))
+            {
+                foreach (var dll in Directory.EnumerateFiles(pluginPath, "*.dll"))
+                {
+                    try
+                    {
+                        catalog.Catalogs.Add(new AssemblyCatalog(dll));
+                    }
+                    catch
+                    {
+                        // Skip DLLs that can't be loaded as MEF catalogs (e.g. native DLLs)
+                    }
+                }
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"Plugin path '{pluginPath}' does not exist. " +
+                $"Specify a path to a DLL file or a directory containing plugin assemblies.");
         }
 
         internal static IList<string> GetOrderedPluginDlls(string pluginDirectoryStart)
