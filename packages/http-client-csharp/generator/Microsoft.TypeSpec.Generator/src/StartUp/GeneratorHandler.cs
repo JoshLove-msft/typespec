@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,13 +39,55 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddPluginDlls(AggregateCatalog catalog)
         {
-            var dllPathsInOrder = GetOrderedPluginDlls(AppContext.BaseDirectory);
+            string? rootDirectory = FindRootDirectory(AppContext.BaseDirectory);
+            if (rootDirectory == null)
+            {
+                return;
+            }
+
+            var packagePath = Path.Combine(rootDirectory, "package.json");
+            if (!File.Exists(packagePath))
+            {
+                return;
+            }
+
+            using var doc = JsonDocument.Parse(File.ReadAllText(packagePath));
+            if (!doc.RootElement.TryGetProperty("dependencies", out var deps))
+            {
+                return;
+            }
+
+            // We need to construct the emitter independently as the CodeModelGenerator is not yet initialized.
+            using var emitter = new Emitter(Console.OpenStandardOutput());
+
+            var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
+            var dllPathsInOrder = new List<string>();
+
+            foreach (var package in packageNamesInOrder)
+            {
+                var packageDir = Path.Combine(rootDirectory, NodeModulesDir, package);
+                var packageDistPath = Path.Combine(packageDir, "dist");
+
+                if (Directory.Exists(packageDistPath))
+                {
+                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
+                    dllPathsInOrder.AddRange(dlls);
+                }
+                else
+                {
+                    // No pre-built DLLs — look for a .csproj to build
+                    var builtDll = BuildPluginIfNeeded(packageDir, emitter);
+                    if (builtDll != null)
+                    {
+                        dllPathsInOrder.Add(builtDll);
+                    }
+                }
+            }
+
             if (dllPathsInOrder.Count == 0)
             {
                 return;
             }
-            // We need to construct the emitter independently as the CodeModelGenerator is not yet initialized.
-            using var emitter = new Emitter(Console.OpenStandardOutput());
 
             var highestVersions = new Dictionary<string, (Version Version, string Path)>(StringComparer.OrdinalIgnoreCase);
             foreach (var dllPath in dllPathsInOrder)
@@ -91,8 +134,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Loads plugin assemblies from paths specified via the 'plugins' configuration option.
-        /// Supports both single DLL paths and directories containing plugin assemblies.
+        /// Loads plugin assemblies from directory paths specified via the 'plugins' configuration option.
+        /// If a directory contains a .csproj file, the project is built first to produce the plugin assembly.
         /// </summary>
         private static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
         {
@@ -111,21 +154,20 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (File.Exists(pluginPath) && pluginPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                if (!Directory.Exists(pluginPath))
                 {
-                    try
-                    {
-                        catalog.Catalogs.Add(new AssemblyCatalog(pluginPath));
-                    }
-                    catch (Exception ex)
-                    {
-                        emitter.Info($"Warning: Failed to load plugin from {pluginPath}: {ex.Message}");
-                    }
-                    continue;
+                    throw new InvalidOperationException(
+                        $"Plugin path '{pluginPath}' is not a valid directory.");
                 }
 
-                if (Directory.Exists(pluginPath))
+                var builtDll = BuildPluginIfNeeded(pluginPath, emitter);
+                if (builtDll != null)
                 {
+                    catalog.Catalogs.Add(new AssemblyCatalog(builtDll));
+                }
+                else
+                {
+                    // No .csproj found — scan for pre-built DLLs
                     foreach (var dll in Directory.EnumerateFiles(pluginPath, "*.dll"))
                     {
                         try
@@ -137,13 +179,75 @@ namespace Microsoft.TypeSpec.Generator
                             // Skip DLLs that can't be loaded as MEF catalogs (e.g. native DLLs)
                         }
                     }
-                    continue;
                 }
-
-                throw new InvalidOperationException(
-                    $"Plugin path '{pluginPath}' does not exist. " +
-                    $"Specify a path to a DLL file or a directory containing plugin assemblies.");
             }
+        }
+
+        /// <summary>
+        /// Looks for a .csproj in the given directory (recursively) and builds it if found.
+        /// Returns the path to the built DLL, or null if no .csproj was found.
+        /// </summary>
+        private static string? BuildPluginIfNeeded(string directory, Emitter emitter)
+        {
+            var csprojFiles = Directory.GetFiles(directory, "*.csproj", SearchOption.AllDirectories);
+            if (csprojFiles.Length == 0)
+            {
+                return null;
+            }
+
+            return BuildPlugin(csprojFiles[0], emitter);
+        }
+
+        /// <summary>
+        /// Builds a plugin .csproj and returns the path to the output DLL.
+        /// </summary>
+        private static string? BuildPlugin(string csprojPath, Emitter emitter)
+        {
+            emitter.Info($"Building plugin: {csprojPath}");
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    Arguments = $"build \"{csprojPath}\" -c Release",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            var stdout = process.StandardOutput.ReadToEnd();
+            var stderr = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
+            }
+
+            // Parse the build output to find the produced DLL path.
+            // dotnet build outputs a line like: "  MyPlugin -> /path/to/bin/Release/net10.0/MyPlugin.dll"
+            foreach (var line in stdout.Split('\n'))
+            {
+                var trimmed = line.Trim();
+                var arrowIndex = trimmed.IndexOf(" -> ", StringComparison.Ordinal);
+                if (arrowIndex >= 0)
+                {
+                    var dllPath = trimmed[(arrowIndex + 4)..].Trim();
+                    if (dllPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) && File.Exists(dllPath))
+                    {
+                        emitter.Info($"Plugin built: {dllPath}");
+                        return dllPath;
+                    }
+                }
+            }
+
+            emitter.Info($"Warning: Build succeeded but could not determine output DLL path for '{csprojPath}'");
+            return null;
         }
 
         internal static IList<string> GetOrderedPluginDlls(string pluginDirectoryStart)
