@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator
 
             AddPluginDlls(catalog);
 
-            // Load plugins specified via the 'plugin' configuration option
+            // Load plugins specified via the 'plugins' configuration option
             var configuration = Configuration.Load(options.OutputDirectory);
             AddConfiguredPluginDlls(catalog, configuration);
 
@@ -90,10 +90,8 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private const string PluginOptionKey = "plugin";
-
         /// <summary>
-        /// Loads plugin assemblies from paths specified via the 'plugin' configuration option.
+        /// Loads plugin assemblies from paths specified via the 'plugins' configuration option.
         /// Supports both single DLL paths and directories containing plugin assemblies.
         /// </summary>
         private static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
