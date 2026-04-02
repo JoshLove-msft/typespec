@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo,
-            string? pluginPath = null)
+            IReadOnlyList<string>? pluginPaths = null)
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
-            PluginPath = pluginPath;
+            PluginPaths = pluginPaths;
         }
 
         /// <summary>
@@ -90,11 +90,11 @@ namespace Microsoft.TypeSpec.Generator
         public string PackageName { get; }
 
         /// <summary>
-        /// Gets the path to a plugin assembly (DLL) or directory containing plugin assemblies.
-        /// When specified, the generator loads plugins from this path in addition to any
+        /// Gets the paths to plugin assemblies (DLLs) or directories containing plugin assemblies.
+        /// When specified, the generator loads plugins from these paths in addition to any
         /// plugins discovered via node_modules.
         /// </summary>
-        public string? PluginPath { get; }
+        public IReadOnlyList<string>? PluginPaths { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
-                ReadStringOption(root, Options.Plugin));
+                ReadStringArrayOption(root, Options.Plugin));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -199,6 +199,25 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (root.TryGetProperty(option, out JsonElement value))
                 return value.GetString();
+
+            return null;
+        }
+
+        private static IReadOnlyList<string>? ReadStringArrayOption(JsonElement root, string option)
+        {
+            if (root.TryGetProperty(option, out JsonElement value) && value.ValueKind == JsonValueKind.Array)
+            {
+                var list = new List<string>();
+                foreach (var item in value.EnumerateArray())
+                {
+                    var str = item.GetString();
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        list.Add(str);
+                    }
+                }
+                return list.Count > 0 ? list : null;
+            }
 
             return null;
         }
