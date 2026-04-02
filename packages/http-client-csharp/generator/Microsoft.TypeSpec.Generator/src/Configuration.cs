@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
-            public const string Plugin = "plugin";
+            public const string Plugins = "plugins";
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
-                ReadStringArrayOption(root, Options.Plugin));
+                ReadStringArrayOption(root, Options.Plugins));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -175,7 +175,7 @@ namespace Microsoft.TypeSpec.Generator
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
-            Options.Plugin,
+            Options.Plugins,
         };
 
         private static bool ReadOption(JsonElement root, string option)

@@ -85,8 +85,8 @@ export async function emitCodeModel(
   const outputFolder = context.emitterOutputDir;
 
   // Resolve plugin paths to absolute if specified
-  if (options["plugin"]) {
-    options["plugin"] = options["plugin"].map((p) => resolve(outputFolder, p));
+  if (options["plugins"]) {
+    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
   }
 
   /* set the log level. */
