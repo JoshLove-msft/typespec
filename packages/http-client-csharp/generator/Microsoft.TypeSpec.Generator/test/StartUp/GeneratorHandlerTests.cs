@@ -246,5 +246,88 @@ namespace TestPlugin
                 try { Directory.Delete(testDir, true); } catch { }
             }
         }
+
+        [Test]
+        public void BuildPluginIfNeeded_ReturnsNullWhenNoCsproj()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+                File.WriteAllText(Path.Combine(testDir, "readme.txt"), "no csproj here");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPluginIfNeeded(testDir, emitter);
+
+                Assert.IsNull(result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPluginIfNeeded_FindsCsprojInSubdirectory()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            var srcDir = Path.Combine(testDir, "src");
+            try
+            {
+                Directory.CreateDirectory(srcDir);
+
+                File.WriteAllText(Path.Combine(srcDir, "SubPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(srcDir, "SubPlugin.cs"), @"
+namespace SubPlugin { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPluginIfNeeded(testDir, emitter);
+
+                Assert.IsNotNull(result);
+                Assert.IsTrue(result!.EndsWith("SubPlugin.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result));
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_OutputDllContainsCompiledType()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "TypedPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "MyType.cs"), @"
+namespace TypedPlugin { public class MyType { public int Value => 42; } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var dllPath = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "TypedPlugin.csproj"), emitter);
+
+                Assert.IsNotNull(dllPath);
+                var asm = System.Reflection.Assembly.LoadFrom(dllPath!);
+                var type = asm.GetType("TypedPlugin.MyType");
+                Assert.IsNotNull(type, "Compiled assembly should contain MyType");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
     }
 }

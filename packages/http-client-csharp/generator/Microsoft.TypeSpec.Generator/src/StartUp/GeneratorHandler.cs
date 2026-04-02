@@ -187,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator
         /// Looks for a .csproj in the given directory (recursively) and builds it if found.
         /// Returns the path to the built DLL, or null if no .csproj was found.
         /// </summary>
-        private static string? BuildPluginIfNeeded(string directory, Emitter emitter)
+        internal static string? BuildPluginIfNeeded(string directory, Emitter emitter)
         {
             var csprojFiles = Directory.GetFiles(directory, "*.csproj", SearchOption.AllDirectories);
             if (csprojFiles.Length == 0)
