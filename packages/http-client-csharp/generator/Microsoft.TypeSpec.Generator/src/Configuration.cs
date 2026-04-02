@@ -35,7 +35,8 @@ namespace Microsoft.TypeSpec.Generator
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
-            LicenseInfo? licenseInfo)
+            LicenseInfo? licenseInfo,
+            string? pluginPath = null)
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
@@ -43,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
+            PluginPath = pluginPath;
         }
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
+            public const string Plugin = "plugin";
         }
 
         /// <summary>
@@ -85,6 +88,13 @@ namespace Microsoft.TypeSpec.Generator
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         public string PackageName { get; }
+
+        /// <summary>
+        /// Gets the path to a plugin assembly (DLL) or directory containing plugin assemblies.
+        /// When specified, the generator loads plugins from this path in addition to any
+        /// plugins discovered via node_modules.
+        /// </summary>
+        public string? PluginPath { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -123,7 +133,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
-                ReadLicenseInfo(root));
+                ReadLicenseInfo(root),
+                ReadStringOption(root, Options.Plugin));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -164,6 +175,7 @@ namespace Microsoft.TypeSpec.Generator
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
+            Options.Plugin,
         };
 
         private static bool ReadOption(JsonElement root, string option)

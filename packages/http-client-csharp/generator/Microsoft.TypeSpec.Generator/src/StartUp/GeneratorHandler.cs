@@ -98,12 +98,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
         {
-            if (!configuration.AdditionalConfigurationOptions.TryGetValue(PluginOptionKey, out var value))
-            {
-                return;
-            }
-
-            var pluginPath = value.ToString().Trim('"');
+            var pluginPath = configuration.PluginPath;
             if (string.IsNullOrEmpty(pluginPath))
             {
                 return;
