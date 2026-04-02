@@ -120,8 +120,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. " +
-        "Each plugin must contain a class that extends GeneratorPlugin. " +
-        "This eliminates the need for a separate npm package and emitter-package.json for custom visitors.",
+        "Each plugin must contain a class that extends GeneratorPlugin.",
     },
     license: {
       type: "object",
