@@ -329,5 +329,153 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
                 try { Directory.Delete(testDir, true); } catch { }
             }
         }
+
+        [Test]
+        public void AddConfiguredPluginDlls_NoPluginPaths_DoesNothing()
+        {
+            var config = new Configuration(
+                Path.GetTempPath(),
+                new Dictionary<string, BinaryData>(),
+                "TestPackage",
+                false,
+                Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                null,
+                pluginPaths: null);
+
+            using var catalog = new AggregateCatalog();
+            GeneratorHandler.AddConfiguredPluginDlls(catalog, config);
+
+            Assert.AreEqual(0, catalog.Catalogs.Count);
+        }
+
+        [Test]
+        public void AddConfiguredPluginDlls_InvalidDirectory_Throws()
+        {
+            var config = new Configuration(
+                Path.GetTempPath(),
+                new Dictionary<string, BinaryData>(),
+                "TestPackage",
+                false,
+                Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                null,
+                pluginPaths: ["/nonexistent/path"]);
+
+            using var catalog = new AggregateCatalog();
+
+            Assert.Throws<InvalidOperationException>(() =>
+                GeneratorHandler.AddConfiguredPluginDlls(catalog, config));
+        }
+
+        [Test]
+        public void AddConfiguredPluginDlls_DirectoryWithPreBuiltDlls_LoadsThem()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Copy the test assembly as a pre-built plugin DLL
+                var testAssembly = typeof(GeneratorHandlerTests).Assembly.Location;
+                File.Copy(testAssembly, Path.Combine(testDir, "PreBuiltPlugin.dll"));
+
+                var config = new Configuration(
+                    Path.GetTempPath(),
+                    new Dictionary<string, BinaryData>(),
+                    "TestPackage",
+                    false,
+                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    null,
+                    pluginPaths: [testDir]);
+
+                using var catalog = new AggregateCatalog();
+                GeneratorHandler.AddConfiguredPluginDlls(catalog, config);
+
+                Assert.IsTrue(catalog.Catalogs.Count > 0, "Should have loaded at least one catalog");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void AddConfiguredPluginDlls_DirectoryWithCsproj_BuildsAndLoads()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "AutoBuildPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace AutoBuildPlugin { public class Dummy { } }");
+
+                var config = new Configuration(
+                    Path.GetTempPath(),
+                    new Dictionary<string, BinaryData>(),
+                    "TestPackage",
+                    false,
+                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    null,
+                    pluginPaths: [testDir]);
+
+                using var catalog = new AggregateCatalog();
+                GeneratorHandler.AddConfiguredPluginDlls(catalog, config);
+
+                Assert.IsTrue(catalog.Catalogs.Count > 0, "Should have built and loaded the plugin");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void AddConfiguredPluginDlls_MultiplePluginPaths()
+        {
+            var testDir1 = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            var testDir2 = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                // Plugin 1: pre-built DLL
+                Directory.CreateDirectory(testDir1);
+                var testAssembly = typeof(GeneratorHandlerTests).Assembly.Location;
+                File.Copy(testAssembly, Path.Combine(testDir1, "Plugin1.dll"));
+
+                // Plugin 2: .csproj to build
+                Directory.CreateDirectory(testDir2);
+                File.WriteAllText(Path.Combine(testDir2, "Plugin2.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+                File.WriteAllText(Path.Combine(testDir2, "Plugin2.cs"), @"
+namespace Plugin2 { public class Dummy { } }");
+
+                var config = new Configuration(
+                    Path.GetTempPath(),
+                    new Dictionary<string, BinaryData>(),
+                    "TestPackage",
+                    false,
+                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    null,
+                    pluginPaths: [testDir1, testDir2]);
+
+                using var catalog = new AggregateCatalog();
+                GeneratorHandler.AddConfiguredPluginDlls(catalog, config);
+
+                Assert.IsTrue(catalog.Catalogs.Count >= 2, "Should have loaded catalogs from both plugin paths");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir1, true); } catch { }
+                try { Directory.Delete(testDir2, true); } catch { }
+            }
+        }
     }
 }

@@ -137,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator
         /// Loads plugin assemblies from directory paths specified via the 'plugins' configuration option.
         /// If a directory contains a .csproj file, the project is built first to produce the plugin assembly.
         /// </summary>
-        private static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
+        internal static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
         {
             var pluginPaths = configuration.PluginPaths;
             if (pluginPaths == null || pluginPaths.Count == 0)
