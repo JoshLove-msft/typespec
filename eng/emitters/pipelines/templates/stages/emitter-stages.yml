@@ -341,6 +341,12 @@ stages:
               - ${{ if parameters.UploadPlaygroundBundle }}:
                   - script: npm install -g pnpm
                     displayName: Install pnpm for playground bundle upload
+                  - script: npm ci
+                    displayName: Install emitter dependencies for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run build:emitter
+                    displayName: Build emitter for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)
