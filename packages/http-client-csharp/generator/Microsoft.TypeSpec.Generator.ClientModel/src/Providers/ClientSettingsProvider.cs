@@ -503,9 +503,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Returns true if the constructor has a parameter whose type matches this client's
-        /// settings type. Custom constructors with a settings parameter are the emitter-generated
-        /// settings constructors visible through CustomCodeView and should be skipped when
-        /// discovering custom code constructor parameters for configuration binding.
+        /// settings type.
         /// </summary>
         internal bool HasSettingsParameter(ConstructorProvider ctor)
         {
