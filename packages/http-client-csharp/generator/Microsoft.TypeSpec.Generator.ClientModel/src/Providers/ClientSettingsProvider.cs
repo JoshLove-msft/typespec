@@ -60,7 +60,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Select(p => ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(p))
                 .Where(p => p != null)
                 .Select(p => p!)
-                .Where(p => !IsSettingsType(p.Type))
                 .ToList();
         }
 
@@ -69,13 +68,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
-
-        /// <summary>
-        /// Returns true if the given type is the settings type for this client,
-        /// preventing self-referential properties on the settings type.
-        /// </summary>
-        private bool IsSettingsType(CSharpType type)
-            => type.Name == Name;
 
         protected override FormattableString BuildDescription()
             => $"Represents the settings used to configure a <see cref=\"{_clientProvider.Name}\"/> that can be loaded from an <see cref=\"IConfigurationSection\"/>.";
@@ -125,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
-                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
                     {
                         continue;
                     }
@@ -198,7 +191,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
-                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
                     {
                         continue;
                     }
@@ -505,6 +499,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns true if the constructor has a parameter whose type is a ClientSettings type.
+        /// Such constructors are generated settings constructors and should be skipped when
+        /// discovering custom constructor parameters.
+        /// </summary>
+        internal static bool HasSettingsParameter(ConstructorProvider ctor)
+        {
+            return ctor.Signature.Parameters.Any(p =>
+            {
+                var t = p.Type.IsNullable ? p.Type.WithNullable(false) : p.Type;
+                return t.Equals(ClientSettingsType) || t.Name == ClientSettingsType.Name ||
+                       t.BaseType?.Name == ClientSettingsType.Name;
+            });
         }
     }
 }
