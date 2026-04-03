@@ -60,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Select(p => ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(p))
                 .Where(p => p != null)
                 .Select(p => p!)
+                .Where(p => !IsSettingsType(p.Type))
                 .ToList();
         }
 
@@ -68,6 +69,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
+
+        /// <summary>
+        /// Returns true if the given type is the settings type for this client,
+        /// preventing self-referential properties on the settings type.
+        /// </summary>
+        private bool IsSettingsType(CSharpType type)
+            => type.Name == Name;
 
         protected override FormattableString BuildDescription()
             => $"Represents the settings used to configure a <see cref=\"{_clientProvider.Name}\"/> that can be loaded from an <see cref=\"IConfigurationSection\"/>.";
