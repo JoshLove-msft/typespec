@@ -502,18 +502,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Returns true if the constructor has a parameter whose type is a ClientSettings type.
-        /// Such constructors are generated settings constructors and should be skipped when
-        /// discovering custom constructor parameters.
+        /// Returns true if the constructor has a parameter whose type matches this client's
+        /// settings type. Custom constructors with a settings parameter are the emitter-generated
+        /// settings constructors visible through CustomCodeView and should be skipped when
+        /// discovering custom code constructor parameters for configuration binding.
         /// </summary>
-        internal static bool HasSettingsParameter(ConstructorProvider ctor)
+        internal bool HasSettingsParameter(ConstructorProvider ctor)
         {
-            return ctor.Signature.Parameters.Any(p =>
-            {
-                var t = p.Type.IsNullable ? p.Type.WithNullable(false) : p.Type;
-                return t.Equals(ClientSettingsType) || t.Name == ClientSettingsType.Name ||
-                       t.BaseType?.Name == ClientSettingsType.Name;
-            });
+            return ctor.Signature.Parameters.Any(p => p.Type.Equals(Type));
         }
     }
 }

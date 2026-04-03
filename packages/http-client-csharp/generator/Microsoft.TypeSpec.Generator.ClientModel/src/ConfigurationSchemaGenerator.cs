@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 foreach (var ctor in customConstructors)
                 {
                     if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                        ClientSettingsProvider.HasSettingsParameter(ctor))
+                        settings.HasSettingsParameter(ctor))
                     {
                         continue;
                     }
