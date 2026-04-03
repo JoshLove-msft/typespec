@@ -498,7 +498,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return true;
             }
 
-            return false;
+            return ctor.Signature.Parameters.Any(p => p.Type.Name == Type.Name);
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasSettingsParameter(ConstructorProvider ctor)
         {
-            return ctor.Signature.Parameters.Any(p => p.Type.Equals(Type) || p.Type.Name == Type.Name);
+            return ctor.Signature.Parameters.Any(p => p.Type.Name == Type.Name);
         }
     }
 }
