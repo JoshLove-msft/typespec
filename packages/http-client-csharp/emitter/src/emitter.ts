@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  SdkContext,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   createDiagnosticCollector,
   Diagnostic,
   EmitContext,
   Program,
 } from "@typespec/compiler";
+import { resolve } from "path";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -50,6 +54,11 @@ export async function emitCodeModel(
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = context.emitterOutputDir;
+
+  // Resolve plugin paths to absolute if specified
+  if (options["plugins"]) {
+    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
+  }
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
