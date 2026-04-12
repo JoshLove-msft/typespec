@@ -1,16 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createSdkContext,
-  SdkContext,
-} from "@azure-tools/typespec-client-generator-core";
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  EmitContext,
-  Program,
-} from "@typespec/compiler";
+import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { createDiagnosticCollector, Diagnostic, EmitContext, Program } from "@typespec/compiler";
 import { resolve } from "path";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";

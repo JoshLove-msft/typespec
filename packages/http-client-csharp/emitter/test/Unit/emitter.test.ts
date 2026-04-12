@@ -1,16 +1,13 @@
 vi.resetModules();
 
-import { Diagnostic, EmitContext, Program } from "@typespec/compiler";
+import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
-import { strictEqual } from "assert";
-import { statSync } from "fs";
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generate } from "../../src/emit-generate.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { CodeModel } from "../../src/type/code-model.js";
 import {
-  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
   getCreateSdkContext,
@@ -246,4 +243,3 @@ describe("emitCodeModel tests", () => {
     expect(Array.isArray(diagnostics)).toBe(true);
   });
 });
-

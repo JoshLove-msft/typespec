@@ -4,8 +4,8 @@
 // Browser implementation: sends code model to a playground server via fetch.
 
 import { resolvePath } from "@typespec/compiler";
-import { CSharpEmitterContext } from "./sdk-context.js";
 import type { GenerateOptions } from "./emit-generate.js";
+import { CSharpEmitterContext } from "./sdk-context.js";
 
 export async function generate(
   sdkContext: CSharpEmitterContext,

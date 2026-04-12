@@ -83,11 +83,7 @@ export async function generate(
     configJson,
   );
 
-  const csProjFile = resolvePath(
-    options.outputFolder,
-    "src",
-    `${options.packageName}.csproj`,
-  );
+  const csProjFile = resolvePath(options.outputFolder, "src", `${options.packageName}.csproj`);
 
   const emitterPath = options.emitterExtensionPath ?? import.meta.url;
   const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
