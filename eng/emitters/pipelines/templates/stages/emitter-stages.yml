@@ -87,6 +87,24 @@ parameters:
     type: boolean
     default: false
 
+  # The npm script to run to build the emitter for playground bundling.
+  # Default is "build". C# uses "build:emitter" to skip the .NET generator build.
+  - name: PlaygroundBundleBuildScript
+    type: string
+    default: "build"
+
+  # Path to a Dockerfile (relative to PackagePath) for the playground server.
+  # When set alongside UploadPlaygroundBundle, the server container is built and
+  # deployed to Azure Container Apps after publishing.
+  - name: PlaygroundServerDockerfile
+    type: string
+    default: ""
+
+  # Azure Container Apps name for the playground server.
+  - name: PlaygroundServerAppName
+    type: string
+    default: ""
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -294,37 +312,29 @@ stages:
                   npmrcPath: $(buildArtifactsPath)/packages/.npmrc
                   registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
-              # publish to devops feed
-              - pwsh: |
-                  $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
-                  foreach ($file in $packageFiles.Name) {
-                    Write-Host "npm publish $file --verbose --access public"
-                    npm publish $file --verbose --access public
-                  }
-                displayName: Publish to DevOps feed
-                workingDirectory: $(buildArtifactsPath)/packages
+              - ${{ each package in parameters.Packages }}:
+                  - ${{ if eq(package.type, 'npm') }}:
+                      - pwsh: |
+                          $file = Resolve-Path "${{ package.file }}"
+                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+                        displayName: Publish ${{ package.name }} to internal feed
+                        workingDirectory: $(buildArtifactsPath)/packages
 
               # If publishing publicly, also publish to npmjs.org
               - ${{ if eq(parameters.Publish, 'public') }}:
-                  # publish to npmjs.org using ESRP
-                  - task: EsrpRelease@11
-                    inputs:
-                      displayName: Publish to npmjs.org
-                      ConnectedServiceName: Azure SDK PME Managed Identity
-                      ClientId: 5f81938c-2544-4f1f-9251-dd9de5b8a81b
-                      DomainTenantId: 975f013f-7f24-47e8-a7d3-abc4752bf346
-                      UseManagedIdentity: true
-                      KeyVaultName: kv-azuresdk-codesign
-                      SignCertName: azure-sdk-esrp-release-certificate
-                      Intent: PackageDistribution
-                      ContentType: npm
-                      FolderLocation: $(buildArtifactsPath)/packages
-                      Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
-                      Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
-                      ServiceEndpointUrl: https://api.esrp.microsoft.com
-                      # cspell:ignore ESRPRELPACMANTEST
-                      MainPublisher: ESRPRELPACMANTEST
-
+                  - pwsh: |
+                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
+                    displayName: Authenticate .npmrc for npmjs.org
+                    workingDirectory: $(buildArtifactsPath)/packages
+                  - ${{ each package in parameters.Packages }}:
+                      - ${{ if eq(package.type, 'npm') }}:
+                          - pwsh: |
+                              $file = Resolve-Path "${{ package.file }}"
+                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+                            displayName: Publish ${{ package.name }} to npmjs.org
+                            workingDirectory: $(buildArtifactsPath)/packages
               - ${{ if parameters.HasNugetPackages }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages
@@ -347,14 +357,27 @@ stages:
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
               - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - script: npm install -g pnpm
+                    displayName: Install pnpm for playground bundle upload
+                  - script: |
+                      PUBLISHED_VERSION=$(ls $(buildArtifactsPath)/packages/*.tgz | head -1 | sed 's/.*-\([0-9].*\)\.tgz/\1/')
+                      echo "Published version: $PUBLISHED_VERSION"
+                      if [ -n "$PUBLISHED_VERSION" ]; then
+                        node -e "const p=require('./package.json'); p.version='$PUBLISHED_VERSION'; require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
+                        echo "Updated package.json version to $PUBLISHED_VERSION"
+                      fi
+                    displayName: Sync version from published package
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm run build
+                  - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm install -g pnpm
-                    displayName: Install pnpm for playground bundle upload
+                  - task: NodeTool@0
+                    displayName: Install Node.js for playground bundle
+                    inputs:
+                      versionSpec: "22.x"
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)
@@ -367,6 +390,86 @@ stages:
                       azureSubscription: "Azure SDK Engineering System"
                       scriptLocation: inlineScript
                       inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
+
+              - ${{ if and(parameters.UploadPlaygroundBundle, ne(parameters.PlaygroundServerDockerfile, '')) }}:
+                  - task: AzureCLI@1
+                    displayName: Build and deploy playground server
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: |
+                        set -e
+                        REGISTRY="typespecacr"
+                        RESOURCE_GROUP="typespec"
+                        APP_NAME="${{ parameters.PlaygroundServerAppName }}"
+                        IMAGE="$REGISTRY.azurecr.io/$APP_NAME:$(Build.BuildId)"
+
+                        # Create ACR if it doesn't exist
+                        if ! az acr show --name "$REGISTRY" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
+                          echo "Creating container registry: $REGISTRY"
+                          az acr create --name "$REGISTRY" --resource-group "$RESOURCE_GROUP" --sku Basic --admin-enabled false
+                        fi
+
+                        # Build and push Docker image
+                        echo "Building Docker image: $IMAGE"
+                        CONTEXT="$(Build.SourcesDirectory)/${{ parameters.PackagePath }}"
+                        az acr build \
+                          --registry "$REGISTRY" \
+                          --image "$APP_NAME:$(Build.BuildId)" \
+                          --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
+                          "$CONTEXT"
+
+                        # Deploy to Azure App Service
+                        PLAN_NAME="typespec-playground-plan"
+
+                        # Create App Service plan if it doesn't exist
+                        if ! az appservice plan show --name "$PLAN_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
+                          echo "Creating App Service plan: $PLAN_NAME"
+                          az appservice plan create \
+                            --name "$PLAN_NAME" \
+                            --resource-group "$RESOURCE_GROUP" \
+                            --is-linux \
+                            --sku P0v3
+                        fi
+
+                        # Create or update Web App
+                        if az webapp show --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" &>/dev/null; then
+                          echo "Updating Web App: $APP_NAME"
+                        else
+                          echo "Creating Web App: $APP_NAME"
+                          az webapp create \
+                            --name "$APP_NAME" \
+                            --resource-group "$RESOURCE_GROUP" \
+                            --plan "$PLAN_NAME" \
+                            --container-image-name "$IMAGE" \
+                            --container-registry-url "https://$REGISTRY.azurecr.io"
+                        fi
+
+                        # Ensure managed identity and ACR pull access
+                        az webapp identity assign --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" 2>/dev/null || true
+                        PRINCIPAL_ID=$(az webapp identity show --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" --query principalId -o tsv)
+                        ACR_ID=$(az acr show --name "$REGISTRY" --resource-group "$RESOURCE_GROUP" --query id -o tsv)
+                        az role assignment create --assignee-object-id "$PRINCIPAL_ID" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$ACR_ID" 2>/dev/null || true
+                        az webapp config set --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" \
+                          --generic-configurations '{"acrUseManagedIdentityCreds": true}'
+
+                        # Update container image
+                        az webapp config container set \
+                          --name "$APP_NAME" \
+                          --resource-group "$RESOURCE_GROUP" \
+                          --container-image-name "$IMAGE" \
+                          --container-registry-url "https://$REGISTRY.azurecr.io"
+
+                        # Configure app settings
+                        az webapp config appsettings set \
+                          --name "$APP_NAME" \
+                          --resource-group "$RESOURCE_GROUP" \
+                          --settings \
+                            WEBSITES_PORT=5174 \
+                            PLAYGROUND_URLS="https://typespec.io,https://tspwebsitepr.z22.web.core.windows.net,https://cadlplayground.z22.web.core.windows.net"
+
+                        echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)
 
             templateContext:

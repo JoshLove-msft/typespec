@@ -1,0 +1,7 @@
+node_modules/
+dist/
+emitter/
+.tspd/
+*.md
+*.tsp
+package-lock.json
