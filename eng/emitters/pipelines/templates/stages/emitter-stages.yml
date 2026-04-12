@@ -95,12 +95,12 @@ parameters:
 
   # Path to a Dockerfile (relative to PackagePath) for the playground server.
   # When set alongside UploadPlaygroundBundle, the server container is built and
-  # deployed to Azure Container Apps after publishing.
+  # deployed to Azure App Service after publishing.
   - name: PlaygroundServerDockerfile
     type: string
     default: ""
 
-  # Azure Container Apps name for the playground server.
+  # Azure App Service name for the playground server.
   - name: PlaygroundServerAppName
     type: string
     default: ""
@@ -312,29 +312,37 @@ stages:
                   npmrcPath: $(buildArtifactsPath)/packages/.npmrc
                   registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if eq(package.type, 'npm') }}:
-                      - pwsh: |
-                          $file = Resolve-Path "${{ package.file }}"
-                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }} to internal feed
-                        workingDirectory: $(buildArtifactsPath)/packages
+              # publish to devops feed
+              - pwsh: |
+                  $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+                  foreach ($file in $packageFiles.Name) {
+                    Write-Host "npm publish $file --verbose --access public"
+                    npm publish $file --verbose --access public
+                  }
+                displayName: Publish to DevOps feed
+                workingDirectory: $(buildArtifactsPath)/packages
 
               # If publishing publicly, also publish to npmjs.org
               - ${{ if eq(parameters.Publish, 'public') }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
-                  - ${{ each package in parameters.Packages }}:
-                      - ${{ if eq(package.type, 'npm') }}:
-                          - pwsh: |
-                              $file = Resolve-Path "${{ package.file }}"
-                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                            displayName: Publish ${{ package.name }} to npmjs.org
-                            workingDirectory: $(buildArtifactsPath)/packages
+                  # publish to npmjs.org using ESRP
+                  - task: EsrpRelease@11
+                    inputs:
+                      displayName: Publish to npmjs.org
+                      ConnectedServiceName: Azure SDK PME Managed Identity
+                      ClientId: 5f81938c-2544-4f1f-9251-dd9de5b8a81b
+                      DomainTenantId: 975f013f-7f24-47e8-a7d3-abc4752bf346
+                      UseManagedIdentity: true
+                      KeyVaultName: kv-azuresdk-codesign
+                      SignCertName: azure-sdk-esrp-release-certificate
+                      Intent: PackageDistribution
+                      ContentType: npm
+                      FolderLocation: $(buildArtifactsPath)/packages
+                      Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      ServiceEndpointUrl: https://api.esrp.microsoft.com
+                      # cspell:ignore ESRPRELPACMANTEST
+                      MainPublisher: ESRPRELPACMANTEST
+
               - ${{ if parameters.HasNugetPackages }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages
@@ -357,27 +365,14 @@ stages:
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
               - ${{ if parameters.UploadPlaygroundBundle }}:
-                  - script: npm install -g pnpm
-                    displayName: Install pnpm for playground bundle upload
-                  - script: |
-                      PUBLISHED_VERSION=$(ls $(buildArtifactsPath)/packages/*.tgz | head -1 | sed 's/.*-\([0-9].*\)\.tgz/\1/')
-                      echo "Published version: $PUBLISHED_VERSION"
-                      if [ -n "$PUBLISHED_VERSION" ]; then
-                        node -e "const p=require('./package.json'); p.version='$PUBLISHED_VERSION'; require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2)+'\n')"
-                        echo "Updated package.json version to $PUBLISHED_VERSION"
-                      fi
-                    displayName: Sync version from published package
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - task: NodeTool@0
-                    displayName: Install Node.js for playground bundle
-                    inputs:
-                      versionSpec: "22.x"
+                  - script: npm install -g pnpm
+                    displayName: Install pnpm for playground bundle upload
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)
@@ -392,7 +387,7 @@ stages:
                       inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
                       workingDirectory: $(Build.SourcesDirectory)
 
-              - ${{ if and(parameters.UploadPlaygroundBundle, ne(parameters.PlaygroundServerDockerfile, '')) }}:
+              - ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:
                   - task: AzureCLI@1
                     displayName: Build and deploy playground server
                     inputs:
