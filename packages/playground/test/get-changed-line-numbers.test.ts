@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getChangedLineNumbers } from "../src/react/typespec-editor.js";
+import { getChangedLineNumbers } from "../src/react/diff-utils.js";
 
 describe("getChangedLineNumbers", () => {
   it("returns empty array when texts are identical", () => {

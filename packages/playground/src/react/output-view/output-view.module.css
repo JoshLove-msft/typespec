@@ -42,6 +42,11 @@
   padding: 20px;
 }
 
+.output-view-wrapper {
+  position: relative;
+  height: 100%;
+}
+
 .output-compiling {
   display: flex;
   align-items: center;

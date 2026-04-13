@@ -23,21 +23,10 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
 }) => {
   const resolvedViewers: Record<string, FileOutputViewer> = useMemo(
     () => ({
-      [RawFileViewer.key]: changedLineNumbers
-        ? {
-            ...RawFileViewer,
-            render: ({ filename, content }: { filename: string; content: string }) => (
-              <OutputEditor
-                filename={filename}
-                value={content}
-                changedLineNumbers={changedLineNumbers}
-              />
-            ),
-          }
-        : RawFileViewer,
+      [RawFileViewer.key]: RawFileViewer,
       ...viewers,
     }),
-    [viewers, changedLineNumbers],
+    [viewers],
   );
   const keys = Object.keys(resolvedViewers);
 
@@ -54,7 +43,7 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
   if (keys.length === 0) {
     return <>No viewers</>;
   } else if (keys.length === 1) {
-    return resolvedViewers[keys[0]].render({ filename, content });
+    return resolvedViewers[keys[0]].render({ filename, content, changedLineNumbers });
   }
 
   return (
@@ -69,7 +58,7 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
         </Select>
       </div>
 
-      {selectedRender && selectedRender({ filename, content })}
+      {selectedRender && selectedRender({ filename, content, changedLineNumbers })}
     </div>
   );
 };
@@ -77,5 +66,7 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({
 const RawFileViewer: FileOutputViewer = {
   key: "raw",
   label: "File",
-  render: ({ filename, content }) => <OutputEditor filename={filename} value={content} />,
+  render: ({ filename, content, changedLineNumbers }) => (
+    <OutputEditor filename={filename} value={content} changedLineNumbers={changedLineNumbers} />
+  ),
 };

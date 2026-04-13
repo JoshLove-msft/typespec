@@ -75,7 +75,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
     return <></>;
   }
   return (
-    <div style={{ position: "relative", height: "100%" }}>
+    <div className={style["output-view-wrapper"]}>
       {isCompiling && (
         <div className={style["output-compiling-overlay"]}>
           <Spinner size="tiny" label="Compiling..." />

@@ -222,16 +222,15 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     try {
       state = await compile(host, currentContent, selectedEmitter, compilerOptions);
     } catch (error) {
-      setIsCompiling(false);
       // eslint-disable-next-line no-console
       console.error("Compilation failed", error);
       return;
+    } finally {
+      setIsCompiling(false);
     }
 
     // Discard stale results from an older compilation
     if (compileId !== compileIdRef.current) return;
-
-    setIsCompiling(false);
 
     // When compilation has errors and produced no output files, preserve the
     // previous successful output so the user doesn't lose their selected file
