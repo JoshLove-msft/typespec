@@ -175,12 +175,17 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     selectedViewer,
     viewerState,
     content,
+    files,
+    selectedFile,
+    isMultiFile,
     onSelectedEmitterChange,
     onCompilerOptionsChange,
     onSelectedSampleNameChange,
     onSelectedViewerChange,
     onViewerStateChange,
     onContentChange,
+    onFileContentChange,
+    onSelectedFileChange,
   } = state;
 
   // Sync Monaco model with state content
@@ -209,7 +214,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
 
-    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
+    const state = await compile(host, currentContent, selectedEmitter, compilerOptions, files);
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
@@ -426,12 +431,21 @@ async function compile(
   content: string,
   selectedEmitter: string,
   options: CompilerOptions,
+  files?: Record<string, string>,
 ): Promise<CompilationState> {
-  await host.writeFile("main.tsp", content);
+  // Write all input files to the virtual FS
+  if (files && Object.keys(files).length > 1) {
+    for (const [path, fileContent] of Object.entries(files)) {
+      await host.writeFile(path, fileContent);
+    }
+  } else {
+    await host.writeFile("main.tsp", content);
+  }
   await emptyOutputDir(host);
+  const entrypoint = files && Object.keys(files).length > 1 ? "main.tsp" : "main.tsp";
   try {
     const typespecCompiler = host.compiler;
-    const program = await typespecCompiler.compile(host, resolveVirtualPath("main.tsp"), {
+    const program = await typespecCompiler.compile(host, resolveVirtualPath(entrypoint), {
       ...options,
       options: {
         ...options.options,

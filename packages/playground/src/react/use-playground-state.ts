@@ -14,8 +14,16 @@ export interface PlaygroundState {
   selectedViewer?: string;
   /** Internal state of viewers */
   viewerState?: Record<string, any>;
-  /** TypeSpec content */
+  /** TypeSpec content (single-file mode) */
   content?: string;
+  /**
+   * Multiple input files (multi-file mode).
+   * Keys are file paths relative to the project root (e.g., "main.tsp", "models/widget.tsp").
+   * When set, takes precedence over `content`.
+   */
+  files?: Record<string, string>;
+  /** Currently selected file in the editor (multi-file mode) */
+  selectedFile?: string;
 }
 
 export interface UsePlaygroundStateProps {
@@ -51,6 +59,13 @@ export interface PlaygroundStateResult {
   viewerState: Record<string, any>;
   content: string;
 
+  /** All input files (normalized: always populated, even in single-file mode) */
+  files: Record<string, string>;
+  /** Currently selected file path */
+  selectedFile: string;
+  /** Whether the playground is in multi-file mode */
+  isMultiFile: boolean;
+
   // State setters
   onSelectedEmitterChange: (emitter: string) => void;
   onCompilerOptionsChange: (compilerOptions: CompilerOptions) => void;
@@ -58,6 +73,10 @@ export interface PlaygroundStateResult {
   onSelectedViewerChange: (selectedViewer: string) => void;
   onViewerStateChange: (viewerState: Record<string, any>) => void;
   onContentChange: (content: string) => void;
+  onFilesChange: (files: Record<string, string>) => void;
+  onSelectedFileChange: (selectedFile: string) => void;
+  /** Update the content of a specific file */
+  onFileContentChange: (path: string, content: string) => void;
 
   // Full state management
   playgroundState: PlaygroundState;
@@ -136,6 +155,36 @@ export function usePlaygroundState({
     [updateState],
   );
   const onContentChange = useCallback((content: string) => updateState({ content }), [updateState]);
+  const onFilesChange = useCallback(
+    (files: Record<string, string>) => updateState({ files }),
+    [updateState],
+  );
+  const onSelectedFileChange = useCallback(
+    (selectedFile: string) => updateState({ selectedFile }),
+    [updateState],
+  );
+  const onFileContentChange = useCallback(
+    (path: string, fileContent: string) => {
+      const currentFiles = playgroundState.files ?? { "main.tsp": playgroundState.content ?? "" };
+      updateState({ files: { ...currentFiles, [path]: fileContent } });
+    },
+    [updateState, playgroundState.files, playgroundState.content],
+  );
+
+  // Normalize files: always provide a Record<string, string>, even in single-file mode
+  const files = useMemo<Record<string, string>>(() => {
+    if (playgroundState.files && Object.keys(playgroundState.files).length > 0) {
+      return playgroundState.files;
+    }
+    return { "main.tsp": content };
+  }, [playgroundState.files, content]);
+
+  const isMultiFile = useMemo(
+    () => Object.keys(files).length > 1,
+    [files],
+  );
+
+  const selectedFile = playgroundState.selectedFile ?? Object.keys(files)[0] ?? "main.tsp";
 
   // Track last processed sample to avoid re-processing
   const lastProcessedSample = useRef<string>("");
@@ -166,6 +215,9 @@ export function usePlaygroundState({
     selectedViewer,
     viewerState: playgroundState.viewerState ?? {},
     content,
+    files,
+    selectedFile,
+    isMultiFile,
 
     // State setters
     onSelectedEmitterChange,
@@ -174,6 +226,9 @@ export function usePlaygroundState({
     onSelectedViewerChange,
     onViewerStateChange,
     onContentChange,
+    onFilesChange,
+    onSelectedFileChange,
+    onFileContentChange,
 
     // Full state management
     playgroundState,
