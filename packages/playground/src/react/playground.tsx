@@ -71,6 +71,9 @@ export interface PlaygroundProps {
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
+  /** Set of emitter names that should highlight changed files/lines after recompilation. */
+  emittersWithChangeHighlighting?: Set<string>;
+
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
@@ -154,6 +157,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
+  const lastSuccessfulOutputRef = useRef<string[]>([]);
+  const [isCompiling, setIsCompiling] = useState(false);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -205,12 +210,48 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
+  const compileIdRef = useRef(0);
+
   const doCompile = useCallback(async () => {
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
+    const compileId = ++compileIdRef.current;
 
-    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
-    setCompilationState(state);
+    setIsCompiling(true);
+    let state: CompilationState;
+    try {
+      state = await compile(host, currentContent, selectedEmitter, compilerOptions);
+    } catch (error) {
+      setIsCompiling(false);
+      // eslint-disable-next-line no-console
+      console.error("Compilation failed", error);
+      return;
+    }
+
+    // Discard stale results from an older compilation
+    if (compileId !== compileIdRef.current) return;
+
+    setIsCompiling(false);
+
+    // When compilation has errors and produced no output files, preserve the
+    // previous successful output so the user doesn't lose their selected file
+    // while typing (transient syntax errors).
+    if (
+      "program" in state &&
+      state.program.hasError() &&
+      state.outputFiles.length === 0 &&
+      lastSuccessfulOutputRef.current.length > 0
+    ) {
+      setCompilationState({
+        ...state,
+        outputFiles: lastSuccessfulOutputRef.current,
+      });
+    } else {
+      if ("program" in state && state.outputFiles.length > 0) {
+        lastSuccessfulOutputRef.current = state.outputFiles;
+      }
+      setCompilationState(state);
+    }
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMonacoRange(typespecCompiler, diag.target),
@@ -370,9 +411,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const outputPanel = (
     <OutputView
       compilationState={compilationState}
+      isCompiling={isCompiling}
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
+      highlightChanges={selectedEmitter ? props.emittersWithChangeHighlighting?.has(selectedEmitter) : false}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}
