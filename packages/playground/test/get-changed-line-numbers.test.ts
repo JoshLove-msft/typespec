@@ -33,8 +33,8 @@ describe("getChangedLineNumbers", () => {
   });
 
   it("detects multiple changed lines", () => {
-    const oldText = "aaa\nbbb\nccc\nddd";
-    const newText = "aaa\nXXX\nccc\nYYY";
+    const oldText = "alpha\nbeta\ngamma\ndelta";
+    const newText = "alpha\nXXX\ngamma\nYYY";
     const result = getChangedLineNumbers(oldText, newText);
     expect(result).toEqual([2, 4]);
   });
@@ -47,8 +47,8 @@ describe("getChangedLineNumbers", () => {
   });
 
   it("handles completely different content", () => {
-    const oldText = "aaa\nbbb\nccc";
-    const newText = "xxx\nyyy\nzzz";
+    const oldText = "apple\nbanana\ncherry";
+    const newText = "mango\norange\npeach";
     const result = getChangedLineNumbers(oldText, newText);
     expect(result).toEqual([1, 2, 3]);
   });
@@ -69,9 +69,9 @@ describe("getChangedLineNumbers", () => {
   });
 
   it("handles reordered lines as changes", () => {
-    const oldText = "aaa\nbbb\nccc";
-    const newText = "ccc\nbbb\naaa";
-    // Greedy forward scan: ccc at index 0 matches old[2], then bbb/aaa can't match forward
+    const oldText = "apple\nbanana\ncherry";
+    const newText = "cherry\nbanana\napple";
+    // Greedy forward scan: cherry at index 0 matches old[2], then banana/apple can't match forward
     const result = getChangedLineNumbers(oldText, newText);
     expect(result).toEqual([2, 3]);
   });
