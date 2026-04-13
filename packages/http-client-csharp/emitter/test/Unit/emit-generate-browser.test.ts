@@ -23,7 +23,10 @@ function createMockContext(): CSharpEmitterContext {
 const defaultOptions: GenerateOptions = {
   outputFolder: "/output",
   generatorName: "ScmCodeModelGenerator",
+  packageName: "TestPackage",
   newProject: false,
+  debug: false,
+  saveInputs: false,
 };
 
 describe("emit-generate.browser", () => {
