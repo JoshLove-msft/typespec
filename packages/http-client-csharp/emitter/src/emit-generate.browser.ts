@@ -7,22 +7,15 @@ import { resolvePath } from "@typespec/compiler";
 import type { GenerateOptions } from "./emit-generate.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 
+const SERVER_URL = "https://csharp-playground-server.azurewebsites.net";
+
 export async function generate(
   sdkContext: CSharpEmitterContext,
   codeModelJson: string,
   configJson: string,
   options: GenerateOptions,
 ): Promise<void> {
-  const serverUrl = (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__;
-
-  if (!serverUrl) {
-    throw new Error(
-      "C# code generation requires a playground server. " +
-        "Set globalThis.__TYPESPEC_PLAYGROUND_SERVER_URL__ to the server URL.",
-    );
-  }
-
-  const response = await fetch(`${serverUrl}/generate`, {
+  const response = await fetch(`${SERVER_URL}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
