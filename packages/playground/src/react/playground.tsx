@@ -205,7 +205,15 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, files, selectedFile, isMultiFile, onContentChange, onFileContentChange]);
+  }, [
+    typespecModel,
+    content,
+    files,
+    selectedFile,
+    isMultiFile,
+    onContentChange,
+    onFileContentChange,
+  ]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);

@@ -179,10 +179,7 @@ export function usePlaygroundState({
     return { "main.tsp": content };
   }, [playgroundState.files, content]);
 
-  const isMultiFile = useMemo(
-    () => Object.keys(files).length > 1,
-    [files],
-  );
+  const isMultiFile = useMemo(() => Object.keys(files).length > 1, [files]);
 
   const selectedFile = playgroundState.selectedFile ?? Object.keys(files)[0] ?? "main.tsp";
 
