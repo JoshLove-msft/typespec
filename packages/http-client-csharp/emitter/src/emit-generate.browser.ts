@@ -15,9 +15,7 @@ export async function generate(
   configJson: string,
   options: GenerateOptions,
 ): Promise<void> {
-  const serverUrl =
-    (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ ?? DEFAULT_SERVER_URL;
-
+  const serverUrl = (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ ?? DEFAULT_SERVER_URL;
 
   const response = await fetch(`${serverUrl}/generate`, {
     method: "POST",
