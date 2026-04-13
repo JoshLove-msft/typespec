@@ -12,7 +12,7 @@ RUN dotnet build generator -c Release
 COPY playground-server/playground-server.csproj playground-server/
 RUN dotnet restore playground-server/playground-server.csproj
 COPY playground-server/ playground-server/
-RUN dotnet publish playground-server -c Release -o /app
+RUN dotnet publish playground-server -c Release -o /app --no-restore
 
 # Copy generator output
 RUN cp -r dist/generator /app/generator

@@ -16,6 +16,7 @@ var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     "http://localhost:3000",
     "https://typespec.io",
     "https://www.typespec.io",
+    "https://azure.github.io",
 };
 // Add additional origins from PLAYGROUND_URLS (comma-separated) or PLAYGROUND_URL (single)
 var playgroundUrls = Environment.GetEnvironmentVariable("PLAYGROUND_URLS")
