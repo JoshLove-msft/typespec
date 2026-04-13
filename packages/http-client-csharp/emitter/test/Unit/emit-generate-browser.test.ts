@@ -31,38 +31,26 @@ const defaultOptions: GenerateOptions = {
 
 describe("emit-generate.browser", () => {
   let generate: typeof import("../../src/emit-generate.browser.js").generate;
+  const TEST_SERVER_URL = "https://test-server.example.com";
 
   beforeEach(async () => {
     vi.resetModules();
-    // Clear any custom server URL
-    delete (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__;
+    // Set a test server URL by default
+    (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ = TEST_SERVER_URL;
     // Re-import to pick up fresh module state
     generate = (await import("../../src/emit-generate.browser.js")).generate;
   });
 
-  it("should POST code model to the default server URL", async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ files: [] }),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
-
+  it("should throw when no server URL is configured", async () => {
+    delete (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__;
     const ctx = createMockContext();
-    await generate(ctx, '{"model":"test"}', '{"config":"test"}', defaultOptions);
-
-    expect(fetch).toHaveBeenCalledWith(
-      "https://csharp-playground-server.azurewebsites.net/generate",
-      expect.objectContaining({
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
+    await expect(
+      generate(ctx, '{"model":"test"}', '{"config":"test"}', defaultOptions),
+    ).rejects.toThrow("C# code generation requires a playground server");
   });
 
-  it("should use custom server URL from globalThis when set", async () => {
+  it("should use server URL from globalThis when set", async () => {
     (globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ = "https://custom-server.example.com";
-    // Re-import to pick up the new global
-    generate = (await import("../../src/emit-generate.browser.js")).generate;
 
     const mockResponse = {
       ok: true,

@@ -16,6 +16,10 @@ import { LoadingSpinner } from "./loading-spinner";
 import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
 
+// Configure the C# emitter playground server URL.
+(globalThis as any).__TYPESPEC_PLAYGROUND_SERVER_URL__ =
+  "https://csharp-playground-server.azurewebsites.net";
+
 export interface WebsitePlaygroundProps {
   versionData: VersionData;
 }
