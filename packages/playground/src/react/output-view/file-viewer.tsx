@@ -64,7 +64,10 @@ const FileViewerComponent = ({
               changed.add(file);
               // New file: highlight all lines
               const lineCount = contents.text.split("\n").length;
-              lines.set(file, Array.from({ length: lineCount }, (_, i) => i + 1));
+              lines.set(
+                file,
+                Array.from({ length: lineCount }, (_, i) => i + 1),
+              );
               hasAnyChange = true;
             } else if (prev !== undefined && prev !== contents.text) {
               changed.add(file);

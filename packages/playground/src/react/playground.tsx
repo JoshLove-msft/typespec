@@ -415,7 +415,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={selectedEmitter ? props.emittersWithChangeHighlighting?.has(selectedEmitter) : false}
+      highlightChanges={
+        selectedEmitter ? props.emittersWithChangeHighlighting?.has(selectedEmitter) : false
+      }
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}

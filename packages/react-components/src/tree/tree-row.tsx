@@ -18,7 +18,15 @@ export interface TreeViewRowProps {
   readonly activate: (row: TreeRow<any>) => void;
 }
 
-export function TreeViewRow({ id, row, active, focussed, activate, icon: Icon, label: Label }: TreeViewRowProps) {
+export function TreeViewRow({
+  id,
+  row,
+  active,
+  focussed,
+  activate,
+  icon: Icon,
+  label: Label,
+}: TreeViewRowProps) {
   const paddingLeft = row.depth * INDENT_SIZE;
 
   const onClick = useCallback(() => activate(row), [activate, row]);

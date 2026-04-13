@@ -25,7 +25,11 @@ const FileNodeIcon: FC<{ node: FileTreeNode }> = ({ node }) => {
 
 const FileNodeLabel: FC<{ node: FileTreeNode }> = ({ node }) => {
   return (
-    <span style={node.changed ? { fontWeight: 600, color: "var(--colorPaletteGreenForeground1)" } : undefined}>
+    <span
+      style={
+        node.changed ? { fontWeight: 600, color: "var(--colorPaletteGreenForeground1)" } : undefined
+      }
+    >
       {node.name}
     </span>
   );

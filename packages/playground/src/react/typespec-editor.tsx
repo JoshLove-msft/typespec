@@ -33,19 +33,16 @@ export function getChangedLineNumbers(oldText: string, newText: string): number[
   const newLines = newText.split("\n");
 
   // Build a set of old lines that are "matched" via LCS
-  const oldSet = new Set<string>(oldLines);
   const matchedNewIndices = new Set<number>();
 
   // Simple greedy match: walk both arrays with two pointers
   let oi = 0;
   for (let ni = 0; ni < newLines.length; ni++) {
     // Try to find current new line in remaining old lines
-    let found = false;
     for (let j = oi; j < oldLines.length; j++) {
       if (newLines[ni] === oldLines[j]) {
         matchedNewIndices.add(ni);
         oi = j + 1;
-        found = true;
         break;
       }
     }

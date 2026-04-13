@@ -1,4 +1,10 @@
-import { Button, Spinner, Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
+import {
+  Button,
+  Spinner,
+  Tab,
+  TabList,
+  type SelectTabEventHandler,
+} from "@fluentui/react-components";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { PlaygroundEditorsOptions } from "../playground.js";
