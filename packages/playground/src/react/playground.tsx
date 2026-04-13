@@ -22,7 +22,7 @@ import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
 import { EditorPanel } from "./editor-panel/editor-panel.js";
-import { useMonacoModel, type OnMountData } from "./editor.js";
+import { useMonacoModels, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
@@ -152,7 +152,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     debugGlobals().host = host;
   }, [host]);
 
-  const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
   // Use the playground state hook
@@ -188,23 +187,25 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onSelectedFileChange,
   } = state;
 
-  // Sync Monaco model with state content
-  useEffect(() => {
-    if (typespecModel.getValue() !== (content ?? "")) {
-      typespecModel.setValue(content ?? "");
-    }
-  }, [content, typespecModel]);
+  // Manage Monaco models for all input files
+  const { activeModel: typespecModel } = useMonacoModels(files, selectedFile);
 
   // Update state when Monaco model changes
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
+      if (isMultiFile) {
+        if (newContent !== files[selectedFile]) {
+          onFileContentChange(selectedFile, newContent);
+        }
+      } else {
+        if (newContent !== content) {
+          onContentChange(newContent);
+        }
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel, content, files, selectedFile, isMultiFile, onContentChange, onFileContentChange]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
@@ -236,7 +237,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, compilerOptions, typespecModel]);
+  }, [host, selectedEmitter, compilerOptions, typespecModel, files]);
 
   useEffect(() => {
     const debouncer = debounce(() => doCompile(), 200);
@@ -369,6 +370,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onCompilerOptionsChange={onCompilerOptionsChange}
       onSelectedEmitterChange={onSelectedEmitterChange}
       commandBar={isMobile ? undefined : commandBar}
+      inputFiles={isMultiFile ? Object.keys(files) : undefined}
+      selectedInputFile={selectedFile}
+      onSelectedInputFileChange={onSelectedFileChange}
     />
   );
 
@@ -433,6 +437,14 @@ async function compile(
   options: CompilerOptions,
   files?: Record<string, string>,
 ): Promise<CompilationState> {
+  // Clear previous source .tsp files from the virtual FS to avoid ghost imports
+  const existingFiles = await host.readDir(".");
+  for (const file of existingFiles) {
+    if (file.endsWith(".tsp")) {
+      await host.rm(file);
+    }
+  }
+
   // Write all input files to the virtual FS
   if (files && Object.keys(files).length > 1) {
     for (const [path, fileContent] of Object.entries(files)) {
@@ -441,11 +453,11 @@ async function compile(
   } else {
     await host.writeFile("main.tsp", content);
   }
+
   await emptyOutputDir(host);
-  const entrypoint = files && Object.keys(files).length > 1 ? "main.tsp" : "main.tsp";
   try {
     const typespecCompiler = host.compiler;
-    const program = await typespecCompiler.compile(host, resolveVirtualPath(entrypoint), {
+    const program = await typespecCompiler.compile(host, resolveVirtualPath("main.tsp"), {
       ...options,
       options: {
         ...options.options,

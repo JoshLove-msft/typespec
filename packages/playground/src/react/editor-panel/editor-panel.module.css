@@ -8,6 +8,14 @@
   background-color: var(--colorNeutralBackground3);
 }
 
+.file-tree-container {
+  width: 220px;
+  min-width: 150px;
+  border-right: 1px solid var(--colorNeutralStroke1);
+  overflow-y: auto;
+  background-color: var(--colorNeutralBackground2);
+}
+
 .panel-content {
   flex: 1;
   min-width: 0;

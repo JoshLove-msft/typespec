@@ -5,6 +5,7 @@ import { editor } from "monaco-editor";
 import { useCallback, useState, type FunctionComponent, type ReactNode } from "react";
 import type { BrowserHost } from "../../types.js";
 import type { OnMountData } from "../editor.js";
+import { FileTreeExplorer } from "../file-tree/file-tree.js";
 import type { PlaygroundEditorsOptions } from "../playground.js";
 import { TypeSpecEditor } from "../typespec-editor.js";
 import { ConfigPanel } from "./config-panel.js";
@@ -42,6 +43,13 @@ export interface EditorPanelProps {
 
   /** Toolbar content rendered above the editor area */
   commandBar?: ReactNode;
+
+  /** List of input file paths for multi-file mode */
+  inputFiles?: string[];
+  /** Currently selected input file */
+  selectedInputFile?: string;
+  /** Callback when a different input file is selected */
+  onSelectedInputFileChange?: (file: string) => void;
 }
 
 export const EditorPanel: FunctionComponent<EditorPanelProps> = ({
@@ -55,8 +63,12 @@ export const EditorPanel: FunctionComponent<EditorPanelProps> = ({
   onCompilerOptionsChange,
   onSelectedEmitterChange,
   commandBar,
+  inputFiles,
+  selectedInputFile,
+  onSelectedInputFileChange,
 }) => {
   const [selectedTab, setSelectedTab] = useState<EditorPanelTab>("tsp");
+  const showFileTree = inputFiles && inputFiles.length > 1;
 
   const onTabSelect = useCallback<SelectTabEventHandler>((_, data) => {
     setSelectedTab(data.value as EditorPanelTab);
@@ -78,6 +90,15 @@ export const EditorPanel: FunctionComponent<EditorPanelProps> = ({
           </Tab>
         </TabList>
       </div>
+      {showFileTree && selectedTab === "tsp" && (
+        <div className={style["file-tree-container"]}>
+          <FileTreeExplorer
+            files={inputFiles}
+            selected={selectedInputFile ?? inputFiles[0]}
+            onSelect={(file) => onSelectedInputFileChange?.(file)}
+          />
+        </div>
+      )}
       <div className={style["panel-content"]}>
         {commandBar}
         {selectedTab === "tsp" ? (
