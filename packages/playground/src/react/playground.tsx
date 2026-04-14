@@ -35,6 +35,13 @@ import { ViewToggle, type ViewMode } from "./view-toggle.js";
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
 
+export interface PlaygroundEmitterOptions {
+  /** Compile debounce delay in milliseconds. Default is 200. */
+  debounce?: number;
+  /** When true, highlights changed files and lines after recompilation. */
+  newChangeDiff?: boolean;
+}
+
 export interface PlaygroundProps {
   host: BrowserHost;
 
@@ -72,10 +79,9 @@ export interface PlaygroundProps {
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
   /**
-   * Set of emitter names that are client emitters (e.g. C#, Python, Java).
-   * These emitters get a longer compile debounce and change highlighting.
+   * Per-emitter playground options. Key is the emitter name.
    */
-  clientEmitters?: Set<string>;
+  emitterOptions?: Record<string, PlaygroundEmitterOptions>;
 
   onSave?: (value: PlaygroundSaveData) => void;
 
@@ -285,17 +291,19 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
 
-  const isClientEmitter = selectedEmitter ? props.clientEmitters?.has(selectedEmitter) : false;
+  const currentEmitterOptions = selectedEmitter
+    ? props.emitterOptions?.[selectedEmitter]
+    : undefined;
 
   useEffect(() => {
-    const delay = isClientEmitter ? 500 : 200;
+    const delay = currentEmitterOptions?.debounce ?? 200;
     const debouncer = debounce(() => doCompile(), delay);
     const disposable = typespecModel.onDidChangeContent(debouncer);
     return () => {
       debouncer.clear();
       disposable.dispose();
     };
-  }, [typespecModel, doCompile, isClientEmitter]);
+  }, [typespecModel, doCompile, currentEmitterOptions?.debounce]);
 
   useEffect(() => {
     void doCompile();
@@ -430,7 +438,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={isClientEmitter}
+      highlightChanges={currentEmitterOptions?.newChangeDiff}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}
