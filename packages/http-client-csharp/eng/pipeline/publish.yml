@@ -160,6 +160,12 @@ extends:
                   npm install -g semver
                 displayName: Install semver
 
+              - ${{ if parameters.UseTypeSpecNext }}:
+                  - pwsh: |
+                      npm config set legacy-peer-deps=true
+                      Write-Host "Set npm legacy-peer-deps=true for TypeSpec Next"
+                    displayName: Configure npm for TypeSpec Next
+
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies
                 inputs:
