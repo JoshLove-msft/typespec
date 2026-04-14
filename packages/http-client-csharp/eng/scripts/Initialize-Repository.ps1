@@ -35,7 +35,13 @@ try {
         Invoke-LoggedCommand "npm ci"
     }
 
-    Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    if ($UseTypeSpecNext) {
+        # npm ls may report peer dependency mismatches with @next versions; ignore exit code
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput -IgnoreExitCode
+    }
+    else {
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    }
 
     Write-Host "artifactStagingDirectory: $env:BUILD_ARTIFACTSTAGINGDIRECTORY"
     Write-Host "BuildArtifactsPath: $BuildArtifactsPath"
