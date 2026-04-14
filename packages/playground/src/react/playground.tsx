@@ -71,8 +71,11 @@ export interface PlaygroundProps {
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
-  /** Set of emitter names that should highlight changed files/lines after recompilation. */
-  emittersWithChangeHighlighting?: Set<string>;
+  /**
+   * Set of emitter names that are client emitters (e.g. C#, Python, Java).
+   * These emitters get a longer compile debounce and change highlighting.
+   */
+  clientEmitters?: Set<string>;
 
   onSave?: (value: PlaygroundSaveData) => void;
 
@@ -276,14 +279,17 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
 
+  const isClientEmitter = selectedEmitter ? props.clientEmitters?.has(selectedEmitter) : false;
+
   useEffect(() => {
-    const debouncer = debounce(() => doCompile(), 200);
+    const delay = isClientEmitter ? 1000 : 200;
+    const debouncer = debounce(() => doCompile(), delay);
     const disposable = typespecModel.onDidChangeContent(debouncer);
     return () => {
       debouncer.clear();
       disposable.dispose();
     };
-  }, [typespecModel, doCompile]);
+  }, [typespecModel, doCompile, isClientEmitter]);
 
   useEffect(() => {
     void doCompile();
@@ -418,9 +424,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={
-        selectedEmitter ? props.emittersWithChangeHighlighting?.has(selectedEmitter) : false
-      }
+      highlightChanges={isClientEmitter}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}
