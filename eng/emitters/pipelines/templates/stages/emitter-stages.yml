@@ -374,14 +374,11 @@ stages:
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: |
                       CURRENT_VERSION=$(node -p "require('./package.json').version")
-                      VERSION_TAG="${VERSION_TAG_VALUE}"
-                      NEW_VERSION="${CURRENT_VERSION}-${VERSION_TAG}.$(Build.BuildNumber)"
+                      NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
                       echo "Setting version to $NEW_VERSION"
                       npm version "$NEW_VERSION" --no-git-tag-version
                     displayName: Stamp build version for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                    env:
-                      VERSION_TAG_VALUE: ${{ if parameters.BuildPrereleaseVersion }}alpha${{ else }}beta${{ end }}
                   - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
