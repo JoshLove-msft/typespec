@@ -38,6 +38,7 @@ try {
     if ($UseTypeSpecNext) {
         # npm ls may report peer dependency mismatches with @next versions; ignore exit code
         Invoke-LoggedCommand "npm ls -a" -GroupOutput -IgnoreExitCode
+        $global:LASTEXITCODE = 0
     }
     else {
         Invoke-LoggedCommand "npm ls -a" -GroupOutput
