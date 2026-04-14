@@ -29,7 +29,9 @@ try {
         Invoke-LoggedCommand "npm ci"
     }
     elseif ($UseTypeSpecNext) {
-        # TODO: add use typespec next to template later
+        Write-Host "Updating TypeSpec dependencies to @next versions..."
+        & "$packageRoot/../../eng/emitters/scripts/Update-TypeSpecNext.ps1" -PackageJsonPaths "package.json"
+        Invoke-LoggedCommand "npm install"
     }
     else {
         Invoke-LoggedCommand "npm ci"

@@ -29,6 +29,11 @@ parameters:
     type: boolean
     default: true
 
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec Next (update dependencies to @next versions)
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -37,7 +42,7 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: false
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
