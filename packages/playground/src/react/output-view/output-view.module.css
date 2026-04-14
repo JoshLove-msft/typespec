@@ -54,11 +54,11 @@
   height: 100%;
 }
 
-.output-status-bar {
-  padding: 4px 12px;
-  font-size: 12px;
-  text-align: center;
-  background-color: var(--colorNeutralBackground3);
+.output-compiling-overlay {
+  position: absolute;
+  top: 8px;
+  right: 48px;
+  z-index: 10;
 }
 
 .output-stale-banner {

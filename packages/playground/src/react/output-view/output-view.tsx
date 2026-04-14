@@ -79,14 +79,14 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   }
   return (
     <div className={style["output-view-wrapper"]}>
-      {isCompiling && (
-        <div className={style["output-status-bar"]}>
-          <Spinner size="tiny" label="Compiling..." />
-        </div>
-      )}
-      {!isCompiling && isOutputStale && (
+      {isOutputStale && (
         <div className={style["output-stale-banner"]}>
           Output is from last successful compilation
+        </div>
+      )}
+      {isCompiling && (
+        <div className={style["output-compiling-overlay"]}>
+          <Spinner size="tiny" label="Compiling..." />
         </div>
       )}
       <OutputViewInternal
