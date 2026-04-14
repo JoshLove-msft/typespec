@@ -17,6 +17,8 @@ import style from "./output-view.module.css";
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
   isCompiling?: boolean;
+  /** When true, the displayed output is from a previous successful compilation. */
+  isOutputStale?: boolean;
   editorOptions?: PlaygroundEditorsOptions;
   /**
    * List of custom viewers to display the output. It can be file viewers or program viewers.
@@ -48,6 +50,7 @@ export interface OutputViewProps {
 export const OutputView: FunctionComponent<OutputViewProps> = ({
   compilationState,
   isCompiling,
+  isOutputStale,
   viewers,
   fileViewers,
   highlightChanges,
@@ -79,6 +82,11 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
       {isCompiling && (
         <div className={style["output-compiling-overlay"]}>
           <Spinner size="tiny" label="Compiling..." />
+        </div>
+      )}
+      {isOutputStale && (
+        <div className={style["output-stale-banner"]}>
+          Output is from last successful compilation
         </div>
       )}
       <OutputViewInternal

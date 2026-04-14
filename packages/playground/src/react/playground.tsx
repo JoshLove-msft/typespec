@@ -159,6 +159,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
   const lastSuccessfulOutputRef = useRef<string[]>([]);
   const [isCompiling, setIsCompiling] = useState(false);
+  const [isOutputStale, setIsOutputStale] = useState(false);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -241,11 +242,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       state.outputFiles.length === 0 &&
       lastSuccessfulOutputRef.current.length > 0
     ) {
+      setIsOutputStale(true);
       setCompilationState({
         ...state,
         outputFiles: lastSuccessfulOutputRef.current,
       });
     } else {
+      setIsOutputStale(false);
       if ("program" in state && state.outputFiles.length > 0) {
         lastSuccessfulOutputRef.current = state.outputFiles;
       }
@@ -411,6 +414,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     <OutputView
       compilationState={compilationState}
       isCompiling={isCompiling}
+      isOutputStale={isOutputStale}
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}

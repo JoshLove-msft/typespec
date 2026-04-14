@@ -60,3 +60,11 @@
   right: 40px;
   z-index: 10;
 }
+
+.output-stale-banner {
+  background-color: var(--colorPaletteYellowBackground2);
+  color: var(--colorNeutralForeground1);
+  padding: 4px 12px;
+  font-size: 12px;
+  text-align: center;
+}
