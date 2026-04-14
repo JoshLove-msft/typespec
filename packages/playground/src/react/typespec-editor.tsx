@@ -1,5 +1,6 @@
 import { editor, Range } from "monaco-editor";
 import { useCallback, useEffect, useRef, useState, type FunctionComponent } from "react";
+import "./editor-decorations.css";
 import { Editor, useMonacoModel, type EditorProps } from "./editor.js";
 import type { PlaygroundEditorsOptions } from "./playground.js";
 
