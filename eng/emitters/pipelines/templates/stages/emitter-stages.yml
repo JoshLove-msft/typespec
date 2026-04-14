@@ -372,13 +372,22 @@ stages:
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: |
-                      CURRENT_VERSION=$(node -p "require('./package.json').version")
-                      NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
-                      echo "Setting version to $NEW_VERSION"
-                      npm version "$NEW_VERSION" --no-git-tag-version
-                    displayName: Stamp build version for playground bundle
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ if parameters.BuildPrereleaseVersion }}:
+                    - script: |
+                        CURRENT_VERSION=$(node -p "require('./package.json').version")
+                        NEW_VERSION="${CURRENT_VERSION}-alpha.${BUILD_BUILDNUMBER}"
+                        echo "Setting version to $NEW_VERSION"
+                        npm version "$NEW_VERSION" --no-git-tag-version
+                      displayName: Stamp build version for playground bundle
+                      workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ else }}:
+                    - script: |
+                        CURRENT_VERSION=$(node -p "require('./package.json').version")
+                        NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
+                        echo "Setting version to $NEW_VERSION"
+                        npm version "$NEW_VERSION" --no-git-tag-version
+                      displayName: Stamp build version for playground bundle
+                      workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
