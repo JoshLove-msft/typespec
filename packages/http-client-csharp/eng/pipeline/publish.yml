@@ -162,8 +162,8 @@ extends:
 
               - ${{ if parameters.UseTypeSpecNext }}:
                   - pwsh: |
-                      npm config set legacy-peer-deps=true
-                      Write-Host "Set npm legacy-peer-deps=true for TypeSpec Next"
+                      Write-Host "##vso[task.setvariable variable=npm_config_legacy_peer_deps]true"
+                      Write-Host "Set npm_config_legacy_peer_deps=true for TypeSpec Next"
                     displayName: Configure npm for TypeSpec Next
 
               - task: PowerShell@2
