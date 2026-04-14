@@ -192,6 +192,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onContentChange,
   } = state;
 
+  // Clear preserved output when switching emitters
+  useEffect(() => {
+    lastSuccessfulOutputRef.current = [];
+    setIsOutputStale(false);
+  }, [selectedEmitter]);
+
   // Sync Monaco model with state content
   useEffect(() => {
     if (typespecModel.getValue() !== (content ?? "")) {
@@ -282,7 +288,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const isClientEmitter = selectedEmitter ? props.clientEmitters?.has(selectedEmitter) : false;
 
   useEffect(() => {
-    const delay = isClientEmitter ? 1000 : 200;
+    const delay = isClientEmitter ? 500 : 200;
     const debouncer = debounce(() => doCompile(), delay);
     const disposable = typespecModel.onDidChangeContent(debouncer);
     return () => {
