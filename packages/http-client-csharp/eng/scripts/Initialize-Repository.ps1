@@ -26,7 +26,12 @@ try {
         Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
         Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
-        Invoke-LoggedCommand "npm ci"
+        if ($UseTypeSpecNext) {
+            Invoke-LoggedCommand "npm ci --force"
+        }
+        else {
+            Invoke-LoggedCommand "npm ci"
+        }
     }
     elseif ($UseTypeSpecNext) {
         Invoke-LoggedCommand "npm install --force"
