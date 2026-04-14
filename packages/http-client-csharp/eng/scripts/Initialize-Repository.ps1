@@ -29,7 +29,7 @@ try {
         Invoke-LoggedCommand "npm ci"
     }
     elseif ($UseTypeSpecNext) {
-        Invoke-LoggedCommand "npm install"
+        Invoke-LoggedCommand "npm install --legacy-peer-deps"
     }
     else {
         Invoke-LoggedCommand "npm ci"
