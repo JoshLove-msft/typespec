@@ -37,7 +37,6 @@ export const OutputEditor: FunctionComponent<{
   const model = useMonacoModel(filename);
   const [editorInstance, setEditorInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
   const decorationCollectionRef = useRef<editor.IEditorDecorationsCollection | null>(null);
-  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onMount = useCallback(({ editor: ed }: { editor: editor.IStandaloneCodeEditor }) => {
     decorationCollectionRef.current = ed.createDecorationsCollection();
@@ -49,7 +48,7 @@ export const OutputEditor: FunctionComponent<{
     model.setValue(value);
   }, [filename, value, model]);
 
-  // Apply changed line decorations when provided
+  // Apply changed line decorations — they persist until the next compilation clears them
   useEffect(() => {
     if (!editorInstance || !decorationCollectionRef.current) return;
 
@@ -63,11 +62,6 @@ export const OutputEditor: FunctionComponent<{
           },
         })),
       );
-
-      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
-      fadeTimerRef.current = setTimeout(() => {
-        decorationCollectionRef.current?.clear();
-      }, 3000);
     } else {
       decorationCollectionRef.current.clear();
     }
