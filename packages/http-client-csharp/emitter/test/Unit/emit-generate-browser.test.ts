@@ -29,6 +29,16 @@ const defaultOptions: GenerateOptions = {
   saveInputs: false,
 };
 
+function createMockResponse(body: any, opts?: { ok?: boolean; status?: number }) {
+  return {
+    ok: opts?.ok ?? true,
+    status: opts?.status ?? 200,
+    headers: new Headers({ "content-type": "application/json" }),
+    json: vi.fn().mockResolvedValue(body),
+    text: vi.fn().mockResolvedValue(JSON.stringify(body)),
+  };
+}
+
 describe("emit-generate.browser", () => {
   let generate: typeof import("../../src/emit-generate.browser.js").generate;
 
@@ -38,11 +48,7 @@ describe("emit-generate.browser", () => {
   });
 
   it("should POST to the server URL", async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ files: [] }),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+    global.fetch = vi.fn().mockResolvedValue(createMockResponse({ files: [] }));
 
     const ctx = createMockContext();
     await generate(ctx, '{"model":"test"}', '{"config":"test"}', defaultOptions);
@@ -57,11 +63,7 @@ describe("emit-generate.browser", () => {
   });
 
   it("should send codeModel, configuration, and generatorName in request body", async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ files: [] }),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+    global.fetch = vi.fn().mockResolvedValue(createMockResponse({ files: [] }));
 
     const ctx = createMockContext();
     await generate(ctx, '{"model":"data"}', '{"namespace":"Test"}', {
@@ -79,16 +81,14 @@ describe("emit-generate.browser", () => {
   });
 
   it("should write response files to the host", async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue(
+      createMockResponse({
         files: [
           { path: "src/Generated/Model.cs", content: "public class Model {}" },
           { path: "src/Generated/Client.cs", content: "public class Client {}" },
         ],
       }),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+    );
 
     const ctx = createMockContext();
     await generate(ctx, '{"model":"test"}', '{"config":"test"}', defaultOptions);
@@ -106,12 +106,11 @@ describe("emit-generate.browser", () => {
   });
 
   it("should throw on non-OK response", async () => {
-    const mockResponse = {
-      ok: false,
-      status: 500,
-      text: vi.fn().mockResolvedValue('{"error":"Generator failed"}'),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(
+        createMockResponse({ error: "Generator failed" }, { ok: false, status: 500 }),
+      );
 
     const ctx = createMockContext();
     await expect(
@@ -120,11 +119,7 @@ describe("emit-generate.browser", () => {
   });
 
   it("should handle empty files array in response", async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ files: [] }),
-    };
-    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+    global.fetch = vi.fn().mockResolvedValue(createMockResponse({ files: [] }));
 
     const ctx = createMockContext();
     await generate(ctx, '{"model":"test"}', '{"config":"test"}', defaultOptions);
