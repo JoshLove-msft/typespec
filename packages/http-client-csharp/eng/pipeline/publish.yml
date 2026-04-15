@@ -8,14 +8,6 @@ trigger:
 
 pr: none
 
-schedules:
-  - cron: "0 8 * * 1-5"
-    displayName: Weekday TypeSpec Next validation
-    branches:
-      include:
-        - main
-    always: false
-
 parameters:
   - name: CreateAzureSdkForNetPR
     displayName: Create PR for azure-sdk-for-net
