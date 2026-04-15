@@ -7,6 +7,9 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
+const int MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+const int GeneratorTimeoutSeconds = 300;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -45,7 +48,22 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+// Limit request body size
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = MaxRequestBodySize;
+});
+
 var app = builder.Build();
+
+// Security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
+});
 
 app.UseCors(policy => policy
     .WithOrigins([.. allowedOrigins])
@@ -94,13 +112,29 @@ app.MapGet("/health", () =>
 
 app.MapPost("/generate", async (HttpRequest request) =>
 {
-    var body = await JsonSerializer.DeserializeAsync<GenerateRequest>(
-        request.Body, GenerateJsonContext.Default.GenerateRequest);
+    // Validate content type
+    if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
+    {
+        return Results.BadRequest(new { error = "Content-Type must be application/json" });
+    }
+
+    GenerateRequest? body;
+    try
+    {
+        body = await JsonSerializer.DeserializeAsync<GenerateRequest>(
+            request.Body, GenerateJsonContext.Default.GenerateRequest);
+    }
+    catch (JsonException)
+    {
+        return Results.BadRequest(new { error = "Invalid JSON in request body" });
+    }
 
     if (body?.CodeModel is null || body?.Configuration is null)
     {
         return Results.BadRequest(new { error = "Missing 'codeModel' or 'configuration' fields" });
     }
+
+    var generatorName = body.GeneratorName ?? "ScmCodeModelGenerator";
 
     if (!File.Exists(generatorPath))
     {
@@ -118,8 +152,6 @@ app.MapPost("/generate", async (HttpRequest request) =>
         await File.WriteAllTextAsync(Path.Combine(tempDir, "tspCodeModel.json"), body.CodeModel);
         await File.WriteAllTextAsync(Path.Combine(tempDir, "Configuration.json"), body.Configuration);
 
-        var generatorName = body.GeneratorName ?? "ScmCodeModelGenerator";
-
         // Run the .NET generator as a subprocess
         Console.WriteLine($"Starting generator: dotnet --roll-forward Major {generatorPath} {tempDir} -g {generatorName} --new-project");
         Console.WriteLine($"Code model size: {body.CodeModel!.Length} chars");
@@ -136,6 +168,7 @@ app.MapPost("/generate", async (HttpRequest request) =>
         };
 
         using var process = Process.Start(psi)!;
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(GeneratorTimeoutSeconds));
 
         // Stream stdout/stderr to console for logging
         var stderrLines = new List<string>();
@@ -157,7 +190,18 @@ app.MapPost("/generate", async (HttpRequest request) =>
             }
         });
 
-        await process.WaitForExitAsync();
+        try
+        {
+            await process.WaitForExitAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            return Results.Json(
+                new GenerateErrorResponse("Generator timed out", $"Process did not complete within {GeneratorTimeoutSeconds} seconds"),
+                GenerateJsonContext.Default.GenerateErrorResponse,
+                statusCode: 504);
+        }
         await Task.WhenAll(stdoutTask, stderrTask);
 
         var exitCode = process.ExitCode;

@@ -30,9 +30,21 @@ export async function generate(
     throw new Error(`Playground server error (${response.status}): ${errorText}`);
   }
 
-  const result: { files: Array<{ path: string; content: string }> } = await response.json();
+  const contentType = response.headers.get("content-type");
+  if (!contentType?.includes("application/json")) {
+    throw new Error(`Unexpected response content-type: ${contentType}`);
+  }
+
+  const result = await response.json();
+
+  if (!result || !Array.isArray(result.files)) {
+    throw new Error("Invalid response: expected { files: [...] }");
+  }
 
   for (const file of result.files) {
+    if (typeof file.path !== "string" || typeof file.content !== "string") {
+      throw new Error(`Invalid file entry: expected { path: string, content: string }`);
+    }
     await sdkContext.program.host.writeFile(
       resolvePath(options.outputFolder, file.path),
       file.content,
