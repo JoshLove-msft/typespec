@@ -11,7 +11,7 @@
     Optional path to build artifacts (used in CI for caching lock files).
 
 .PARAMETER UseTypeSpecNext
-    Optional switch for using TypeSpec next version (not currently used).
+    Switch to install TypeSpec next version using typespec-bump-deps.
 
 .EXAMPLE
     ./Initialize-Repository.ps1
@@ -39,7 +39,26 @@ try {
     }
 
     Write-Host "Installing npm dependencies..."
-    Invoke-LoggedCommand "npm ci"
+    if ($BuildArtifactsPath) {
+        $lockFilesPath = Resolve-Path "$BuildArtifactsPath/lock-files"
+        Write-Host "Using emitter/package.json and emitter/package-lock.json from $lockFilesPath"
+        Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
+        Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
+
+        Invoke-LoggedCommand "npm ci"
+    }
+    elseif ($UseTypeSpecNext) {
+        if (Test-Path "./package-lock.json") {
+            Remove-Item -Force "./package-lock.json"
+        }
+
+        Write-Host "Using TypeSpec.Next"
+        Invoke-LoggedCommand "npx -y @azure-tools/typespec-bump-deps@latest --add-npm-overrides package.json"
+        Invoke-LoggedCommand "npm install"
+    }
+    else {
+        Invoke-LoggedCommand "npm ci"
+    }
     Invoke-LoggedCommand "npm ls -a" -GroupOutput
 
     # Copy lock files to artifacts for CI caching (if running in Azure DevOps)

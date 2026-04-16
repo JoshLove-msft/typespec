@@ -80,7 +80,13 @@ try {
         Invoke-LoggedCommand "npm ci"
     }
     elseif ($UseTypeSpecNext) {
-        # TODO: add use typespec next to template later
+        if (Test-Path "./package-lock.json") {
+            Remove-Item -Force "./package-lock.json"
+        }
+
+        Write-Host "Using TypeSpec.Next"
+        Invoke-LoggedCommand "npx -y @azure-tools/typespec-bump-deps@latest --add-npm-overrides package.json"
+        Invoke-LoggedCommand "npm install"
     }
     else {
         Invoke-LoggedCommand "npm ci"
