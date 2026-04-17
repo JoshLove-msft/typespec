@@ -8,6 +8,7 @@ import type { GenerateOptions } from "./emit-generate.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 
 const SERVER_URL = "https://csharp-playground-server.azurewebsites.net";
+const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function generate(
   sdkContext: CSharpEmitterContext,
@@ -33,6 +34,13 @@ export async function generate(
   const contentType = response.headers.get("content-type");
   if (!contentType?.includes("application/json")) {
     throw new Error(`Unexpected response content-type: ${contentType}`);
+  }
+
+  const contentLength = response.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_RESPONSE_SIZE) {
+    throw new Error(
+      `Response too large: ${contentLength} bytes exceeds ${MAX_RESPONSE_SIZE} byte limit`,
+    );
   }
 
   const result = await response.json();
