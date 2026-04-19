@@ -42,6 +42,10 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly string[] _generatedFolders = [GeneratedFolder];
         private static readonly string[] _sharedFolders = [SharedFolder];
 
+        // Tracing for Simplifier.ReduceAsync cost. See https://github.com/microsoft/typespec/issues/10424.
+        private static long _reduceTicks;
+        private static int _reduceCount;
+
         private Project _project;
         private Dictionary<string, string> PlainFiles { get; }
 
@@ -90,6 +94,10 @@ namespace Microsoft.TypeSpec.Generator
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
 
+            // TODO (microsoft/typespec#10424): the root-level Simplifier.Annotation forces
+            // Simplifier.ReduceAsync to walk every node with a full semantic model. A targeted
+            // annotation strategy is unsafe today because the CodeWriter relies on the simplifier
+            // for paren reduction and non-global:: name reduction in addition to global:: chains.
             root = root.WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(root);
             _project = document.Project;
@@ -118,6 +126,8 @@ namespace Microsoft.TypeSpec.Generator
             var docs = await Task.WhenAll(documents);
 
             LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Simplifier.ReduceAsync: {_reduceCount} calls, total CPU {TimeSpan.FromTicks(_reduceTicks)}");
 
             foreach (var doc in docs)
             {
@@ -150,7 +160,11 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
+            var reduceStopwatch = Stopwatch.StartNew();
             document = await Simplifier.ReduceAsync(document);
+            reduceStopwatch.Stop();
+            Interlocked.Add(ref _reduceTicks, reduceStopwatch.ElapsedTicks);
+            Interlocked.Increment(ref _reduceCount);
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
