@@ -74,6 +74,21 @@ internal partial class UnsafeBufferSequence
             }
         }
 
+        public void CopyTo(Span<char> destination)
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(Reader));
+            }
+
+            for (int i = 0; i < _count; i++)
+            {
+                UnsafeBufferSegment buffer = _buffers[i];
+                buffer.Array.AsSpan(0, buffer.Written).CopyTo(destination);
+                destination = destination.Slice(buffer.Written);
+            }
+        }
+
         public void CopyTo(StringBuilder builder, CancellationToken cancellation)
         {
             if (_isDisposed)

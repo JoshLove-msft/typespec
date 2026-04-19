@@ -972,24 +972,20 @@ namespace Microsoft.TypeSpec.Generator
             if (totalLength == 0)
                 return string.Empty;
 
-            // Materialize body so we can rewrite global::Namespace.HeadName references to short forms.
+            // Materialize body into a single contiguous string so we can rewrite global::Namespace.HeadName
+            // references to short forms. Allocates the final string in one shot via string.Create instead
+            // of going through a StringBuilder middleman.
             // Only shorten when emitting a full file (header == true) - otherwise we'd return short
             // names without the matching using directives, which is invalid C# and breaks in-process
             // expression composition (e.g. CSharpType.ToString, MethodBodyStatement.ToString).
-            var bodyBuilder = new StringBuilder((int)totalLength);
-            reader.CopyTo(bodyBuilder, default);
-            string bodyText;
+            string bodyText = string.Create((int)totalLength, reader, static (span, r) => r.CopyTo(span));
             if (header)
             {
-                bodyText = ShortenQualifiedNames(bodyBuilder);
+                bodyText = ShortenQualifiedNames(bodyText);
             }
-            else
+            else if (bodyText.Contains(_globalDocSentinel))
             {
-                bodyText = bodyBuilder.ToString();
-                if (bodyText.Contains(_globalDocSentinel))
-                {
-                    bodyText = bodyText.Replace(_globalDocSentinel, "global::");
-                }
+                bodyText = bodyText.Replace(_globalDocSentinel, "global::");
             }
 
             var builder = new StringBuilder(bodyText.Length + 256);
@@ -1039,16 +1035,15 @@ namespace Microsoft.TypeSpec.Generator
         // emitted from multiple namespaces, drops only `global::` to keep them disambiguated.
         // Replacements are applied in descending key length order so longer prefixes win over shorter
         // ones (e.g. `global::ns.FooBar` is rewritten before `global::ns.Foo`).
-        private string ShortenQualifiedNames(StringBuilder bodyBuilder)
+        private string ShortenQualifiedNames(string bodyText)
         {
             if (_emittedTypeRefs.Count == 0)
             {
-                var raw = bodyBuilder.ToString();
-                if (raw.Contains(_globalDocSentinel))
+                if (bodyText.Contains(_globalDocSentinel))
                 {
-                    raw = raw.Replace(_globalDocSentinel, "global::");
+                    bodyText = bodyText.Replace(_globalDocSentinel, "global::");
                 }
-                return raw;
+                return bodyText;
             }
 
             // Determine which head names are ambiguous across the namespaces we've emitted.
@@ -1070,7 +1065,6 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            var bodyText = bodyBuilder.ToString();
             foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
             {
                 var qualified = $"global::{ns}.{headName}";
