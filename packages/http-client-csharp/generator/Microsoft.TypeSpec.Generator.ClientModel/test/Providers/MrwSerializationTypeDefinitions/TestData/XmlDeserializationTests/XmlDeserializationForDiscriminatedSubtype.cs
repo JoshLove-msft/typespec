@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class Cat
     {
-        internal static global::Sample.Models.Cat DeserializeCat(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static Cat DeserializeCat(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -21,7 +21,7 @@ namespace Sample
 
             string kind = "cat";
             string name = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             bool meows = default;
 
             foreach (var child in element.Elements())
@@ -43,7 +43,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.Cat(kind, name, additionalBinaryDataProperties, meows);
+            return new Cat(kind, name, additionalBinaryDataProperties, meows);
         }
     }
 }

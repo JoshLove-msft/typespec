@@ -11,15 +11,15 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(TestXmlModel)} does not support writing '{format}' format.");
             }
 
-            if (global::Sample.Optional.IsDefined(Name))
+            if (Optional.IsDefined(Name))
             {
                 writer.WriteStartElement("Name");
                 writer.WriteValue(Name.ToString());

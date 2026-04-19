@@ -8,11 +8,11 @@ using Sample.Models;
 
 namespace Sample
 {
-#pragma warning disable CS0618 // global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType is obsolete and may be removed in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType))]
-#pragma warning restore CS0618 // global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType is obsolete and may be removed in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.ParentModel))]
-    public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+#pragma warning disable CS0618 // ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType))]
+#pragma warning restore CS0618 // ModelReaderWriterContextDefinitionTests.ObsoleteFrameworkType is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(ParentModel))]
+    public partial class SampleContext : ModelReaderWriterContext
     {
     }
 }

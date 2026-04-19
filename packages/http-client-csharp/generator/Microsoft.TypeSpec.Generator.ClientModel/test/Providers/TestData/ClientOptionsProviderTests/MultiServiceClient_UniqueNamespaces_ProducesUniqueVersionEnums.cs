@@ -9,27 +9,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    public partial class MultiServiceClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class MultiServiceClientOptions : ClientPipelineOptions
     {
-        private const global::Sample.MultiServiceClientOptions.ServiceOneServiceVersion LatestServiceOneVersion = global::Sample.MultiServiceClientOptions.ServiceOneServiceVersion.V2024_01_01;
-        private const global::Sample.MultiServiceClientOptions.ServiceTwoServiceVersion LatestServiceTwoVersion = global::Sample.MultiServiceClientOptions.ServiceTwoServiceVersion.V2024_06_01;
+        private const MultiServiceClientOptions.ServiceOneServiceVersion LatestServiceOneVersion = MultiServiceClientOptions.ServiceOneServiceVersion.V2024_01_01;
+        private const MultiServiceClientOptions.ServiceTwoServiceVersion LatestServiceTwoVersion = MultiServiceClientOptions.ServiceTwoServiceVersion.V2024_06_01;
 
-        public MultiServiceClientOptions(global::Sample.MultiServiceClientOptions.ServiceOneServiceVersion serviceOneServiceVersion = LatestServiceOneVersion, global::Sample.MultiServiceClientOptions.ServiceTwoServiceVersion serviceTwoServiceVersion = LatestServiceTwoVersion)
+        public MultiServiceClientOptions(MultiServiceClientOptions.ServiceOneServiceVersion serviceOneServiceVersion = LatestServiceOneVersion, MultiServiceClientOptions.ServiceTwoServiceVersion serviceTwoServiceVersion = LatestServiceTwoVersion)
         {
             ServiceOneApiVersion = serviceOneServiceVersion switch
             {
-                global::Sample.MultiServiceClientOptions.ServiceOneServiceVersion.V2024_01_01 => "2024-01-01",
-                _ => throw new global::System.NotSupportedException()
+                MultiServiceClientOptions.ServiceOneServiceVersion.V2024_01_01 => "2024-01-01",
+                _ => throw new NotSupportedException()
             };
             ServiceTwoApiVersion = serviceTwoServiceVersion switch
             {
-                global::Sample.MultiServiceClientOptions.ServiceTwoServiceVersion.V2024_06_01 => "2024-06-01",
-                _ => throw new global::System.NotSupportedException()
+                MultiServiceClientOptions.ServiceTwoServiceVersion.V2024_06_01 => "2024-06-01",
+                _ => throw new NotSupportedException()
             };
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal MultiServiceClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        [ExperimentalAttribute("SCME0002")]
+        internal MultiServiceClientOptions(IConfigurationSection section) : base(section)
         {
             ServiceOneApiVersion = "2024-01-01";
             ServiceTwoApiVersion = "2024-06-01";

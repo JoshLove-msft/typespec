@@ -12,23 +12,23 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            global::System.Xml.Linq.XNamespace categoryNs = "https://example.com/ns1";
+            XNamespace categoryNs = "https://example.com/ns1";
 
             string id = default;
             string category = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                global::System.Xml.Linq.XNamespace ns = child.Name.Namespace;
+                XNamespace ns = child.Name.Namespace;
 
                 if ((localName == "id"))
                 {
@@ -41,7 +41,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(id, category, additionalBinaryDataProperties);
+            return new TestXmlModel(id, category, additionalBinaryDataProperties);
         }
     }
 }

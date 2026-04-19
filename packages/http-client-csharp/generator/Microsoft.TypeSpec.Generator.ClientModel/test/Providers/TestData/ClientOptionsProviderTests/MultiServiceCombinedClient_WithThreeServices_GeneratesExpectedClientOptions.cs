@@ -9,37 +9,37 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class TestClientOptions : ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ComputeServiceVersion LatestComputeVersion = global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01;
-        private const global::Sample.TestClientOptions.KeyVaultServiceVersion LatestKeyVaultVersion = global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5;
-        private const global::Sample.TestClientOptions.StorageServiceVersion LatestStorageVersion = global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01;
+        private const TestClientOptions.ComputeServiceVersion LatestComputeVersion = TestClientOptions.ComputeServiceVersion.V2024_07_01;
+        private const TestClientOptions.KeyVaultServiceVersion LatestKeyVaultVersion = TestClientOptions.KeyVaultServiceVersion.V7_5;
+        private const TestClientOptions.StorageServiceVersion LatestStorageVersion = TestClientOptions.StorageServiceVersion.V2024_01_01;
 
-        public TestClientOptions(global::Sample.TestClientOptions.KeyVaultServiceVersion keyVaultServiceVersion = LatestKeyVaultVersion, global::Sample.TestClientOptions.StorageServiceVersion storageServiceVersion = LatestStorageVersion, global::Sample.TestClientOptions.ComputeServiceVersion computeServiceVersion = LatestComputeVersion)
+        public TestClientOptions(TestClientOptions.KeyVaultServiceVersion keyVaultServiceVersion = LatestKeyVaultVersion, TestClientOptions.StorageServiceVersion storageServiceVersion = LatestStorageVersion, TestClientOptions.ComputeServiceVersion computeServiceVersion = LatestComputeVersion)
         {
             KeyVaultApiVersion = keyVaultServiceVersion switch
             {
-                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_4 => "7.4",
-                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5 => "7.5",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.KeyVaultServiceVersion.V7_4 => "7.4",
+                TestClientOptions.KeyVaultServiceVersion.V7_5 => "7.5",
+                _ => throw new NotSupportedException()
             };
             StorageApiVersion = storageServiceVersion switch
             {
-                global::Sample.TestClientOptions.StorageServiceVersion.V2023_01_01 => "2023-01-01",
-                global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01 => "2024-01-01",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.StorageServiceVersion.V2023_01_01 => "2023-01-01",
+                TestClientOptions.StorageServiceVersion.V2024_01_01 => "2024-01-01",
+                _ => throw new NotSupportedException()
             };
             ComputeApiVersion = computeServiceVersion switch
             {
-                global::Sample.TestClientOptions.ComputeServiceVersion.V2023_07_01 => "2023-07-01",
-                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_03_01 => "2024-03-01",
-                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01 => "2024-07-01",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.ComputeServiceVersion.V2023_07_01 => "2023-07-01",
+                TestClientOptions.ComputeServiceVersion.V2024_03_01 => "2024-03-01",
+                TestClientOptions.ComputeServiceVersion.V2024_07_01 => "2024-07-01",
+                _ => throw new NotSupportedException()
             };
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        [ExperimentalAttribute("SCME0002")]
+        internal TestClientOptions(IConfigurationSection section) : base(section)
         {
             ComputeApiVersion = "2024-07-01";
             KeyVaultApiVersion = "7.5";

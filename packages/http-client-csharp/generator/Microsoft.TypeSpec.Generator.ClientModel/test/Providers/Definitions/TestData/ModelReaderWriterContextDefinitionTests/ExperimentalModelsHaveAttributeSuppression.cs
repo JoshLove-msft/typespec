@@ -7,11 +7,11 @@ using Sample.Models;
 
 namespace Sample
 {
-#pragma warning disable TEST001 // global::Sample.Models.ExperimentalModel is experimental and may change in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.ExperimentalModel))]
-#pragma warning restore TEST001 // global::Sample.Models.ExperimentalModel is experimental and may change in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
-    public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+#pragma warning disable TEST001 // ExperimentalModel is experimental and may change in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(ExperimentalModel))]
+#pragma warning restore TEST001 // ExperimentalModel is experimental and may change in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(RegularModel))]
+    public partial class SampleContext : ModelReaderWriterContext
     {
     }
 }

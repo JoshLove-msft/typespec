@@ -13,15 +13,15 @@ namespace Sample
 {
     public partial class Model
     {
-        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Model>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Model)} does not support writing '{format}' format.");
             }
 
-            if (global::Sample.Optional.IsDefined(Prop2))
+            if (Optional.IsDefined(Prop2))
             {
                 writer.WriteStartElement("prop1");
                 writer.WriteValue(Prop2);
@@ -29,7 +29,7 @@ namespace Sample
             }
         }
 
-        internal static global::Sample.Models.Model DeserializeModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static Model DeserializeModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -37,7 +37,7 @@ namespace Sample
             }
 
             string prop2 = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -48,7 +48,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.Model(prop2, additionalBinaryDataProperties);
+            return new Model(prop2, additionalBinaryDataProperties);
         }
     }
 }

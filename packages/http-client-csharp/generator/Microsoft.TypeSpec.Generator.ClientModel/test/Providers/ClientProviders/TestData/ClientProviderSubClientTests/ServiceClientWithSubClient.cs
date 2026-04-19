@@ -8,9 +8,9 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual global::Sample.Animal GetAnimalClient()
+        public virtual Animal GetAnimalClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedAnimal) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimal, new global::Sample.Animal(), null) ?? _cachedAnimal));
+            return (Volatile.Read(ref _cachedAnimal) ?? (Interlocked.CompareExchange(ref _cachedAnimal, new Animal(), null) ?? _cachedAnimal));
         }
     }
 }

@@ -9,13 +9,13 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         internal MockInputModel()
         {
         }
 
-        internal MockInputModel(global::System.String[] prop2, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(String[] prop2, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Prop2 = prop2;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;

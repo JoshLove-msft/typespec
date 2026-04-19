@@ -10,29 +10,29 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
+    internal partial class CatClientGetCatsAsyncCollectionResult : AsyncCollectionResult
     {
-        private readonly global::Sample.CatClient _client;
+        private readonly CatClient _client;
         private readonly string _myToken;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResult(CatClient client, string myToken, RequestOptions options)
         {
             _client = client;
             _myToken = myToken;
             _options = options;
         }
 
-        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
+            PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextToken = ((global::Sample.Models.Page)result).NextPage;
+                nextToken = ((Page)result).NextPage;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -41,12 +41,12 @@ namespace Sample
             }
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((global::Sample.Models.Page)page).NextPage;
+            string nextPage = ((Page)page).NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {

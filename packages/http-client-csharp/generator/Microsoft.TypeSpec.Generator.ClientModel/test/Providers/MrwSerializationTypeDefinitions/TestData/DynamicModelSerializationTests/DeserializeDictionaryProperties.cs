@@ -13,40 +13,40 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
-            global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Cat> cats = default;
-            global::System.Collections.Generic.IDictionary<string, string> names = default;
-            global::System.Collections.Generic.IDictionary<string, string> optionalNames = default;
+            IDictionary<string, Cat> cats = default;
+            IDictionary<string, string> names = default;
+            IDictionary<string, string> optionalNames = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
+            JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("cats"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == JsonValueKind.Null))
                     {
                         continue;
                     }
-                    global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat> dictionary = new global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat>();
+                    Dictionary<string, Cat> dictionary = new Dictionary<string, Cat>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, global::Sample.Models.Cat.DeserializeCat(prop0.Value, options));
+                        dictionary.Add(prop0.Name, Cat.DeserializeCat(prop0.Value, options));
                     }
                     cats = dictionary;
                     continue;
                 }
                 if (prop.NameEquals("names"u8))
                 {
-                    global::System.Collections.Generic.Dictionary<string, string> dictionary = new global::System.Collections.Generic.Dictionary<string, string>();
+                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                        if ((prop0.Value.ValueKind == JsonValueKind.Null))
                         {
                             dictionary.Add(prop0.Name, null);
                         }
@@ -60,14 +60,14 @@ namespace Sample
                 }
                 if (prop.NameEquals("optionalNames"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == JsonValueKind.Null))
                     {
                         continue;
                     }
-                    global::System.Collections.Generic.Dictionary<string, string> dictionary = new global::System.Collections.Generic.Dictionary<string, string>();
+                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                        if ((prop0.Value.ValueKind == JsonValueKind.Null))
                         {
                             dictionary.Add(prop0.Name, null);
                         }
@@ -79,9 +79,9 @@ namespace Sample
                     optionalNames = dictionary;
                     continue;
                 }
-                patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
+                patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel((cats ?? new global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.Cat>()), names, (optionalNames ?? new global::Sample.ChangeTrackingDictionary<string, string>()), patch);
+            return new DynamicModel((cats ?? new ChangeTrackingDictionary<string, Cat>()), names, (optionalNames ?? new ChangeTrackingDictionary<string, string>()), patch);
         }
     }
 }

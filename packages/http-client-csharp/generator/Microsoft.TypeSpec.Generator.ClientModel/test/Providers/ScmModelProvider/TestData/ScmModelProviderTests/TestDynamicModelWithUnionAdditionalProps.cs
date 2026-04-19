@@ -13,22 +13,22 @@ namespace Sample.Models
 {
     public partial class DynamicModel
     {
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        private global::System.ClientModel.Primitives.JsonPatch _patch;
-        private global::System.Collections.Generic.IDictionary<string, string> _additionalStringProperties;
-        private global::System.Collections.Generic.IDictionary<string, double> _additionalDoubleProperties;
+        [ExperimentalAttribute("SCME0001")]
+        private JsonPatch _patch;
+        private IDictionary<string, string> _additionalStringProperties;
+        private IDictionary<string, double> _additionalDoubleProperties;
 
         public DynamicModel(string p1)
         {
-            global::Sample.Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p1, nameof(p1));
 
             P1 = p1;
-            _additionalStringProperties = new global::Sample.ChangeTrackingDictionary<string, string>();
-            _additionalDoubleProperties = new global::Sample.ChangeTrackingDictionary<string, double>();
+            _additionalStringProperties = new ChangeTrackingDictionary<string, string>();
+            _additionalDoubleProperties = new ChangeTrackingDictionary<string, double>();
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string p1, global::System.Collections.Generic.IDictionary<string, string> additionalProperties, global::System.Collections.Generic.IDictionary<string, double> additionalDoubleProperties, in global::System.ClientModel.Primitives.JsonPatch patch)
+        internal DynamicModel(string p1, IDictionary<string, string> additionalProperties, IDictionary<string, double> additionalDoubleProperties, in JsonPatch patch)
         {
             P1 = p1;
             _additionalStringProperties = additionalProperties;
@@ -37,15 +37,15 @@ namespace Sample.Models
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
+        [JsonIgnoreAttribute]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [ExperimentalAttribute("SCME0001")]
+        public ref JsonPatch Patch => ref _patch;
 
         public string P1 { get; set; }
 
-        public global::System.Collections.Generic.IDictionary<string, string> AdditionalProperties => _additionalStringProperties;
+        public IDictionary<string, string> AdditionalProperties => _additionalStringProperties;
 
-        public global::System.Collections.Generic.IDictionary<string, double> AdditionalDoubleProperties => _additionalDoubleProperties;
+        public IDictionary<string, double> AdditionalDoubleProperties => _additionalDoubleProperties;
     }
 }

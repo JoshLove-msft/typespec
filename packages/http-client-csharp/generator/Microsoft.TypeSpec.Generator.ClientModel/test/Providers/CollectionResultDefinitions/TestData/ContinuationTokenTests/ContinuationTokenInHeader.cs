@@ -9,26 +9,26 @@ using System.Collections.Generic;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
+    internal partial class CatClientGetCatsCollectionResult : CollectionResult
     {
-        private readonly global::Sample.CatClient _client;
+        private readonly CatClient _client;
         private readonly string _myToken;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(CatClient client, string myToken, RequestOptions options)
         {
             _client = client;
             _myToken = myToken;
             _options = options;
         }
 
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
+            PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 if ((result.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
@@ -43,11 +43,11 @@ namespace Sample
             }
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             if ((page.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {

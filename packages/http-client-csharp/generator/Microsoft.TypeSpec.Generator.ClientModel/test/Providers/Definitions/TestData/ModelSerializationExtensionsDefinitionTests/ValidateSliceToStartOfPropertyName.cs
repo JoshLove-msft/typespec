@@ -8,18 +8,18 @@ namespace Sample
 {
     public partial class ModelSerializationExtensions
     {
-        public static global::System.ReadOnlySpan<byte> SliceToStartOfPropertyName(this global::System.ReadOnlySpan<byte> jsonPath)
+        public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
         {
-            global::System.ReadOnlySpan<byte> local = jsonPath;
+            ReadOnlySpan<byte> local = jsonPath;
             if ((local.Length < 3))
             {
-                return global::System.ReadOnlySpan<byte>.Empty;
+                return ReadOnlySpan<byte>.Empty;
             }
             if ((local[0] != '$'))
             {
-                return global::System.ReadOnlySpan<byte>.Empty;
+                return ReadOnlySpan<byte>.Empty;
             }
-            return (((local.Length >= 4) && (local[1] == '[')) && ((local[2] == '\'') || (local[2] == '"'))) ? local.Slice(3) : global::System.ReadOnlySpan<byte>.Empty;
+            return (((local.Length >= 4) && (local[1] == '[')) && ((local[2] == '\'') || (local[2] == '"'))) ? local.Slice(3) : ReadOnlySpan<byte>.Empty;
         }
     }
 }

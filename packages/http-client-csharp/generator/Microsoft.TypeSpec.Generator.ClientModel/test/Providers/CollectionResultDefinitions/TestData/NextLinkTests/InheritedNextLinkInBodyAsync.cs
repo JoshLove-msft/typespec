@@ -10,27 +10,27 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
+    internal partial class CatClientGetCatsAsyncCollectionResult : AsyncCollectionResult
     {
-        private readonly global::Sample.CatClient _client;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly CatClient _client;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResult(CatClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
-        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
-            global::System.Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateGetCatsRequest(_options);
+            Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
+                nextPageUri = ((Page)result).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -39,12 +39,12 @@ namespace Sample
             }
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
+            Uri nextPage = ((Page)page).NextCat;
             if ((nextPage != null))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {

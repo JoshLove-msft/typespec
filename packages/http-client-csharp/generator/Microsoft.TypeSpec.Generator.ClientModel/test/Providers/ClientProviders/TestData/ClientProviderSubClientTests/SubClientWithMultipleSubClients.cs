@@ -8,19 +8,19 @@ namespace Sample
 {
     public partial class Animal
     {
-        public virtual global::Sample.Dog GetDogClient()
+        public virtual Dog GetDogClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::Sample.Dog(), null) ?? _cachedDog));
+            return (Volatile.Read(ref _cachedDog) ?? (Interlocked.CompareExchange(ref _cachedDog, new Dog(), null) ?? _cachedDog));
         }
 
-        public virtual global::Sample.Cat GetCatClient()
+        public virtual Cat GetCatClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::Sample.Cat(), null) ?? _cachedCat));
+            return (Volatile.Read(ref _cachedCat) ?? (Interlocked.CompareExchange(ref _cachedCat, new Cat(), null) ?? _cachedCat));
         }
 
-        public virtual global::Sample.HawkClient GetHawkClient()
+        public virtual HawkClient GetHawkClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedHawkClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedHawkClient, new global::Sample.HawkClient(), null) ?? _cachedHawkClient));
+            return (Volatile.Read(ref _cachedHawkClient) ?? (Interlocked.CompareExchange(ref _cachedHawkClient, new HawkClient(), null) ?? _cachedHawkClient));
         }
     }
 }

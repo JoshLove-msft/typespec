@@ -12,24 +12,24 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            global::System.Xml.Linq.XNamespace labelNs = "https://example.com/ns1";
+            XNamespace labelNs = "https://example.com/ns1";
 
             string id = default;
             string label = default;
             string name = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
                 string localName = attr.Name.LocalName;
-                global::System.Xml.Linq.XNamespace ns = attr.Name.Namespace;
+                XNamespace ns = attr.Name.Namespace;
 
                 if ((localName == "id"))
                 {
@@ -46,7 +46,7 @@ namespace Sample
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                global::System.Xml.Linq.XNamespace ns = child.Name.Namespace;
+                XNamespace ns = child.Name.Namespace;
 
                 if ((localName == "name"))
                 {
@@ -54,7 +54,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(id, label, name, additionalBinaryDataProperties);
+            return new TestXmlModel(id, label, name, additionalBinaryDataProperties);
         }
     }
 }

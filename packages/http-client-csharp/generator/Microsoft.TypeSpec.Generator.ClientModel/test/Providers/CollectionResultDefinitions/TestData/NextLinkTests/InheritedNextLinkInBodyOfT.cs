@@ -10,27 +10,27 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<Cat>
     {
-        private readonly global::Sample.CatClient _client;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly CatClient _client;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResultOfT(CatClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
-            global::System.Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateGetCatsRequest(_options);
+            Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
+                nextPageUri = ((Page)result).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -39,12 +39,12 @@ namespace Sample
             }
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
+            Uri nextPage = ((Page)page).NextCat;
             if ((nextPage != null))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {
@@ -52,9 +52,9 @@ namespace Sample
             }
         }
 
-        protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
+        protected override IEnumerable<Cat> GetValuesFromPage(ClientResult page)
         {
-            return ((global::Sample.Models.Page)page).Cats;
+            return ((Page)page).Cats;
         }
     }
 }

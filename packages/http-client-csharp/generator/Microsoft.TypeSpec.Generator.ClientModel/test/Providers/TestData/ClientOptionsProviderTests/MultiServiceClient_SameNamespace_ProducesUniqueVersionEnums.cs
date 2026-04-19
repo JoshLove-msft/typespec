@@ -9,27 +9,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    public partial class MultiServiceClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class MultiServiceClientOptions : ClientPipelineOptions
     {
-        private const global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion = global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion.V2024_01_01;
-        private const global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion = global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion.V2024_06_01;
+        private const MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion = MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion.V2024_01_01;
+        private const MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion = MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion.V2024_06_01;
 
-        public MultiServiceClientOptions(global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion azureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion = LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion, global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion azureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion = LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion)
+        public MultiServiceClientOptions(MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion azureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion = LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion, MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion azureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion = LatestAzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion)
         {
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsApiVersion = azureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion switch
             {
-                global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion.V2024_01_01 => "2024-01-01",
-                _ => throw new global::System.NotSupportedException()
+                MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsVersion.V2024_01_01 => "2024-01-01",
+                _ => throw new NotSupportedException()
             };
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsApiVersion = azureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion switch
             {
-                global::Sample.MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion.V2024_06_01 => "2024-06-01",
-                _ => throw new global::System.NotSupportedException()
+                MultiServiceClientOptions.AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsVersion.V2024_06_01 => "2024-06-01",
+                _ => throw new NotSupportedException()
             };
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal MultiServiceClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        [ExperimentalAttribute("SCME0002")]
+        internal MultiServiceClientOptions(IConfigurationSection section) : base(section)
         {
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsApiVersion = "2024-01-01";
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsApiVersion = "2024-06-01";

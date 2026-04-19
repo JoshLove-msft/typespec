@@ -9,33 +9,33 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<Cat>
     {
-        private readonly global::Sample.CatClient _client;
+        private readonly CatClient _client;
         private readonly string _animalKind;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsCollectionResultOfT(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResultOfT(CatClient client, string animalKind, RequestOptions options)
         {
             _client = client;
             _animalKind = animalKind;
             _options = options;
         }
 
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
-            yield return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
+            yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
 
-        protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
+        protected override IEnumerable<Cat> GetValuesFromPage(ClientResult page)
         {
-            return ((global::Sample.Models.Page)page).Cats;
+            return ((Page)page).Cats;
         }
     }
 }

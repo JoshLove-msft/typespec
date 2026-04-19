@@ -10,40 +10,40 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private readonly global::System.Uri _endpoint;
+        private readonly Uri _endpoint;
 
         protected TestClient()
         {
         }
 
-        public TestClient(string endpoint = default) : this(endpoint, new global::Sample.TestClientOptions())
+        public TestClient(string endpoint = default) : this(endpoint, new TestClientOptions())
         {
         }
 
-        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, string endpoint = default, global::Sample.TestClientOptions options)
+        internal TestClient(AuthenticationPolicy authenticationPolicy, string endpoint = default, TestClientOptions options)
         {
-            options ??= new global::Sample.TestClientOptions();
+            options ??= new TestClientOptions();
 
-            _endpoint = new global::System.Uri($"https://{endpoint}");
+            _endpoint = new Uri($"https://{endpoint}");
             if ((authenticationPolicy != null))
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly) }, Array.Empty<PipelinePolicy>());
             }
         }
 
-        public TestClient(string endpoint = default, global::Sample.TestClientOptions options) : this(null, endpoint, options)
+        public TestClient(string endpoint = default, TestClientOptions options) : this(null, endpoint, options)
         {
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public TestClient(global::Sample.TestClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
+        [ExperimentalAttribute("SCME0002")]
+        public TestClient(TestClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
         {
         }
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
+        public ClientPipeline Pipeline { get; }
     }
 }

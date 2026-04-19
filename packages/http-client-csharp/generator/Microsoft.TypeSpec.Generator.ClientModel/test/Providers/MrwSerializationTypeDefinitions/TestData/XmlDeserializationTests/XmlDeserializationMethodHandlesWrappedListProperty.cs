@@ -11,43 +11,43 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
+    public partial class TestXmlModel : IPersistableModel<TestXmlModel>
     {
         internal TestXmlModel()
         {
         }
 
-        protected virtual global::Sample.Models.TestXmlModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual TestXmlModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (global::System.IO.Stream dataStream = data.ToStream())
+                    using (Stream dataStream = data.ToStream())
                     {
-                        return global::Sample.Models.TestXmlModel.DeserializeTestXmlModel(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
+                        return TestXmlModel.DeserializeTestXmlModel(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(TestXmlModel)} does not support reading '{options.Format}' format.");
             }
         }
 
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            global::System.Collections.Generic.IList<int> counts = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IList<int> counts = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
                 if ((localName == "counts"))
                 {
-                    global::System.Collections.Generic.List<int> array = new global::System.Collections.Generic.List<int>();
+                    List<int> array = new List<int>();
                     foreach (var e in child.Elements("int32"))
                     {
                         array.Add(((int)e));
@@ -56,7 +56,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(counts, additionalBinaryDataProperties);
+            return new TestXmlModel(counts, additionalBinaryDataProperties);
         }
     }
 }

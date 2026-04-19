@@ -25,6 +25,12 @@ namespace Microsoft.TypeSpec.Generator
         private const char _newLine = '\n';
         private const char _space = ' ';
 
+        // Sentinel used in place of "global::" when writing types inside XML doc comments. The
+        // ShortenQualifiedNames rewrite intentionally leaves these alone so Roslyn's Simplifier can
+        // handle the cref reduction natively (and preserve cref-specific annotations like `?`); we
+        // swap them back to "global::" right before returning the body.
+        private const string _globalDocSentinel = "global!doc::";
+
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
         // Tracks every (namespace, headName) pair we've written as a global::-qualified name.
@@ -661,9 +667,19 @@ namespace Microsoft.TypeSpec.Generator
             else
             {
                 UseNamespace(type.Namespace);
-                _emittedTypeRefs.Add((type.Namespace, type.DeclaringType?.Name ?? type.Name));
-
-                AppendRaw("global::");
+                // Use a distinct sentinel for types referenced from XML doc comments (crefs) so the
+                // ToString rewrite below leaves them fully qualified. Roslyn's cref-aware reducer can
+                // then normalize the cref signature itself (e.g. preserving `?` nullability annotations
+                // on the parameter types) better than our string replacement could.
+                if (_writingXmlDocumentation)
+                {
+                    AppendRaw(_globalDocSentinel);
+                }
+                else
+                {
+                    _emittedTypeRefs.Add((type.Namespace, type.DeclaringType?.Name ?? type.Name));
+                    AppendRaw("global::");
+                }
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
@@ -957,9 +973,24 @@ namespace Microsoft.TypeSpec.Generator
                 return string.Empty;
 
             // Materialize body so we can rewrite global::Namespace.HeadName references to short forms.
+            // Only shorten when emitting a full file (header == true) - otherwise we'd return short
+            // names without the matching using directives, which is invalid C# and breaks in-process
+            // expression composition (e.g. CSharpType.ToString, MethodBodyStatement.ToString).
             var bodyBuilder = new StringBuilder((int)totalLength);
             reader.CopyTo(bodyBuilder, default);
-            var bodyText = ShortenQualifiedNames(bodyBuilder);
+            string bodyText;
+            if (header)
+            {
+                bodyText = ShortenQualifiedNames(bodyBuilder);
+            }
+            else
+            {
+                bodyText = bodyBuilder.ToString();
+                if (bodyText.Contains(_globalDocSentinel))
+                {
+                    bodyText = bodyText.Replace(_globalDocSentinel, "global::");
+                }
+            }
 
             var builder = new StringBuilder(bodyText.Length + 256);
             IEnumerable<string> namespaces = _usingNamespaces
@@ -1012,7 +1043,12 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (_emittedTypeRefs.Count == 0)
             {
-                return bodyBuilder.ToString();
+                var raw = bodyBuilder.ToString();
+                if (raw.Contains(_globalDocSentinel))
+                {
+                    raw = raw.Replace(_globalDocSentinel, "global::");
+                }
+                return raw;
             }
 
             // Determine which head names are ambiguous across the namespaces we've emitted.
@@ -1042,6 +1078,13 @@ namespace Microsoft.TypeSpec.Generator
                     ? $"{ns}.{headName}"
                     : headName;
                 bodyText = bodyText.Replace(qualified, replacement);
+            }
+
+            // Swap the XML-doc sentinel back to "global::" so Roslyn's Simplifier can process those
+            // crefs normally during post-processing.
+            if (bodyText.Contains(_globalDocSentinel))
+            {
+                bodyText = bodyText.Replace(_globalDocSentinel, "global::");
             }
 
             return bodyText;

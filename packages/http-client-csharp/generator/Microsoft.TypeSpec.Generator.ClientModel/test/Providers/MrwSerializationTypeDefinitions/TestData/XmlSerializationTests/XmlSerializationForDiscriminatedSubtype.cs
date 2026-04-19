@@ -11,9 +11,9 @@ namespace Sample
 {
     public partial class Cat
     {
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Cat>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Cat>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if ((nameHint != null))
             {
@@ -28,12 +28,12 @@ namespace Sample
             }
         }
 
-        internal override void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal override void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Cat>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Cat>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Cat)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Cat)} does not support writing '{format}' format.");
             }
 
             base.XmlModelWriteCore(writer, options);

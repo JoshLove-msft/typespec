@@ -12,16 +12,16 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
             string p1 = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalProperties = new ChangeTrackingDictionary<string, BinaryData>();
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
+            JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
@@ -30,9 +30,9 @@ namespace Sample
                     p1 = prop.Value.GetString();
                     continue;
                 }
-                additionalProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                additionalProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
             }
-            return new global::Sample.Models.DynamicModel(p1, additionalProperties, patch);
+            return new DynamicModel(p1, additionalProperties, patch);
         }
     }
 }

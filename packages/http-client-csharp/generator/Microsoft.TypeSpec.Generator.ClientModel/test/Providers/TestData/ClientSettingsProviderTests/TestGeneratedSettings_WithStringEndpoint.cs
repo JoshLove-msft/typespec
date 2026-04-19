@@ -8,24 +8,24 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class TestClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class TestClientSettings : ClientSettings
     {
         public string Endpoint { get; set; }
 
-        public global::Sample.TestClientOptions Options { get; set; }
+        public TestClientOptions Options { get; set; }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
+        protected override void BindCore(IConfigurationSection section)
         {
             string endpoint = section["Endpoint"];
             if (!string.IsNullOrEmpty(endpoint))
             {
                 this.Endpoint = endpoint;
             }
-            global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
+            IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
-                this.Options = new global::Sample.TestClientOptions(optionsSection);
+                this.Options = new TestClientOptions(optionsSection);
             }
         }
     }

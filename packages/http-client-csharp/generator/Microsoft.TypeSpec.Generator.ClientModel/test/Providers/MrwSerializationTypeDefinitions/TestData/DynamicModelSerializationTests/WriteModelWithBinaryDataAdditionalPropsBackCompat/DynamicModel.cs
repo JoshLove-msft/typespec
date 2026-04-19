@@ -9,6 +9,6 @@ namespace Sample.Models
     {
         public string P1 { get; set; }
 
-        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> AdditionalProperties { get; }
+        public IDictionary<string, global::System.BinaryData> AdditionalProperties { get; }
     }
 }
