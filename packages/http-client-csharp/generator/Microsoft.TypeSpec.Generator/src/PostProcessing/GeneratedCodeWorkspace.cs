@@ -94,10 +94,6 @@ namespace Microsoft.TypeSpec.Generator
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
 
-            // TODO (microsoft/typespec#10424): the root-level Simplifier.Annotation forces
-            // Simplifier.ReduceAsync to walk every node with a full semantic model. A targeted
-            // annotation strategy is unsafe today because the CodeWriter relies on the simplifier
-            // for paren reduction and non-global:: name reduction in addition to global:: chains.
             root = root.WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(root);
             _project = document.Project;
