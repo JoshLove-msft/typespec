@@ -1101,12 +1101,20 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            string[]? currentParts = _currentNamespace?.Split('.');
+
             foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
             {
                 var qualified = $"global::{ns}.{headName}";
-                var replacement = collisions is not null && collisions.Contains(headName)
-                    ? $"{ns}.{headName}"
-                    : headName;
+                string replacement;
+                if (collisions is not null && collisions.Contains(headName))
+                {
+                    replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions);
+                }
+                else
+                {
+                    replacement = headName;
+                }
                 bodyText = bodyText.Replace(qualified, replacement);
             }
 
@@ -1118,6 +1126,52 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return bodyText;
+        }
+
+        // Returns the shortest unambiguous form of `ns.headName` when viewed from `_currentNamespace`.
+        // Strips the longest prefix of `ns` shared with the current namespace, producing a relative
+        // form like `ServiceA.ServiceA` from inside `Sample` for `Sample.ServiceA.ServiceA`. If the
+        // result would be just the bare head name and that head name is shadowed by a member of the
+        // primary type, prepends the closest namespace segment (e.g. `Models.Extension` from inside
+        // `Foo.Bar.Models` for `Foo.Bar.Models.Extension`). Falls back to the fully-qualified form
+        // when no shorter form is unambiguous.
+        private static string ComputeShortestQualifiedForm(
+            string ns,
+            string headName,
+            string[]? currentParts,
+            HashSet<string>? memberCollisions)
+        {
+            var nsParts = ns.Split('.');
+            int lcp = 0;
+            if (currentParts is not null)
+            {
+                while (lcp < nsParts.Length && lcp < currentParts.Length && nsParts[lcp] == currentParts[lcp])
+                {
+                    lcp++;
+                }
+            }
+
+            // If the full namespace is shared with the current namespace, the bare head name is
+            // ordinarily unambiguous - but if a member of the primary type shadows it, we need to
+            // prepend the last namespace segment (which refers to the current namespace itself).
+            if (lcp == nsParts.Length)
+            {
+                if (memberCollisions is not null && memberCollisions.Contains(headName) && nsParts.Length > 0)
+                {
+                    return $"{nsParts[nsParts.Length - 1]}.{headName}";
+                }
+                return headName;
+            }
+
+            // Strip the shared prefix; the remaining first segment is itself a sub/sibling namespace
+            // visible from the current namespace, which makes the qualifier valid without `global::`.
+            var sb = new StringBuilder();
+            for (int i = lcp; i < nsParts.Length; i++)
+            {
+                sb.Append(nsParts[i]).Append('.');
+            }
+            sb.Append(headName);
+            return sb.ToString();
         }
 
         // Returns the set of member names declared on the primary type being written (and any
@@ -1138,6 +1192,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             HashSet<string>? names = null;
+            HashSet<string>? ownNames = null;
             var primaryNs = _primaryType.Type.Namespace;
             var primaryName = _primaryType.Type.Name;
             foreach (var typeProvider in outputLibrary.TypeProviders)
@@ -1149,10 +1204,35 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     continue;
                 }
-                CollectMemberNames(typeProvider, ref names);
+                // "Own" members (declared on the primary type or its serialization partials) -
+                // we'll filter out the type's own name from these (a constructor named after the
+                // type doesn't shadow the type name within its own body).
+                CollectMemberNames(typeProvider, ref ownNames);
                 foreach (var serialization in typeProvider.SerializationProviders)
                 {
-                    CollectMemberNames(serialization, ref names);
+                    CollectMemberNames(serialization, ref ownNames);
+                }
+                // Inherited members from base types DO shadow the type name - if a base class
+                // exposes a property named the same as this type, that property wins over the
+                // type reference inside instance method bodies.
+                var baseProvider = typeProvider.BaseTypeProvider;
+                while (baseProvider is not null)
+                {
+                    CollectMemberNames(baseProvider, ref names);
+                    baseProvider = baseProvider.BaseTypeProvider;
+                }
+            }
+
+            if (ownNames is not null)
+            {
+                ownNames.Remove(primaryName);
+                if (names is null)
+                {
+                    names = ownNames;
+                }
+                else
+                {
+                    names.UnionWith(ownNames);
                 }
             }
 
@@ -1161,6 +1241,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void CollectMemberNames(TypeProvider typeProvider, ref HashSet<string>? names)
         {
+            // Only properties, fields, events and nested types can shadow a same-named type
+            // reference within the class body. Methods (including constructors) live in a
+            // separate lookup category and do not shadow types.
             foreach (var property in typeProvider.Properties)
             {
                 names ??= new HashSet<string>(StringComparer.Ordinal);
@@ -1170,11 +1253,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 names ??= new HashSet<string>(StringComparer.Ordinal);
                 names.Add(field.Name);
-            }
-            foreach (var method in typeProvider.Methods)
-            {
-                names ??= new HashSet<string>(StringComparer.Ordinal);
-                names.Add(method.Signature.Name);
             }
             foreach (var nested in typeProvider.NestedTypes)
             {

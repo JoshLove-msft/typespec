@@ -16,8 +16,8 @@ namespace Sample
         private readonly string _subscriptionId;
         private readonly string _serviceAApiVersion;
         private readonly string _serviceBApiVersion;
-        private Sample.ServiceA.ServiceA _cachedServiceA;
-        private Sample.ServiceB.ServiceB _cachedServiceB;
+        private ServiceA.ServiceA _cachedServiceA;
+        private ServiceB.ServiceB _cachedServiceB;
 
         protected TestClient()
         {
@@ -54,14 +54,14 @@ namespace Sample
 
         public ClientPipeline Pipeline { get; }
 
-        public virtual Sample.ServiceA.ServiceA GetServiceAClient()
+        public virtual ServiceA.ServiceA GetServiceAClient()
         {
-            return (Volatile.Read(ref _cachedServiceA) ?? (Interlocked.CompareExchange(ref _cachedServiceA, new Sample.ServiceA.ServiceA(Pipeline, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
+            return (Volatile.Read(ref _cachedServiceA) ?? (Interlocked.CompareExchange(ref _cachedServiceA, new ServiceA.ServiceA(Pipeline, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
         }
 
-        public virtual Sample.ServiceB.ServiceB GetServiceBClient()
+        public virtual ServiceB.ServiceB GetServiceBClient()
         {
-            return (Volatile.Read(ref _cachedServiceB) ?? (Interlocked.CompareExchange(ref _cachedServiceB, new Sample.ServiceB.ServiceB(Pipeline, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
+            return (Volatile.Read(ref _cachedServiceB) ?? (Interlocked.CompareExchange(ref _cachedServiceB, new ServiceB.ServiceB(Pipeline, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
         }
     }
 }
