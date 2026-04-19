@@ -49,6 +49,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - crefs
   - CRUDL
   - ctxt
   - dbaeumer
