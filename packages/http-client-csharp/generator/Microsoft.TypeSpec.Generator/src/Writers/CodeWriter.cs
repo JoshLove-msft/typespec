@@ -27,6 +27,11 @@ namespace Microsoft.TypeSpec.Generator
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
+        // Tracks every (namespace, headName) pair we've written as a global::-qualified name.
+        // headName is the outermost named type (DeclaringType.Name for nested, otherwise Name).
+        // Used in ToString() to drop redundant namespace prefixes (replaces the work NameReducer did).
+        private readonly HashSet<(string Namespace, string HeadName)> _emittedTypeRefs = new();
+
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
@@ -656,6 +661,7 @@ namespace Microsoft.TypeSpec.Generator
             else
             {
                 UseNamespace(type.Namespace);
+                _emittedTypeRefs.Add((type.Namespace, type.DeclaringType?.Name ?? type.Name));
 
                 AppendRaw("global::");
                 AppendRaw(type.Namespace);
@@ -950,7 +956,12 @@ namespace Microsoft.TypeSpec.Generator
             if (totalLength == 0)
                 return string.Empty;
 
-            var builder = new StringBuilder((int)totalLength);
+            // Materialize body so we can rewrite global::Namespace.HeadName references to short forms.
+            var bodyBuilder = new StringBuilder((int)totalLength);
+            reader.CopyTo(bodyBuilder, default);
+            var bodyText = ShortenQualifiedNames(bodyBuilder);
+
+            var builder = new StringBuilder(bodyText.Length + 256);
             IEnumerable<string> namespaces = _usingNamespaces
                 .OrderByDescending(ns => ns.StartsWith("System"))
                 .ThenBy(ns => ns, StringComparer.Ordinal);
@@ -987,8 +998,53 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            reader.CopyTo(builder, default);
+            builder.Append(bodyText);
             return builder.ToString();
+        }
+
+        // Replaces fully-qualified `global::Namespace.HeadName...` occurrences in the body with the
+        // shortest unambiguous form. For head names emitted from a single namespace, drops the entire
+        // `global::Namespace.` prefix (they resolve via the using directives we emit). For head names
+        // emitted from multiple namespaces, drops only `global::` to keep them disambiguated.
+        // Replacements are applied in descending key length order so longer prefixes win over shorter
+        // ones (e.g. `global::ns.FooBar` is rewritten before `global::ns.Foo`).
+        private string ShortenQualifiedNames(StringBuilder bodyBuilder)
+        {
+            if (_emittedTypeRefs.Count == 0)
+            {
+                return bodyBuilder.ToString();
+            }
+
+            // Determine which head names are ambiguous across the namespaces we've emitted.
+            HashSet<string>? collisions = null;
+            var seenHeads = new Dictionary<string, string>(_emittedTypeRefs.Count);
+            foreach (var (ns, headName) in _emittedTypeRefs)
+            {
+                if (seenHeads.TryGetValue(headName, out var existingNs))
+                {
+                    if (existingNs != ns)
+                    {
+                        collisions ??= new HashSet<string>();
+                        collisions.Add(headName);
+                    }
+                }
+                else
+                {
+                    seenHeads[headName] = ns;
+                }
+            }
+
+            var bodyText = bodyBuilder.ToString();
+            foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
+            {
+                var qualified = $"global::{ns}.{headName}";
+                var replacement = collisions is not null && collisions.Contains(headName)
+                    ? $"{ns}.{headName}"
+                    : headName;
+                bodyText = bodyText.Replace(qualified, replacement);
+            }
+
+            return bodyText;
         }
 
         private void PopScope(CodeScope expected)

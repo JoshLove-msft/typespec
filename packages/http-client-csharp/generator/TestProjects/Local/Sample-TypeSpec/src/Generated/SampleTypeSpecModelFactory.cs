@@ -32,7 +32,7 @@ namespace SampleTypeSpec
         /// This tests:
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Thing"/> instance for mocking. </returns>
         public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
@@ -84,7 +84,7 @@ namespace SampleTypeSpec
         /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.RoundTripModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="RoundTripModel"/> instance for mocking. </returns>
         public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<StringFixedEnum> requiredCollection = default, IDictionary<string, StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, BinaryData> requiredRecordUnknown = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
         {
             requiredCollection ??= new ChangeTrackingList<StringFixedEnum>();
@@ -130,7 +130,7 @@ namespace SampleTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
         public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
         {
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
@@ -140,7 +140,7 @@ namespace SampleTypeSpec
         /// <param name="p1"> header parameter. </param>
         /// <param name="action"> body parameter. </param>
         /// <param name="p2"> path parameter. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Wrapper"/> instance for mocking. </returns>
         public static Wrapper Wrapper(string p1 = default, RoundTripModel action = default, string p2 = default)
         {
             return new Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
@@ -148,7 +148,7 @@ namespace SampleTypeSpec
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
         {
             return new Friend(name, additionalBinaryDataProperties: null);
@@ -157,14 +157,14 @@ namespace SampleTypeSpec
         /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="otherName"> name of the ModelWithClientName. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="RenamedModelCustom"/> instance for mocking. </returns>
         public static RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
         {
             return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
-        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
         public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
         {
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
@@ -176,7 +176,7 @@ namespace SampleTypeSpec
         /// <param name="optionalHeader"> optional header parameter. </param>
         /// <param name="requiredQuery"> required query parameter. </param>
         /// <param name="optionalQuery"> optional query parameter. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
         public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
         {
             return new ModelWithEmbeddedNonBodyParameters(
@@ -204,7 +204,7 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="DynamicModel"/> instance for mocking. </returns>
         public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
@@ -240,7 +240,7 @@ namespace SampleTypeSpec
 
         /// <summary> Another sample dynamic model. </summary>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="AnotherDynamicModel"/> instance for mocking. </returns>
         public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
         {
             return new AnotherDynamicModel(bar, default);
@@ -287,7 +287,7 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="XmlAdvancedModel"/> instance for mocking. </returns>
         public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
         {
             unwrappedStrings ??= new ChangeTrackingList<string>();
@@ -354,7 +354,7 @@ namespace SampleTypeSpec
         /// <param name="itemName"> The item name. </param>
         /// <param name="itemValue"> The item value. </param>
         /// <param name="itemId"> Item ID as attribute. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlItem"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="XmlItem"/> instance for mocking. </returns>
         public static XmlItem XmlItem(string itemName = default, int itemValue = default, string itemId = default)
         {
             return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties: null);
@@ -363,7 +363,7 @@ namespace SampleTypeSpec
         /// <summary> A nested model for XML testing. </summary>
         /// <param name="value"> The value of the nested model. </param>
         /// <param name="nestedId"> An attribute on the nested model. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlNestedModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="XmlNestedModel"/> instance for mocking. </returns>
         public static XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
         {
             return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties: null);
@@ -371,7 +371,7 @@ namespace SampleTypeSpec
 
         /// <summary> The XmlModelWithNamespace. </summary>
         /// <param name="foo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="XmlModelWithNamespace"/> instance for mocking. </returns>
         public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
         {
             return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
@@ -383,7 +383,7 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Animal"/> instance for mocking. </returns>
         public static Animal Animal(string kind = default, string name = default)
         {
             return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
@@ -392,7 +392,7 @@ namespace SampleTypeSpec
         /// <summary> Pet is a discriminated animal. </summary>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Pet"/> instance for mocking. </returns>
         public static Pet Pet(string name = default, bool trained = default)
         {
             return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
@@ -402,7 +402,7 @@ namespace SampleTypeSpec
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Dog"/> instance for mocking. </returns>
         public static Dog Dog(string name = default, bool trained = default, string breed = default)
         {
             return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
@@ -412,7 +412,7 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Tree"/> instance for mocking. </returns>
         public static Tree Tree(string id = default, int height = default, int age = default)
         {
             return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
@@ -425,7 +425,7 @@ namespace SampleTypeSpec
         /// <param name="species"> The species of plant. </param>
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Plant"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Plant"/> instance for mocking. </returns>
         public static Plant Plant(string species = default, string id = default, int height = default)
         {
             return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
@@ -434,7 +434,7 @@ namespace SampleTypeSpec
         /// <summary> The GetWidgetMetricsResponse. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="GetWidgetMetricsResponse"/> instance for mocking. </returns>
         public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
         {
             return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
@@ -443,7 +443,7 @@ namespace SampleTypeSpec
         /// <summary> The GetNotebookResponse. </summary>
         /// <param name="name"></param>
         /// <param name="content"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="GetNotebookResponse"/> instance for mocking. </returns>
         public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
         {
             return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
