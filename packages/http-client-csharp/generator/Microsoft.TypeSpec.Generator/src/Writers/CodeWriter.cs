@@ -1071,15 +1071,30 @@ namespace Microsoft.TypeSpec.Generator
             // project that also imports the OpenAI NuGet namespace).
             string[]? currentParts = _currentNamespace?.Split('.');
 
-            // Head names that collide with a segment of the current namespace cannot be safely
-            // shortened to a bare name: the simple name would bind to the enclosing/ancestor
-            // namespace rather than the type (e.g. inside `Payload.Pageable.ContinuationToken`,
-            // a bare `ContinuationToken` resolves to the namespace). Keep these as `global::Ns.X`
-            // so Roslyn's Simplifier can disambiguate with the full SemanticModel.
+            // Head names that collide with a namespace segment visible from the current scope
+            // cannot be safely shortened to a bare name: the simple name would bind to a
+            // namespace rather than the type. This includes:
+            // - Segments of the current namespace itself (e.g. inside `Foo.Bar.ContinuationToken`,
+            //   a bare `ContinuationToken` resolves to the enclosing namespace).
+            // - Segments of any sibling namespace visible through ancestor scopes (e.g. inside
+            //   `Foo._Pagination.Link`, a bare `ContinuationToken` resolves to the sibling
+            //   `Foo._Pagination.ContinuationToken` namespace).
+            // Project-wide segments are a safe over-approximation: keeping more references
+            // qualified is correct (Simplifier reduces them with the full SemanticModel) and
+            // avoids CS0118 namespace-vs-type collisions.
             HashSet<string>? namespaceSegmentCollisions = null;
             if (currentParts is not null)
             {
                 namespaceSegmentCollisions = new HashSet<string>(currentParts, StringComparer.Ordinal);
+            }
+            var projectSegments = ComputeProjectNamespaceSegments();
+            if (projectSegments is not null)
+            {
+                namespaceSegmentCollisions ??= new HashSet<string>(StringComparer.Ordinal);
+                foreach (var seg in projectSegments)
+                {
+                    namespaceSegmentCollisions.Add(seg);
+                }
             }
 
             // Compute member-name collisions for the same-namespace case: an unqualified
@@ -1163,6 +1178,47 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsSystemNamespace(string ns)
         {
             return ns == "System" || ns.StartsWith("System.", StringComparison.Ordinal);
+        }
+
+        // Cached set of distinct namespace segments across all known TypeProviders. A simple
+        // name that matches one of these may bind to a sibling namespace at some scope and
+        // produce CS0118; we use this to keep such references fully qualified so Simplifier
+        // can resolve them with the full SemanticModel.
+        private static IReadOnlyCollection<string>? _projectNamespaceSegments;
+        private static object? _projectNamespaceSegmentsKey;
+
+        private static IReadOnlyCollection<string>? ComputeProjectNamespaceSegments()
+        {
+            var generator = CodeModelGenerator.Instance;
+            if (generator?.OutputLibrary is not { AreTypeProvidersBuilt: true } outputLibrary)
+            {
+                return null;
+            }
+
+            // Cache the segments for the duration of a single OutputLibrary instance so that we
+            // recompute when a new generation run produces a fresh library (e.g. unit tests).
+            if (ReferenceEquals(_projectNamespaceSegmentsKey, outputLibrary) && _projectNamespaceSegments is not null)
+            {
+                return _projectNamespaceSegments;
+            }
+
+            var segments = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var typeProvider in outputLibrary.TypeProviders)
+            {
+                var ns = typeProvider.Type.Namespace;
+                if (string.IsNullOrEmpty(ns))
+                {
+                    continue;
+                }
+                foreach (var part in ns.Split('.'))
+                {
+                    segments.Add(part);
+                }
+            }
+
+            _projectNamespaceSegments = segments;
+            _projectNamespaceSegmentsKey = outputLibrary;
+            return segments;
         }
 
         // Returns true if `ns` is the current namespace or an ancestor of it. C# scoping rules
