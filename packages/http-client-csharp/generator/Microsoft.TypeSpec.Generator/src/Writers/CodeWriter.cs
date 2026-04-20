@@ -1071,6 +1071,17 @@ namespace Microsoft.TypeSpec.Generator
             // project that also imports the OpenAI NuGet namespace).
             string[]? currentParts = _currentNamespace?.Split('.');
 
+            // Head names that collide with a segment of the current namespace cannot be safely
+            // shortened to a bare name: the simple name would bind to the enclosing/ancestor
+            // namespace rather than the type (e.g. inside `Payload.Pageable.ContinuationToken`,
+            // a bare `ContinuationToken` resolves to the namespace). Keep these as `global::Ns.X`
+            // so Roslyn's Simplifier can disambiguate with the full SemanticModel.
+            HashSet<string>? namespaceSegmentCollisions = null;
+            if (currentParts is not null)
+            {
+                namespaceSegmentCollisions = new HashSet<string>(currentParts, StringComparer.Ordinal);
+            }
+
             // Compute member-name collisions for the same-namespace case: an unqualified
             // reference like `Foo` inside the primary type's body would resolve to a member
             // named `Foo` instead of the type, so we need to prepend the current namespace's
@@ -1105,6 +1116,13 @@ namespace Microsoft.TypeSpec.Generator
                 bool isSameOrAncestorNamespace = IsSameOrAncestorNamespace(ns, currentParts);
                 bool isSystem = IsSystemNamespace(ns);
                 if (!isSameOrAncestorNamespace && !isSystem)
+                {
+                    continue;
+                }
+
+                // If the head name collides with a segment of the current namespace, the bare
+                // name would bind to the namespace. Leave as `global::Ns.X` for Simplifier.
+                if (namespaceSegmentCollisions is not null && namespaceSegmentCollisions.Contains(headName))
                 {
                     continue;
                 }

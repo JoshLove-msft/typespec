@@ -761,5 +761,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             StringAssert.Contains("int;", result);
             StringAssert.DoesNotContain("global::System.Int32", result);
         }
+        // Regression test for: when a type's head name matches a segment of the current
+        // namespace, the bare name binds to the namespace rather than the type (e.g. inside
+        // `Payload.Pageable.ContinuationToken`, a bare `ContinuationToken` resolves to the
+        // enclosing namespace named "ContinuationToken", not `System.ClientModel.ContinuationToken`).
+        // The fix leaves these as `global::Ns.X` so Roslyn's Simplifier can handle them.
+        [Test]
+        public void ShortenQualifiedNames_DoesNotShortenWhenHeadNameCollidesWithCurrentNamespaceSegment()
+        {
+            var collidingType = new CSharpType("ContinuationToken", "System.ClientModel", isValueType: false, isNullable: false, declaringType: null, args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+            var otherSystemType = new CSharpType(typeof(int));
+
+            using var writer = new CodeWriter();
+            using (writer.SetNamespace("Payload.Pageable.ContinuationToken"))
+            {
+                writer.Append($"{collidingType};{Environment.NewLine}");
+                writer.Append($"{otherSystemType};{Environment.NewLine}");
+            }
+
+            var result = writer.ToString();
+
+            // Colliding System.* head name must remain fully qualified; a bare "ContinuationToken"
+            // would bind to the enclosing namespace.
+            StringAssert.Contains("global::System.ClientModel.ContinuationToken;", result);
+            StringAssert.DoesNotContain($"{Environment.NewLine}ContinuationToken;", result);
+            // Non-colliding System references still shorten as usual.
+            StringAssert.Contains("int;", result);
+        }
     }
 }
