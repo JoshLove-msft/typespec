@@ -1052,9 +1052,10 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (_emittedTypeRefs.Count == 0)
             {
+                // No tracked refs to shorten - just swap any cref sentinels back and return.
                 if (bodyText.Contains(GlobalDocSentinel))
                 {
-                    bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
+                    return bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
                 }
                 return bodyText;
             }
@@ -1081,21 +1082,14 @@ namespace Microsoft.TypeSpec.Generator
             //   `Foo._Pagination.ContinuationToken` namespace).
             // Project-wide segments are a safe over-approximation: keeping more references
             // qualified is correct (Simplifier reduces them with the full SemanticModel) and
-            // avoids CS0118 namespace-vs-type collisions.
-            HashSet<string>? namespaceSegmentCollisions = null;
-            if (currentParts is not null)
+            // avoids CS0118 namespace-vs-type collisions. We fall back to just the current
+            // namespace's segments when the OutputLibrary isn't available (e.g. unit tests).
+            HashSet<string>? namespaceSegmentCollisions = ComputeProjectNamespaceSegments() switch
             {
-                namespaceSegmentCollisions = new HashSet<string>(currentParts, StringComparer.Ordinal);
-            }
-            var projectSegments = ComputeProjectNamespaceSegments();
-            if (projectSegments is not null)
-            {
-                namespaceSegmentCollisions ??= new HashSet<string>(StringComparer.Ordinal);
-                foreach (var seg in projectSegments)
-                {
-                    namespaceSegmentCollisions.Add(seg);
-                }
-            }
+                { } projectSegments => new HashSet<string>(projectSegments, StringComparer.Ordinal),
+                null when currentParts is not null => new HashSet<string>(currentParts, StringComparer.Ordinal),
+                _ => null,
+            };
 
             // Compute member-name collisions for the same-namespace case: an unqualified
             // reference like `Foo` inside the primary type's body would resolve to a member
@@ -1111,7 +1105,9 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var (ns, headName) in _emittedTypeRefs)
             {
                 if (!IsSystemNamespace(ns))
+                {
                     continue;
+                }
                 if (seenSystemHeads.TryGetValue(headName, out var existingNs))
                 {
                     if (existingNs != ns)
@@ -1135,8 +1131,8 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                // If the head name collides with a segment of the current namespace, the bare
-                // name would bind to the namespace. Leave as `global::Ns.X` for Simplifier.
+                // If the head name collides with a namespace segment, the bare name would bind
+                // to the namespace. Leave as `global::Ns.X` for Simplifier.
                 if (namespaceSegmentCollisions is not null && namespaceSegmentCollisions.Contains(headName))
                 {
                     continue;
