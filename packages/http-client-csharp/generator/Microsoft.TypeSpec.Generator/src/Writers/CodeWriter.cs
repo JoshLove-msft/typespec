@@ -25,11 +25,12 @@ namespace Microsoft.TypeSpec.Generator
         private const char _newLine = '\n';
         private const char _space = ' ';
 
-        // Sentinel used in place of "global::" when writing types inside XML doc comments. The
+        // Sentinel used in place of GlobalPrefix when writing types inside XML doc comments. The
         // ShortenQualifiedNames rewrite intentionally leaves these alone so Roslyn's Simplifier can
         // handle the cref reduction natively (and preserve cref-specific annotations like `?`); we
         // swap them back to "global::" right before returning the body.
         private const string _globalDocSentinel = "global!doc::";
+        private const string GlobalPrefix = "global::";
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
@@ -46,8 +47,14 @@ namespace Microsoft.TypeSpec.Generator
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
         internal CodeWriter()
+            : this(null)
+        {
+        }
+
+        internal CodeWriter(TypeProvider? primaryType)
         {
             _builder = new UnsafeBufferSequence(1024);
+            _primaryType = primaryType;
 
             _scopes = new Stack<CodeScope>();
             _scopes.Push(new CodeScope(this, "", false, 0));
@@ -81,14 +88,6 @@ namespace Microsoft.TypeSpec.Generator
             _currentNamespace = @namespace;
             WriteLine($"namespace {@namespace}");
             return Scope();
-        }
-
-        // Records the primary TypeProvider this writer is emitting. Used by ShortenQualifiedNames
-        // to detect collisions between unqualified type references and members of the enclosing
-        // type (e.g. `Element` has a property `Extension` which would shadow the type `Extension`).
-        internal void SetPrimaryType(TypeProvider provider)
-        {
-            _primaryType = provider;
         }
 
         public CodeWriter Append(FormattableString formattableString)
@@ -687,7 +686,7 @@ namespace Microsoft.TypeSpec.Generator
                 else
                 {
                     _emittedTypeRefs.Add((type.Namespace, type.DeclaringType?.Name ?? type.Name));
-                    AppendRaw("global::");
+                    AppendRaw(GlobalPrefix);
                 }
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
@@ -994,7 +993,7 @@ namespace Microsoft.TypeSpec.Generator
             }
             else if (bodyText.Contains(_globalDocSentinel))
             {
-                bodyText = bodyText.Replace(_globalDocSentinel, "global::");
+                bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
             }
 
             var builder = new StringBuilder(bodyText.Length + 256);
@@ -1050,7 +1049,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (bodyText.Contains(_globalDocSentinel))
                 {
-                    bodyText = bodyText.Replace(_globalDocSentinel, "global::");
+                    bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
                 }
                 return bodyText;
             }
@@ -1105,7 +1104,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
             {
-                var qualified = $"global::{ns}.{headName}";
+                var qualified = $"{GlobalPrefix}{ns}.{headName}";
                 string replacement;
                 if (collisions is not null && collisions.Contains(headName))
                 {
@@ -1122,7 +1121,7 @@ namespace Microsoft.TypeSpec.Generator
             // crefs normally during post-processing.
             if (bodyText.Contains(_globalDocSentinel))
             {
-                bodyText = bodyText.Replace(_globalDocSentinel, "global::");
+                bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
             }
 
             return bodyText;
@@ -1321,11 +1320,10 @@ namespace Microsoft.TypeSpec.Generator
                 var prefixDot = prefix.Length == 0 ? string.Empty : prefix + ".";
                 foreach (var ns in allNamespaces)
                 {
-                    if (prefixDot.Length == 0)
-                    {
-                        // Top-level: any first segment of any namespace shadows.
-                    }
-                    else if (!ns.StartsWith(prefixDot, StringComparison.Ordinal))
+                    // For the top-level prefix (i == 0) every namespace contributes its first
+                    // segment as a shadowing head; otherwise skip namespaces that aren't under
+                    // the current prefix.
+                    if (prefixDot.Length > 0 && !ns.StartsWith(prefixDot, StringComparison.Ordinal))
                     {
                         continue;
                     }
