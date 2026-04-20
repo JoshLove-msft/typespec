@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator
         // ShortenQualifiedNames rewrite intentionally leaves these alone so Roslyn's Simplifier can
         // handle the cref reduction natively (and preserve cref-specific annotations like `?`); we
         // swap them back to "global::" right before returning the body.
-        private const string _globalDocSentinel = "global!doc::";
+        private const string GlobalDocSentinel = "global!doc::";
         private const string GlobalPrefix = "global::";
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
@@ -681,7 +681,7 @@ namespace Microsoft.TypeSpec.Generator
                 // on the parameter types) better than our string replacement could.
                 if (_writingXmlDocumentation)
                 {
-                    AppendRaw(_globalDocSentinel);
+                    AppendRaw(GlobalDocSentinel);
                 }
                 else
                 {
@@ -975,7 +975,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public string ToString(bool header)
         {
-            var reader = _builder.ExtractReader();
+            using var reader = _builder.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
                 return string.Empty;
@@ -986,14 +986,19 @@ namespace Microsoft.TypeSpec.Generator
             // Only shorten when emitting a full file (header == true) - otherwise we'd return short
             // names without the matching using directives, which is invalid C# and breaks in-process
             // expression composition (e.g. CSharpType.ToString, MethodBodyStatement.ToString).
+            if (totalLength > int.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    $"Generated file is too large to materialize as a string. Length was {totalLength}, max is {int.MaxValue}.");
+            }
             string bodyText = string.Create((int)totalLength, reader, static (span, r) => r.CopyTo(span));
             if (header)
             {
                 bodyText = ShortenQualifiedNames(bodyText);
             }
-            else if (bodyText.Contains(_globalDocSentinel))
+            else if (bodyText.Contains(GlobalDocSentinel))
             {
-                bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
+                bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
             }
 
             var builder = new StringBuilder(bodyText.Length + 256);
@@ -1047,9 +1052,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (_emittedTypeRefs.Count == 0)
             {
-                if (bodyText.Contains(_globalDocSentinel))
+                if (bodyText.Contains(GlobalDocSentinel))
                 {
-                    bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
+                    bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
                 }
                 return bodyText;
             }
@@ -1119,9 +1124,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // Swap the XML-doc sentinel back to "global::" so Roslyn's Simplifier can process those
             // crefs normally during post-processing.
-            if (bodyText.Contains(_globalDocSentinel))
+            if (bodyText.Contains(GlobalDocSentinel))
             {
-                bodyText = bodyText.Replace(_globalDocSentinel, GlobalPrefix);
+                bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
             }
 
             return bodyText;

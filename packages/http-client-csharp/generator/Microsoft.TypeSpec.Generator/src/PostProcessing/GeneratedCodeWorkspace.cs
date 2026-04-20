@@ -108,6 +108,11 @@ namespace Microsoft.TypeSpec.Generator
 
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
+            // Reset per-run timers so successive generator runs (or multiple workspaces in the
+            // same process, e.g. unit tests) report timings for the current execution only.
+            Interlocked.Exchange(ref _reduceTicks, 0);
+            Interlocked.Exchange(ref _reduceCount, 0);
+
             List<Task<Document>> documents = new List<Task<Document>>();
             var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
