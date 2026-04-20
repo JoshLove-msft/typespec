@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class MockInputModel
     {
-        internal static MockInputModel DeserializeMockInputModel(XElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.MockInputModel DeserializeMockInputModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -37,7 +37,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new MockInputModel(prop1, prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Sample
             PipelineResponse response = result.GetRawResponse();
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
-            return Cat.DeserializeCat(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return global::Sample.Models.Cat.DeserializeCat(document.RootElement, data, ModelSerializationExtensions.WireOptions);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Sample
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((Page)result).NextCat;
+                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -41,7 +41,7 @@ namespace Sample
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((Page)page).NextCat;
+            Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
             if ((nextPage != null))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));

@@ -31,7 +31,7 @@ namespace Sample
         }
 
         [ExperimentalAttribute("SCME0002")]
-        internal TestClientOptions(IConfigurationSection section) : base(section)
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
             ServiceOneTestsApiVersion = "2.0";
             ServiceTwoTestsApiVersion = "4.0";

@@ -727,5 +727,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var result = codeWriter.ToString(false);
             Assert.AreEqual(expected, result);
         }
+
+        // Regression test for a bug where CodeWriter shortened cross-namespace type references
+        // textually (e.g. `global::Other.Library.OtherType` -> `OtherType`). When the project
+        // also referenced an external assembly contributing the same namespace,
+        // SymbolFinder.FindReferencesAsync (used by PostProcessor.RemoveAsync) could miss
+        // references to the local type and incorrectly prune it. The fix restricts shortening
+        // to same/ancestor namespaces and System.* references; non-System cross-namespace
+        // references are left as `global::` so Roslyn's Simplifier can handle them safely.
+        [Test]
+        public void ShortenQualifiedNames_DoesNotShortenNonSystemCrossNamespaceReferences()
+        {
+            var sameNs = new CSharpType("MyType", "Foo.Bar", isValueType: false, isNullable: false, declaringType: null, args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+            var crossNs = new CSharpType("OtherType", "Other.Library", isValueType: false, isNullable: false, declaringType: null, args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+            var systemType = new CSharpType(typeof(int));
+
+            using var writer = new CodeWriter();
+            using (writer.SetNamespace("Foo.Bar"))
+            {
+                writer.Append($"{sameNs};{Environment.NewLine}");
+                writer.Append($"{crossNs};{Environment.NewLine}");
+                writer.Append($"{systemType};{Environment.NewLine}");
+            }
+
+            var result = writer.ToString();
+
+            // Same-namespace reference shortens to bare name.
+            StringAssert.Contains("MyType;", result);
+            StringAssert.DoesNotContain("global::Foo.Bar.MyType", result);
+            // Non-System cross-namespace reference stays fully qualified with global:: prefix.
+            StringAssert.Contains("global::Other.Library.OtherType;", result);
+            // System.* reference still shortens (safe, well-known namespace).
+            StringAssert.Contains("int;", result);
+            StringAssert.DoesNotContain("global::System.Int32", result);
+        }
     }
 }

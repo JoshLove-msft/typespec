@@ -14,7 +14,7 @@ namespace Sample
     {
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<TestModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.TestModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -36,7 +36,7 @@ namespace Sample
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(TestModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::Sample.Models.TestModel)} does not support writing '{options.Format}' format.");
             }
         }
     }

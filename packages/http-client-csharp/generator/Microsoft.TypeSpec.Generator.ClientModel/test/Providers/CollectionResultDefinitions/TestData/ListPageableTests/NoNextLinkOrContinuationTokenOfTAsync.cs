@@ -10,7 +10,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<Cat>
+    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly CatClient _client;
         private readonly string _animalKind;
@@ -34,9 +34,9 @@ namespace Sample
             return null;
         }
 
-        protected override async IAsyncEnumerable<Cat> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Cat item in ((Page)page).Cats)
+            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).Cats)
             {
                 yield return item;
                 await Task.Yield();

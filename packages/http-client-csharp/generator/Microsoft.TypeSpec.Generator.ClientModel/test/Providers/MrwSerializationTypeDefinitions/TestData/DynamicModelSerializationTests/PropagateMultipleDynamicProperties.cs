@@ -22,7 +22,7 @@ namespace Sample
                 int propertyLength = "p1"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P1.TryGetValue(key, out DynamicDictionary item))
+                if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
                 {
                     return false;
                 }
@@ -88,7 +88,7 @@ namespace Sample
                 int propertyLength = "p6"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P6.TryGetValue(key, out IList<DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
@@ -113,7 +113,7 @@ namespace Sample
                 int propertyLength = "p1"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P1.TryGetValue(key, out DynamicDictionary item))
+                if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
                 {
                     return false;
                 }
@@ -184,7 +184,7 @@ namespace Sample
                 int propertyLength = "p6"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P6.TryGetValue(key, out IList<DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }

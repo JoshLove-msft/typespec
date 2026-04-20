@@ -21,7 +21,7 @@ namespace Sample
                 int propertyLength = "p1"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P1.TryGetValue(key, out AnotherDynamic item))
+                if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
                 {
                     return false;
                 }
@@ -41,7 +41,7 @@ namespace Sample
                 int propertyLength = "p1"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P1.TryGetValue(key, out AnotherDynamic item))
+                if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
                 {
                     return false;
                 }

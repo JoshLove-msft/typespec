@@ -13,10 +13,10 @@ namespace Sample
     {
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(MockInputModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
 
             if (Optional.IsDefined(Id))

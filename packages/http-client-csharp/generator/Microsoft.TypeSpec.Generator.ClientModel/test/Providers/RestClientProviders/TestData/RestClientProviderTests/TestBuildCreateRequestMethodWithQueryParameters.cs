@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateSampleOpRequest(IEnumerable<string> p1Explode, IEnumerable<string> p1, IEnumerable<int> p2Explode, IEnumerable<int> p2, IDictionary<string, int> p3Explode, IDictionary<string, int> p3, IEnumerable<Foo> p4Explode, IEnumerable<IntFoo> p5Explode, IDictionary<string, Foo> p6Explode, IDictionary<string, IntFoo> p7Explode, IEnumerable<FloatFoo> p8Explode, IEnumerable<DoubleFoo> p9Explode, string optionalParam, RequestOptions options)
+        internal PipelineMessage CreateSampleOpRequest(IEnumerable<string> p1Explode, IEnumerable<string> p1, IEnumerable<int> p2Explode, IEnumerable<int> p2, IDictionary<string, int> p3Explode, IDictionary<string, int> p3, IEnumerable<global::Sample.Models.Foo> p4Explode, IEnumerable<global::Sample.Models.IntFoo> p5Explode, IDictionary<string, global::Sample.Models.Foo> p6Explode, IDictionary<string, global::Sample.Models.IntFoo> p7Explode, IEnumerable<global::Sample.Models.FloatFoo> p8Explode, IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, string optionalParam, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
@@ -57,42 +57,42 @@ namespace Sample
                 }
                 uri.AppendQueryDelimited("p3", list, ",", escape: true);
             }
-            if (((p4Explode != null) && !((p4Explode is ChangeTrackingList<Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
+            if (((p4Explode != null) && !((p4Explode is ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
             {
                 foreach (var @param in p4Explode)
                 {
                     uri.AppendQuery("p4Explode", @param.ToSerialString(), true);
                 }
             }
-            if (((p5Explode != null) && !((p5Explode is ChangeTrackingList<IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
+            if (((p5Explode != null) && !((p5Explode is ChangeTrackingList<global::Sample.Models.IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
             {
                 foreach (var @param in p5Explode)
                 {
                     uri.AppendQuery("p5Explode", ((int)@param), true);
                 }
             }
-            if (((p6Explode != null) && !((p6Explode is ChangeTrackingDictionary<string, Foo> changeTrackingDictionary1) && changeTrackingDictionary1.IsUndefined)))
+            if (((p6Explode != null) && !((p6Explode is ChangeTrackingDictionary<string, global::Sample.Models.Foo> changeTrackingDictionary1) && changeTrackingDictionary1.IsUndefined)))
             {
                 foreach (var @param in p6Explode)
                 {
                     uri.AppendQuery(@param.Key, @param.ToSerialString(), true);
                 }
             }
-            if (((p7Explode != null) && !((p7Explode is ChangeTrackingDictionary<string, IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
+            if (((p7Explode != null) && !((p7Explode is ChangeTrackingDictionary<string, global::Sample.Models.IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
             {
                 foreach (var @param in p7Explode)
                 {
                     uri.AppendQuery(@param.Key, ((int)@param), true);
                 }
             }
-            if (((p8Explode != null) && !((p8Explode is ChangeTrackingList<FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
+            if (((p8Explode != null) && !((p8Explode is ChangeTrackingList<global::Sample.Models.FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
             {
                 foreach (var @param in p8Explode)
                 {
                     uri.AppendQuery("p8Explode", ((float)@param), true);
                 }
             }
-            if (((p9Explode != null) && !((p9Explode is ChangeTrackingList<DoubleFoo> changeTrackingList6) && changeTrackingList6.IsUndefined)))
+            if (((p9Explode != null) && !((p9Explode is ChangeTrackingList<global::Sample.Models.DoubleFoo> changeTrackingList6) && changeTrackingList6.IsUndefined)))
             {
                 foreach (var @param in p9Explode)
                 {

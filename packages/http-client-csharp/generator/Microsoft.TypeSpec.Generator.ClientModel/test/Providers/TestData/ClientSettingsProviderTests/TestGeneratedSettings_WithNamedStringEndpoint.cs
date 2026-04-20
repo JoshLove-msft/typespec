@@ -15,14 +15,14 @@ namespace Sample
 
         public TestClientOptions Options { get; set; }
 
-        protected override void BindCore(IConfigurationSection section)
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
         {
             string fullyQualifiedNamespace = section["FullyQualifiedNamespace"];
             if (!string.IsNullOrEmpty(fullyQualifiedNamespace))
             {
                 this.FullyQualifiedNamespace = fullyQualifiedNamespace;
             }
-            IConfigurationSection optionsSection = section.GetSection("Options");
+            global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
                 this.Options = new TestClientOptions(optionsSection);

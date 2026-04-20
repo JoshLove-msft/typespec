@@ -7,10 +7,10 @@ using Sample.Models;
 
 namespace Sample
 {
-#pragma warning disable CS0618 // DeprecatedModel is obsolete and may be removed in future versions.
-    [ModelReaderWriterBuildableAttribute(typeof(DeprecatedModel))]
-#pragma warning restore CS0618 // DeprecatedModel is obsolete and may be removed in future versions.
-    [ModelReaderWriterBuildableAttribute(typeof(RegularModel))]
+#pragma warning disable CS0618 // global::Sample.Models.DeprecatedModel is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.DeprecatedModel))]
+#pragma warning restore CS0618 // global::Sample.Models.DeprecatedModel is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
     public partial class SampleContext : ModelReaderWriterContext
     {
     }

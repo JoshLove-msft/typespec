@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class Cat
     {
-        internal static Cat DeserializeCat(XElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Cat DeserializeCat(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -43,7 +43,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new Cat(kind, name, additionalBinaryDataProperties, meows);
+            return new global::Sample.Models.Cat(kind, name, additionalBinaryDataProperties, meows);
         }
     }
 }

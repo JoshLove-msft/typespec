@@ -29,7 +29,7 @@ namespace Sample
         }
 
         [ExperimentalAttribute("SCME0002")]
-        internal MultiServiceClientOptions(IConfigurationSection section) : base(section)
+        internal MultiServiceClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
             ServiceOneApiVersion = "2024-01-01";
             ServiceTwoApiVersion = "2024-06-01";

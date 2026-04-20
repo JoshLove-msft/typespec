@@ -14,7 +14,7 @@ namespace Sample
     {
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
@@ -34,7 +34,7 @@ namespace Sample
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(TestXmlModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{options.Format}' format.");
             }
         }
     }

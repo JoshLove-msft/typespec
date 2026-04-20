@@ -10,7 +10,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<Cat>
+    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<global::Sample.Models.Cat>
     {
         private readonly CatClient _client;
         private readonly string _myToken;
@@ -32,7 +32,7 @@ namespace Sample
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextToken = ((Page)result).NestedNext?.NextPage;
+                nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -43,7 +43,7 @@ namespace Sample
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((Page)page).NestedNext?.NextPage;
+            string nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
@@ -54,9 +54,9 @@ namespace Sample
             }
         }
 
-        protected override IEnumerable<Cat> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(ClientResult page)
         {
-            return ((Page)page).NestedItems?.Cats;
+            return ((global::Sample.Models.Page)page).NestedItems?.Cats;
         }
     }
 }

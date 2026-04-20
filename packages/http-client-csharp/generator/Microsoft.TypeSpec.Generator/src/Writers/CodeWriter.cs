@@ -1059,61 +1059,71 @@ namespace Microsoft.TypeSpec.Generator
                 return bodyText;
             }
 
-            // Determine which head names are ambiguous across the namespaces we've emitted.
-            HashSet<string>? collisions = null;
-            var seenHeads = new Dictionary<string, string>(_emittedTypeRefs.Count);
+            // Only shorten references whose namespace is "safe" - either the current namespace
+            // (or an ancestor of it, since C# scoping makes those names directly visible), or a
+            // System.* namespace. Other cross-namespace references are left as `global::Ns.X`
+            // so Roslyn's Simplifier can handle them safely - it has access to the full
+            // SemanticModel including external assemblies (e.g. NuGet packages) and can
+            // correctly account for collisions and visibility that this purely-textual rewriter
+            // cannot. This also keeps PostProcessor.RemoveAsync's reference search reliable,
+            // since SymbolFinder.FindReferencesAsync can miss references when the text resolves
+            // ambiguously (e.g. a generated `OpenAI.X` type referenced by simple name in a
+            // project that also imports the OpenAI NuGet namespace).
+            string[]? currentParts = _currentNamespace?.Split('.');
+
+            // Compute member-name collisions for the same-namespace case: an unqualified
+            // reference like `Foo` inside the primary type's body would resolve to a member
+            // named `Foo` instead of the type, so we need to prepend the current namespace's
+            // last segment in that case.
+            var memberCollisions = ComputePrimaryTypeMemberCollisions();
+
+            // Determine which head names from System.* namespaces are ambiguous and need to
+            // stay partially qualified (e.g. `System.Threading.Tasks.Task` vs `Task` from
+            // another System sub-namespace).
+            HashSet<string>? systemCollisions = null;
+            var seenSystemHeads = new Dictionary<string, string>();
             foreach (var (ns, headName) in _emittedTypeRefs)
             {
-                if (seenHeads.TryGetValue(headName, out var existingNs))
+                if (!IsSystemNamespace(ns))
+                    continue;
+                if (seenSystemHeads.TryGetValue(headName, out var existingNs))
                 {
                     if (existingNs != ns)
                     {
-                        collisions ??= new HashSet<string>();
-                        collisions.Add(headName);
+                        systemCollisions ??= new HashSet<string>();
+                        systemCollisions.Add(headName);
                     }
                 }
                 else
                 {
-                    seenHeads[headName] = ns;
+                    seenSystemHeads[headName] = ns;
                 }
             }
-
-            // Also treat as collisions any head name that matches a namespace segment visible
-            // (without qualification) from the current namespace - e.g. a sibling sub-namespace
-            // that would shadow the type name (`ContinuationToken` namespace vs the System.ClientModel
-            // type). Otherwise the unqualified short name would resolve to the namespace.
-            var shadowingHeads = ComputeShadowingNamespaceHeads();
-            if (shadowingHeads is not null)
-            {
-                collisions ??= new HashSet<string>();
-                foreach (var head in shadowingHeads)
-                {
-                    collisions.Add(head);
-                }
-            }
-
-            // Also treat as collisions any head name that matches a member (property, field,
-            // method, or nested type) of the primary type being written, since unqualified type
-            // references inside that type would resolve to the member instead.
-            var memberCollisions = ComputePrimaryTypeMemberCollisions();
-            if (memberCollisions is not null)
-            {
-                collisions ??= new HashSet<string>();
-                foreach (var name in memberCollisions)
-                {
-                    collisions.Add(name);
-                }
-            }
-
-            string[]? currentParts = _currentNamespace?.Split('.');
 
             foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
             {
+                bool isSameOrAncestorNamespace = IsSameOrAncestorNamespace(ns, currentParts);
+                bool isSystem = IsSystemNamespace(ns);
+                if (!isSameOrAncestorNamespace && !isSystem)
+                {
+                    continue;
+                }
+
                 var qualified = $"{GlobalPrefix}{ns}.{headName}";
                 string replacement;
-                if (collisions is not null && collisions.Contains(headName))
+                if (isSameOrAncestorNamespace)
                 {
                     replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions);
+                }
+                else if (systemCollisions is not null && systemCollisions.Contains(headName))
+                {
+                    // Ambiguous System head names - keep partially qualified to disambiguate.
+                    replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions: null);
+                }
+                else if (memberCollisions is not null && memberCollisions.Contains(headName))
+                {
+                    // The bare name would resolve to a member of the primary type; keep qualified.
+                    continue;
                 }
                 else
                 {
@@ -1130,6 +1140,36 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return bodyText;
+        }
+
+        private static bool IsSystemNamespace(string ns)
+        {
+            return ns == "System" || ns.StartsWith("System.", StringComparison.Ordinal);
+        }
+
+        // Returns true if `ns` is the current namespace or an ancestor of it. C# scoping rules
+        // make types in ancestor namespaces visible by their unqualified names from a more
+        // deeply-nested namespace (e.g. from `Foo.Bar.Models`, a type in `Foo` or `Foo.Bar` can
+        // be referenced by its head name).
+        private static bool IsSameOrAncestorNamespace(string ns, string[]? currentParts)
+        {
+            if (currentParts is null)
+            {
+                return false;
+            }
+            var nsParts = ns.Split('.');
+            if (nsParts.Length > currentParts.Length)
+            {
+                return false;
+            }
+            for (int i = 0; i < nsParts.Length; i++)
+            {
+                if (nsParts[i] != currentParts[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         // Returns the shortest unambiguous form of `ns.headName` when viewed from `_currentNamespace`.
@@ -1263,98 +1303,6 @@ namespace Microsoft.TypeSpec.Generator
                 names ??= new HashSet<string>(StringComparer.Ordinal);
                 names.Add(nested.Type.Name);
             }
-        }
-
-        // Returns the set of namespace segments that are visible (without qualification) from
-        // the current namespace and would therefore shadow a same-named simple type reference.
-        // For a file in namespace `A.B.C`, this includes the first segment after every prefix of
-        // `A.B.C` for any namespace we've emitted (i.e. sub-namespaces of A.B.C, sibling
-        // namespaces under A.B and under A, and top-level namespaces) - excluding the segments
-        // of the current namespace itself.
-        private HashSet<string>? ComputeShadowingNamespaceHeads()
-        {
-            if (_currentNamespace is null || (_emittedTypeRefs.Count == 0 && _usingNamespaces.Count == 0))
-            {
-                return null;
-            }
-
-            HashSet<string>? shadowing = null;
-            var currentParts = _currentNamespace.Split('.');
-
-            // Each segment of the current namespace is itself in scope as an unqualified name
-            // (e.g. inside `namespace A.B.C`, the identifier `C` refers to the namespace `A.B.C`).
-            // A type whose head name matches any current-namespace segment would be shadowed by
-            // that namespace.
-            foreach (var part in currentParts)
-            {
-                shadowing ??= new HashSet<string>(StringComparer.Ordinal);
-                shadowing.Add(part);
-            }
-
-            var allNamespaces = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var (ns, _) in _emittedTypeRefs)
-            {
-                allNamespaces.Add(ns);
-            }
-            foreach (var ns in _usingNamespaces)
-            {
-                allNamespaces.Add(ns);
-            }
-
-            // Also include namespaces of every type provider in the output library, since
-            // sub-namespaces of the current namespace shadow same-named types even when no type
-            // from that sub-namespace is referenced from this file. Skip if the library is still
-            // being built (e.g. when writing attribute providers prior to type provider construction)
-            // to avoid re-entrant initialization.
-            var generator = CodeModelGenerator.Instance;
-            if (generator?.OutputLibrary is { AreTypeProvidersBuilt: true } outputLibrary)
-            {
-                foreach (var typeProvider in outputLibrary.TypeProviders)
-                {
-                    var ns = typeProvider.Type.Namespace;
-                    if (!string.IsNullOrEmpty(ns))
-                    {
-                        allNamespaces.Add(ns);
-                    }
-                }
-            }
-
-            for (int i = currentParts.Length; i >= 0; i--)
-            {
-                var prefix = i == 0 ? string.Empty : string.Join(".", currentParts, 0, i);
-                var prefixDot = prefix.Length == 0 ? string.Empty : prefix + ".";
-                foreach (var ns in allNamespaces)
-                {
-                    // For the top-level prefix (i == 0) every namespace contributes its first
-                    // segment as a shadowing head; otherwise skip namespaces that aren't under
-                    // the current prefix.
-                    if (prefixDot.Length > 0 && !ns.StartsWith(prefixDot, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    var rest = prefixDot.Length == 0 ? ns : ns.Substring(prefixDot.Length);
-                    if (rest.Length == 0)
-                    {
-                        continue;
-                    }
-
-                    var dot = rest.IndexOf('.');
-                    var seg = dot < 0 ? rest : rest.Substring(0, dot);
-
-                    // Skip the segment that continues the current namespace itself - that's our
-                    // own ancestor path, not a sibling that could shadow.
-                    if (i < currentParts.Length && seg == currentParts[i])
-                    {
-                        continue;
-                    }
-
-                    shadowing ??= new HashSet<string>(StringComparer.Ordinal);
-                    shadowing.Add(seg);
-                }
-            }
-
-            return shadowing;
         }
 
         private void PopScope(CodeScope expected)

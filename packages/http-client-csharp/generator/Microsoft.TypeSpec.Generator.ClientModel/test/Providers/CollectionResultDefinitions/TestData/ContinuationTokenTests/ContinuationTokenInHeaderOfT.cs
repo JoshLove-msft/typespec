@@ -10,7 +10,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<Cat>
+    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<global::Sample.Models.Cat>
     {
         private readonly CatClient _client;
         private readonly string _myToken;
@@ -56,9 +56,9 @@ namespace Sample
             }
         }
 
-        protected override IEnumerable<Cat> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(ClientResult page)
         {
-            return ((Page)page).Cats;
+            return ((global::Sample.Models.Page)page).Cats;
         }
     }
 }

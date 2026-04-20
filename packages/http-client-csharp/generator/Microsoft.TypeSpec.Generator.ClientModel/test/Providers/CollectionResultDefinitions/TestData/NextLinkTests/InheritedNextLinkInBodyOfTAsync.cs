@@ -11,7 +11,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<Cat>
+    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly CatClient _client;
         private readonly RequestOptions _options;
@@ -31,7 +31,7 @@ namespace Sample
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextPageUri = ((Page)result).NextCat;
+                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -42,7 +42,7 @@ namespace Sample
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((Page)page).NextCat;
+            Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
             if ((nextPage != null))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
@@ -53,9 +53,9 @@ namespace Sample
             }
         }
 
-        protected override async IAsyncEnumerable<Cat> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Cat item in ((Page)page).Cats)
+            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).Cats)
             {
                 yield return item;
                 await Task.Yield();

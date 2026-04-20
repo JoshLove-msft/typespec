@@ -13,13 +13,13 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
-            IList<Cat> cats = default;
+            IList<global::Sample.Models.Cat> cats = default;
             IList<string> names = default;
             IList<string> optionalNames = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -33,10 +33,10 @@ namespace Sample
                     {
                         continue;
                     }
-                    List<Cat> array = new List<Cat>();
+                    List<global::Sample.Models.Cat> array = new List<global::Sample.Models.Cat>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(Cat.DeserializeCat(item, options));
+                        array.Add(global::Sample.Models.Cat.DeserializeCat(item, options));
                     }
                     cats = array;
                     continue;
@@ -81,7 +81,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new DynamicModel((cats ?? new ChangeTrackingList<Cat>()), names, (optionalNames ?? new ChangeTrackingList<string>()), patch);
+            return new global::Sample.Models.DynamicModel((cats ?? new ChangeTrackingList<global::Sample.Models.Cat>()), names, (optionalNames ?? new ChangeTrackingList<string>()), patch);
         }
     }
 }

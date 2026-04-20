@@ -11,9 +11,9 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        BinaryData IPersistableModel<DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::Sample.Models.DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        void IJsonModel<DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<global::Sample.Models.DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -30,16 +30,16 @@ namespace Sample
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(DynamicModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if ((Optional.IsDefined(Cat) && !Patch.Contains("$.cat"u8)))
             {
                 writer.WritePropertyName("cat"u8);
-                writer.WriteObjectValue<Cat>(Cat, options);
+                writer.WriteObjectValue<global::Sample.Models.Cat>(Cat, options);
             }
             if (!Patch.Contains("$.anything"u8))
             {

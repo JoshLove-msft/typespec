@@ -39,7 +39,7 @@ namespace Sample
         }
 
         [ExperimentalAttribute("SCME0002")]
-        internal TestClientOptions(IConfigurationSection section) : base(section)
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
             ComputeApiVersion = "2024-07-01";
             KeyVaultApiVersion = "7.5";
