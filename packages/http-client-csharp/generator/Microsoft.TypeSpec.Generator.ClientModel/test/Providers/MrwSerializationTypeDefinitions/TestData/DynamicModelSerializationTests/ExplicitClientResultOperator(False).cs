@@ -15,7 +15,7 @@ namespace Sample
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return global::Sample.Models.Cat.DeserializeCat(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return Cat.DeserializeCat(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

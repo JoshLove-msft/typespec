@@ -12,13 +12,13 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
-            global::Sample.Models.Cat cat = default;
+            Cat cat = default;
             BinaryData anything = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
@@ -31,7 +31,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cat = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
+                    cat = Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("anything"u8))
@@ -41,7 +41,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel(cat, anything, patch);
+            return new DynamicModel(cat, anything, patch);
         }
     }
 }

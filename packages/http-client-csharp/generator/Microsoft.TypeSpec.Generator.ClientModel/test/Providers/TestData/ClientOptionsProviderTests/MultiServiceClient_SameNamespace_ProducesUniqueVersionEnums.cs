@@ -29,7 +29,7 @@ namespace Sample
         }
 
         [ExperimentalAttribute("SCME0002")]
-        internal MultiServiceClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        internal MultiServiceClientOptions(IConfigurationSection section) : base(section)
         {
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceOneVersionsApiVersion = "2024-01-01";
             AzureGeneratorMgmtTypeSpecMultiServiceTestsServiceTwoVersionsApiVersion = "2024-06-01";

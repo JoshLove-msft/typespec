@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
+        internal static TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -54,7 +54,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(id, label, name, additionalBinaryDataProperties);
+            return new TestXmlModel(id, label, name, additionalBinaryDataProperties);
         }
     }
 }

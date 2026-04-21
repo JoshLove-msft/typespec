@@ -11,7 +11,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual async Task<ClientResult> OperationAsync(global::Sample.Models.InputEnum queryParam, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> OperationAsync(InputEnum queryParam, CancellationToken cancellationToken = default)
         {
             return await this.OperationAsync(queryParam.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }

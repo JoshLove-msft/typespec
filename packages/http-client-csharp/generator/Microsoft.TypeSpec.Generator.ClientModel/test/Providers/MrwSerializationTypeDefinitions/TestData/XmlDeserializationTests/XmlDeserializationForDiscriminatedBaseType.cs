@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class Pet
     {
-        internal static global::Sample.Models.Pet DeserializePet(XElement element, ModelReaderWriterOptions options)
+        internal static Pet DeserializePet(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -23,10 +23,10 @@ namespace Sample
                 switch (((string)discriminatorElement))
                 {
                     case "cat":
-                        return global::Sample.Models.Cat.DeserializeCat(element, options);
+                        return Cat.DeserializeCat(element, options);
                 }
             }
-            return global::Sample.Models.UnknownPet.DeserializeUnknownPet(element, options);
+            return UnknownPet.DeserializeUnknownPet(element, options);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Sample
                 return default;
             }
 
-            return global::Sample.Models.TestXmlModel.DeserializeTestXmlModel(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
+            return TestXmlModel.DeserializeTestXmlModel(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
     }
 }

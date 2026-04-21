@@ -7,10 +7,10 @@ using Sample.Models;
 
 namespace Sample
 {
-#pragma warning disable CS0618 // global::Sample.Models.CustomizedObsoleteModel is obsolete and may be removed in future versions.
-    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.CustomizedObsoleteModel))]
-#pragma warning restore CS0618 // global::Sample.Models.CustomizedObsoleteModel is obsolete and may be removed in future versions.
-    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
+#pragma warning disable CS0618 // CustomizedObsoleteModel is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(CustomizedObsoleteModel))]
+#pragma warning restore CS0618 // CustomizedObsoleteModel is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildableAttribute(typeof(RegularModel))]
     public partial class SampleContext : ModelReaderWriterContext
     {
     }

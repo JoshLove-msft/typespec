@@ -13,13 +13,13 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
-            IDictionary<string, global::Sample.Models.Cat> cats = default;
+            IDictionary<string, Cat> cats = default;
             IDictionary<string, string> names = default;
             IDictionary<string, string> optionalNames = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -33,10 +33,10 @@ namespace Sample
                     {
                         continue;
                     }
-                    Dictionary<string, global::Sample.Models.Cat> dictionary = new Dictionary<string, global::Sample.Models.Cat>();
+                    Dictionary<string, Cat> dictionary = new Dictionary<string, Cat>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, global::Sample.Models.Cat.DeserializeCat(prop0.Value, options));
+                        dictionary.Add(prop0.Name, Cat.DeserializeCat(prop0.Value, options));
                     }
                     cats = dictionary;
                     continue;
@@ -81,7 +81,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel((cats ?? new ChangeTrackingDictionary<string, global::Sample.Models.Cat>()), names, (optionalNames ?? new ChangeTrackingDictionary<string, string>()), patch);
+            return new DynamicModel((cats ?? new ChangeTrackingDictionary<string, Cat>()), names, (optionalNames ?? new ChangeTrackingDictionary<string, string>()), patch);
         }
     }
 }

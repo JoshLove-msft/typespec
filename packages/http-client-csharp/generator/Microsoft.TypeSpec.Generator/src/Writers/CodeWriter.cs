@@ -1060,16 +1060,10 @@ namespace Microsoft.TypeSpec.Generator
                 return bodyText;
             }
 
-            // Only shorten references whose namespace is "safe" - either the current namespace
-            // (or an ancestor of it, since C# scoping makes those names directly visible), or a
-            // System.* namespace. Other cross-namespace references are left as `global::Ns.X`
-            // so Roslyn's Simplifier can handle them safely - it has access to the full
-            // SemanticModel including external assemblies (e.g. NuGet packages) and can
-            // correctly account for collisions and visibility that this purely-textual rewriter
-            // cannot. This also keeps PostProcessor.RemoveAsync's reference search reliable,
-            // since SymbolFinder.FindReferencesAsync can miss references when the text resolves
-            // ambiguously (e.g. a generated `OpenAI.X` type referenced by simple name in a
-            // project that also imports the OpenAI NuGet namespace).
+            // Shorten every emitted reference - including cross-namespace refs - to its shortest
+            // unambiguous form. `using` directives for each emitted namespace are written at the
+            // top of the file, so bare names resolve correctly. PostProcessor's reference scan
+            // is made robust against the resulting ambiguity by a syntax-tree fallback pass.
             string[]? currentParts = _currentNamespace?.Split('.');
 
             // Head names that collide with a namespace segment visible from the current scope
@@ -1097,40 +1091,28 @@ namespace Microsoft.TypeSpec.Generator
             // last segment in that case.
             var memberCollisions = ComputePrimaryTypeMemberCollisions();
 
-            // Determine which head names from System.* namespaces are ambiguous and need to
-            // stay partially qualified (e.g. `System.Threading.Tasks.Task` vs `Task` from
-            // another System sub-namespace).
-            HashSet<string>? systemCollisions = null;
-            var seenSystemHeads = new Dictionary<string, string>();
+            // Determine which head names are emitted from multiple distinct namespaces - those
+            // are ambiguous if shortened to bare names, so we keep them partially qualified.
+            HashSet<string>? headCollisions = null;
+            var seenHeads = new Dictionary<string, string>();
             foreach (var (ns, headName) in _emittedTypeRefs)
             {
-                if (!IsSystemNamespace(ns))
-                {
-                    continue;
-                }
-                if (seenSystemHeads.TryGetValue(headName, out var existingNs))
+                if (seenHeads.TryGetValue(headName, out var existingNs))
                 {
                     if (existingNs != ns)
                     {
-                        systemCollisions ??= new HashSet<string>();
-                        systemCollisions.Add(headName);
+                        headCollisions ??= new HashSet<string>();
+                        headCollisions.Add(headName);
                     }
                 }
                 else
                 {
-                    seenSystemHeads[headName] = ns;
+                    seenHeads[headName] = ns;
                 }
             }
 
             foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
             {
-                bool isSameOrAncestorNamespace = IsSameOrAncestorNamespace(ns, currentParts);
-                bool isSystem = IsSystemNamespace(ns);
-                if (!isSameOrAncestorNamespace && !isSystem)
-                {
-                    continue;
-                }
-
                 // If the head name collides with a namespace segment, the bare name would bind
                 // to the namespace. Leave as `global::Ns.X` for Simplifier.
                 if (namespaceSegmentCollisions is not null && namespaceSegmentCollisions.Contains(headName))
@@ -1140,13 +1122,15 @@ namespace Microsoft.TypeSpec.Generator
 
                 var qualified = $"{GlobalPrefix}{ns}.{headName}";
                 string replacement;
+                bool isSameOrAncestorNamespace = IsSameOrAncestorNamespace(ns, currentParts);
                 if (isSameOrAncestorNamespace)
                 {
                     replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions);
                 }
-                else if (systemCollisions is not null && systemCollisions.Contains(headName))
+                else if (headCollisions is not null && headCollisions.Contains(headName))
                 {
-                    // Ambiguous System head names - keep partially qualified to disambiguate.
+                    // Same head name emitted from multiple distinct namespaces - keep partially
+                    // qualified to disambiguate (e.g. `System.Threading.Tasks.Task` vs `Task`).
                     replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions: null);
                 }
                 else if (memberCollisions is not null && memberCollisions.Contains(headName))
@@ -1169,11 +1153,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return bodyText;
-        }
-
-        private static bool IsSystemNamespace(string ns)
-        {
-            return ns == "System" || ns.StartsWith("System.", StringComparison.Ordinal);
         }
 
         // Cached set of distinct namespace segments across all known TypeProviders. A simple

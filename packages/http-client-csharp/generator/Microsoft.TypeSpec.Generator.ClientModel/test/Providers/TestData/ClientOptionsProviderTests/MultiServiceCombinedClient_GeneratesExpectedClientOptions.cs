@@ -31,7 +31,7 @@ namespace Sample
         }
 
         [ExperimentalAttribute("SCME0002")]
-        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        internal TestClientOptions(IConfigurationSection section) : base(section)
         {
             ServiceAApiVersion = "2.0";
             ServiceBApiVersion = "4.0";

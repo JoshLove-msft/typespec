@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
@@ -32,7 +32,7 @@ namespace Sample
                 }
                 additionalProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
             }
-            return new global::Sample.Models.DynamicModel(p1, additionalProperties, patch);
+            return new DynamicModel(p1, additionalProperties, patch);
         }
     }
 }

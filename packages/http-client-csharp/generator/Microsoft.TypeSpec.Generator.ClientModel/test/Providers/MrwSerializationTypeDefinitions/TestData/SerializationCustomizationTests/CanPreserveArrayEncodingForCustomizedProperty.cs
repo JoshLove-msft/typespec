@@ -14,10 +14,10 @@ namespace Sample
     {
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Model>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Model)} does not support writing '{format}' format.");
             }
             if (Optional.IsCollectionDefined(Prop2))
             {
@@ -41,7 +41,7 @@ namespace Sample
             }
         }
 
-        internal static global::Sample.Models.Model DeserializeModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static Model DeserializeModel(JsonElement element, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
@@ -66,7 +66,7 @@ namespace Sample
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::Sample.Models.Model((prop2 ?? new ChangeTrackingList<string>()), additionalBinaryDataProperties);
+            return new Model((prop2 ?? new ChangeTrackingList<string>()), additionalBinaryDataProperties);
         }
     }
 }

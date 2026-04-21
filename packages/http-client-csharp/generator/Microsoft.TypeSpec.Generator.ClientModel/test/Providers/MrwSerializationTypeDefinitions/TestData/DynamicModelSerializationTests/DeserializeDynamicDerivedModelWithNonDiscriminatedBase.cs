@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class Dog
     {
-        internal static global::Sample.Models.Dog DeserializeDog(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static Dog DeserializeDog(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
@@ -37,7 +37,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.Dog(species, patch, barks);
+            return new Dog(species, patch, barks);
         }
     }
 }

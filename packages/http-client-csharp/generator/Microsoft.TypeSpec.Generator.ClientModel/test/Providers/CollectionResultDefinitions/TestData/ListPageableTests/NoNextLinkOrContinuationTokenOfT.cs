@@ -9,7 +9,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsCollectionResultOfT : CollectionResult<Cat>
     {
         private readonly CatClient _client;
         private readonly string _animalKind;
@@ -33,9 +33,9 @@ namespace Sample
             return null;
         }
 
-        protected override IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<Cat> GetValuesFromPage(ClientResult page)
         {
-            return ((global::Sample.Models.Page)page).Cats;
+            return ((Page)page).Cats;
         }
     }
 }

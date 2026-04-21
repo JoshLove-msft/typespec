@@ -13,13 +13,13 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
-            global::Sample.Models.Cat cats = default;
+            Cat cats = default;
             IDictionary<string, string> additionalProperties = new ChangeTrackingDictionary<string, string>();
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
@@ -32,7 +32,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cats = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
+                    cats = Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
                 switch (prop.Value.ValueKind)
@@ -43,7 +43,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel(cats, additionalProperties, patch);
+            return new DynamicModel(cats, additionalProperties, patch);
         }
     }
 }

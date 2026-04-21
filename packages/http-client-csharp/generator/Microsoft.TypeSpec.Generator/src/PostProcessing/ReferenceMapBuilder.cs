@@ -43,6 +43,14 @@ namespace Microsoft.TypeSpec.Generator
                 await ProcessSymbolAsync(definition, referenceMap, documentCache);
             }
 
+            // Supplemental pass: SymbolFinder.FindReferencesAsync can miss references when a bare
+            // identifier binds ambiguously (e.g. another referenced assembly contributes the same
+            // namespace as a generated type - the compiler may resolve the identifier to the
+            // external symbol or expose our symbol only via SymbolInfo.CandidateSymbols). Walk
+            // each document's syntax tree once and attribute any identifier whose SymbolInfo
+            // references one of our definitions back to the owning type.
+            await ScanDocumentsForCandidateReferencesAsync(definitions, referenceMap, documentCache);
+
             return referenceMap;
         }
 
@@ -254,6 +262,72 @@ namespace Microsoft.TypeSpec.Generator
         private void ProcessFieldSymbol(INamedTypeSymbol keySymbol, IFieldSymbol fieldSymbol, ReferenceMap referenceMap) => AddTypeSymbol(keySymbol, fieldSymbol.Type, referenceMap);
 
         private void ProcessEventSymbol(INamedTypeSymbol keySymbol, IEventSymbol eventSymbol, ReferenceMap referenceMap) => AddTypeSymbol(keySymbol, eventSymbol.Type, referenceMap);
+
+        private async Task ScanDocumentsForCandidateReferencesAsync(
+            IEnumerable<INamedTypeSymbol> definitions,
+            ReferenceMap referenceMap,
+            IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
+        {
+            var definitionsByName = new Dictionary<string, List<INamedTypeSymbol>>(StringComparer.Ordinal);
+            foreach (var definition in definitions)
+            {
+                if (!definitionsByName.TryGetValue(definition.Name, out var list))
+                {
+                    list = new List<INamedTypeSymbol>();
+                    definitionsByName[definition.Name] = list;
+                }
+                list.Add(definition);
+            }
+
+            foreach (var (document, documentDeclaredSymbols) in documentCache)
+            {
+                var root = await document.GetSyntaxRootAsync();
+                if (root is null)
+                    continue;
+
+                SemanticModel? semanticModel = null;
+                foreach (var name in root.DescendantNodes().OfType<SimpleNameSyntax>())
+                {
+                    if (!definitionsByName.TryGetValue(name.Identifier.ValueText, out var matchingDefinitions))
+                        continue;
+
+                    semanticModel ??= _compilation.GetSemanticModel(root.SyntaxTree);
+                    var info = semanticModel.GetSymbolInfo(name);
+                    foreach (var def in matchingDefinitions)
+                    {
+                        if (!MatchesDefinition(info.Symbol, def) &&
+                            !info.CandidateSymbols.Any(c => MatchesDefinition(c, def)))
+                        {
+                            continue;
+                        }
+
+                        if (documentDeclaredSymbols.Count == 1)
+                        {
+                            referenceMap.AddInList(documentDeclaredSymbols.Single(), def);
+                        }
+                        else
+                        {
+                            var owner = GetOwnerTypeOfReference(name);
+                            if (owner is null)
+                            {
+                                referenceMap.AddGlobal(def);
+                            }
+                            else if (semanticModel.GetDeclaredSymbol(owner) is INamedTypeSymbol ownerSymbol)
+                            {
+                                referenceMap.AddInList(ownerSymbol, def);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static bool MatchesDefinition(ISymbol? candidate, INamedTypeSymbol definition)
+        {
+            if (candidate is null)
+                return false;
+            return SymbolEqualityComparer.Default.Equals(candidate.OriginalDefinition, definition);
+        }
 
         /// <summary>
         /// Returns the node that defines <paramref name="node"/> inside the document, which should be <see cref="ClassDeclarationSyntax"/>, <see cref="StructDeclarationSyntax"/> or <see cref="EnumDeclarationSyntax"/>

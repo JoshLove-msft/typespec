@@ -11,7 +11,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<Cat>
     {
         private readonly CatClient _client;
         private readonly string _myToken;
@@ -57,9 +57,9 @@ namespace Sample
             }
         }
 
-        protected override async IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<Cat> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).Cats)
+            foreach (Cat item in ((Page)page).Cats)
             {
                 yield return item;
                 await Task.Yield();

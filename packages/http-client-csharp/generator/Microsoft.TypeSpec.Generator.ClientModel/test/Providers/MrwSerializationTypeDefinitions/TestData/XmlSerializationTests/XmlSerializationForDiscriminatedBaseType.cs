@@ -11,7 +11,7 @@ namespace Sample
 {
     public partial class Pet
     {
-        BinaryData IPersistableModel<global::Sample.Models.Pet>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Pet>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
@@ -30,10 +30,10 @@ namespace Sample
 
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(global::Sample.Models.Pet)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Pet)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartElement("kind");

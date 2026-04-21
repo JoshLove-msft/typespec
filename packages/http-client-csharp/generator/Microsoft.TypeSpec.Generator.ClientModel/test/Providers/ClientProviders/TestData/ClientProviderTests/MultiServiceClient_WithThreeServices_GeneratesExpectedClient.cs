@@ -18,9 +18,9 @@ namespace Sample
         private readonly string _computeApiVersion;
         private readonly string _keyVaultApiVersion;
         private readonly string _storageApiVersion;
-        private global::Sample.KeyVault.KeyVault _cachedKeyVault;
-        private global::Sample.Storage.Storage _cachedStorage;
-        private global::Sample.Compute.Compute _cachedCompute;
+        private KeyVault _cachedKeyVault;
+        private Storage _cachedStorage;
+        private Compute _cachedCompute;
 
         protected TestClient()
         {
@@ -58,19 +58,19 @@ namespace Sample
 
         public ClientPipeline Pipeline { get; }
 
-        public virtual global::Sample.KeyVault.KeyVault GetKeyVaultClient()
+        public virtual KeyVault GetKeyVaultClient()
         {
-            return (Volatile.Read(ref _cachedKeyVault) ?? (Interlocked.CompareExchange(ref _cachedKeyVault, new global::Sample.KeyVault.KeyVault(Pipeline, _endpoint, _keyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
+            return (Volatile.Read(ref _cachedKeyVault) ?? (Interlocked.CompareExchange(ref _cachedKeyVault, new KeyVault(Pipeline, _endpoint, _keyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
         }
 
-        public virtual global::Sample.Storage.Storage GetStorageClient()
+        public virtual Storage GetStorageClient()
         {
-            return (Volatile.Read(ref _cachedStorage) ?? (Interlocked.CompareExchange(ref _cachedStorage, new global::Sample.Storage.Storage(Pipeline, _endpoint, _storageApiVersion, _subscriptionId), null) ?? _cachedStorage));
+            return (Volatile.Read(ref _cachedStorage) ?? (Interlocked.CompareExchange(ref _cachedStorage, new Storage(Pipeline, _endpoint, _storageApiVersion, _subscriptionId), null) ?? _cachedStorage));
         }
 
-        public virtual global::Sample.Compute.Compute GetComputeClient()
+        public virtual Compute GetComputeClient()
         {
-            return (Volatile.Read(ref _cachedCompute) ?? (Interlocked.CompareExchange(ref _cachedCompute, new global::Sample.Compute.Compute(Pipeline, _endpoint, _computeApiVersion, _subscriptionId), null) ?? _cachedCompute));
+            return (Volatile.Read(ref _cachedCompute) ?? (Interlocked.CompareExchange(ref _cachedCompute, new Compute(Pipeline, _endpoint, _computeApiVersion, _subscriptionId), null) ?? _cachedCompute));
         }
     }
 }

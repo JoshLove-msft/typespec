@@ -32,7 +32,7 @@ namespace Sample
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextToken = ((global::Sample.Models.Page)result).NextPage;
+                nextToken = ((Page)result).NextPage;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -43,7 +43,7 @@ namespace Sample
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((global::Sample.Models.Page)page).NextPage;
+            string nextPage = ((Page)page).NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));

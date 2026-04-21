@@ -32,7 +32,7 @@ namespace Sample
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
+                nextToken = ((Page)result).NestedNext?.NextPage;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -43,7 +43,7 @@ namespace Sample
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextPage;
+            string nextPage = ((Page)page).NestedNext?.NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));

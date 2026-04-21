@@ -16,13 +16,13 @@ namespace Sample
 
         public TestClientOptions Options { get; set; }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
+        protected override void BindCore(IConfigurationSection section)
         {
             if (Uri.TryCreate(section["Endpoint"], UriKind.Absolute, out Uri endpoint))
             {
                 this.Endpoint = endpoint;
             }
-            global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
+            IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
                 this.Options = new TestClientOptions(optionsSection);
