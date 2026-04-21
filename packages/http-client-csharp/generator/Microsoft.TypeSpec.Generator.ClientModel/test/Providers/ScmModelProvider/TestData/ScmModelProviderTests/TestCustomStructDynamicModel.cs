@@ -11,8 +11,8 @@ namespace Sample.Models
 {
     internal readonly partial struct Cat
     {
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        private readonly global::System.ClientModel.Primitives.JsonPatch _patch;
+        [ExperimentalAttribute("SCME0001")]
+        private readonly JsonPatch _patch;
 
         public Cat(bool meows)
         {
@@ -20,17 +20,17 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal Cat(bool meows, in global::System.ClientModel.Primitives.JsonPatch patch)
+        internal Cat(bool meows, in JsonPatch patch)
         {
             Meows = meows;
             _patch = patch;
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        public global::System.ClientModel.Primitives.JsonPatch Patch => _patch;
+        [JsonIgnoreAttribute]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [ExperimentalAttribute("SCME0001")]
+        public JsonPatch Patch => _patch;
 
         public bool Meows { get; }
     }

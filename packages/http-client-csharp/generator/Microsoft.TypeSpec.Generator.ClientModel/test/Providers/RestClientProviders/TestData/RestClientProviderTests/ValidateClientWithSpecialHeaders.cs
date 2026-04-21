@@ -10,14 +10,14 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateCreateMessageRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
+        internal PipelineMessage CreateCreateMessageRequest(BinaryContent content, RequestOptions options)
         {
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, global::Sample.SerializationFormat.DateTime_RFC7231));
-            request.Headers.Set("repeatability-request-ID", global::System.Guid.NewGuid().ToString());
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("repeatability-first-sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, SerializationFormat.DateTime_RFC7231));
+            request.Headers.Set("repeatability-request-ID", Guid.NewGuid().ToString());
             request.Content = content;
             message.Apply(options);
             return message;

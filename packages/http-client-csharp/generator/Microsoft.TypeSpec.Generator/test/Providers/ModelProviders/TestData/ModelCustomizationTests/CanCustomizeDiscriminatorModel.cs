@@ -7,16 +7,16 @@ using System.Collections.Generic;
 
 namespace Sample.Models
 {
-    public partial class FooModel : global::Sample.Models.MockInputModel
+    public partial class FooModel : MockInputModel
     {
-        internal FooModel() : base(global::Sample.Models.DiscriminatorValue.FooValue)
+        internal FooModel() : base(DiscriminatorValue.FooValue)
         {
         }
 
-        internal FooModel(global::Sample.Models.DiscriminatorValue discriminator, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, global::System.Collections.Generic.IList<int> prop1) : base(prop1, discriminator, additionalBinaryDataProperties)
+        internal FooModel(DiscriminatorValue discriminator, IDictionary<string, BinaryData> additionalBinaryDataProperties, IList<int> prop1) : base(prop1, discriminator, additionalBinaryDataProperties)
         {
         }
 
-        public override virtual global::System.Collections.Generic.IList<int> Prop1 { get; }
+        public override virtual IList<int> Prop1 { get; }
     }
 }

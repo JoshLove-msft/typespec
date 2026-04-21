@@ -9,28 +9,28 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class TestClientOptions : ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceOneTestsVersion LatestServiceOneTestsVersion = global::Sample.TestClientOptions.ServiceOneTestsVersion.V2_0;
-        private const global::Sample.TestClientOptions.ServiceTwoTestsVersion LatestServiceTwoTestsVersion = global::Sample.TestClientOptions.ServiceTwoTestsVersion.V4_0;
+        private const TestClientOptions.ServiceOneTestsVersion LatestServiceOneTestsVersion = TestClientOptions.ServiceOneTestsVersion.V2_0;
+        private const TestClientOptions.ServiceTwoTestsVersion LatestServiceTwoTestsVersion = TestClientOptions.ServiceTwoTestsVersion.V4_0;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceOneTestsVersion serviceOneTestsVersion = LatestServiceOneTestsVersion, global::Sample.TestClientOptions.ServiceTwoTestsVersion serviceTwoTestsVersion = LatestServiceTwoTestsVersion)
+        public TestClientOptions(TestClientOptions.ServiceOneTestsVersion serviceOneTestsVersion = LatestServiceOneTestsVersion, TestClientOptions.ServiceTwoTestsVersion serviceTwoTestsVersion = LatestServiceTwoTestsVersion)
         {
             ServiceOneTestsApiVersion = serviceOneTestsVersion switch
             {
-                global::Sample.TestClientOptions.ServiceOneTestsVersion.V1_0 => "1.0",
-                global::Sample.TestClientOptions.ServiceOneTestsVersion.V2_0 => "2.0",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.ServiceOneTestsVersion.V1_0 => "1.0",
+                TestClientOptions.ServiceOneTestsVersion.V2_0 => "2.0",
+                _ => throw new NotSupportedException()
             };
             ServiceTwoTestsApiVersion = serviceTwoTestsVersion switch
             {
-                global::Sample.TestClientOptions.ServiceTwoTestsVersion.V3_0 => "3.0",
-                global::Sample.TestClientOptions.ServiceTwoTestsVersion.V4_0 => "4.0",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.ServiceTwoTestsVersion.V3_0 => "3.0",
+                TestClientOptions.ServiceTwoTestsVersion.V4_0 => "4.0",
+                _ => throw new NotSupportedException()
             };
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        [ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
             ServiceOneTestsApiVersion = "2.0";

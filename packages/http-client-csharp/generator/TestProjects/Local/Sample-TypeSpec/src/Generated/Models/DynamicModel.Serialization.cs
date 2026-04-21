@@ -176,13 +176,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("optionalNullableDictionary"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in OptionalNullableDictionary)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNullableDictionary"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNullableDictionary"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.optionalNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -201,13 +201,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("requiredNullableDictionary"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in RequiredNullableDictionary)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.requiredNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.requiredNullableDictionary"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.requiredNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.requiredNullableDictionary"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.requiredNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -230,13 +230,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("primitiveDictionary"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in PrimitiveDictionary)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.primitiveDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.primitiveDictionary"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.primitiveDictionary"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.primitiveDictionary"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.primitiveDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -321,13 +321,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("dictionaryFoo"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in DictionaryFoo)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryFoo"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.dictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -346,13 +346,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("dictionaryOfDictionaryFoo"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in DictionaryOfDictionaryFoo)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryOfDictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryOfDictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryOfDictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryOfDictionaryFoo"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.dictionaryOfDictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -366,13 +366,13 @@ namespace SampleTypeSpec
                         }
                         writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                        global::System.Span<byte> buffer0 = stackalloc byte[256];
+                        Span<byte> buffer0 = stackalloc byte[256];
 #endif
                         foreach (var item0 in item.Value)
                         {
 #if NET8_0_OR_GREATER
-                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
-                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+                            int bytesWritten0 = Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
 #else
                             bool patchContains0 = Patch.Contains(Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), Encoding.UTF8.GetBytes(item0.Key));
 #endif
@@ -396,13 +396,13 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("dictionaryListFoo"u8);
                 writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
+                Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in DictionaryListFoo)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryListFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryListFoo"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryListFoo"u8, Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryListFoo"u8, buffer.Slice(0, bytesWritten));
 #else
                     bool patchContains = Patch.Contains("$.dictionaryListFoo"u8, Encoding.UTF8.GetBytes(item.Key));
 #endif
@@ -456,13 +456,13 @@ namespace SampleTypeSpec
                     }
                     writer.WriteStartObject();
 #if NET8_0_OR_GREATER
-                    global::System.Span<byte> buffer = stackalloc byte[256];
+                    Span<byte> buffer = stackalloc byte[256];
 #endif
                     foreach (var item in ListOfDictionaryFoo[i])
                     {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), buffer.Slice(0, bytesWritten));
+                        int bytesWritten = Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), buffer.Slice(0, bytesWritten));
 #else
                         bool patchContains = Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), Encoding.UTF8.GetBytes(item.Key));
 #endif

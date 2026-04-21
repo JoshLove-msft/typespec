@@ -12,29 +12,29 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStream(256))
+                    using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
+                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
                             this.WriteXml(writer, options, "TestXmlModel");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
-                            return global::System.BinaryData.FromStream(stream);
+                            return BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new global::System.BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
+                            return new BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
                         }
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{options.Format}' format.");
             }
         }
     }

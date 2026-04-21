@@ -6,12 +6,12 @@ using System;
 
 namespace Sample
 {
-    [global::System.ObsoleteAttribute]
-    [global::System.ObsoleteAttribute("This is obsolete")]
-    [global::System.ObsoleteAttribute("This is obsolete", true)]
-    [global::System.ObsoleteAttribute(DiagnosticId = "TypeSpecGenerator001")]
-    [global::System.ObsoleteAttribute(DiagnosticId = "TypeSpecGenerator001", UrlFormat = "my-format")]
-    [global::System.ObsoleteAttribute("This is obsolete", true, DiagnosticId = "TypeSpecGenerator001", UrlFormat = "my-format")]
+    [ObsoleteAttribute]
+    [ObsoleteAttribute("This is obsolete")]
+    [ObsoleteAttribute("This is obsolete", true)]
+    [ObsoleteAttribute(DiagnosticId = "TypeSpecGenerator001")]
+    [ObsoleteAttribute(DiagnosticId = "TypeSpecGenerator001", UrlFormat = "my-format")]
+    [ObsoleteAttribute("This is obsolete", true, DiagnosticId = "TypeSpecGenerator001", UrlFormat = "my-format")]
     public partial class ProviderWithAttributes
     {
     }

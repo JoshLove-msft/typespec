@@ -11,43 +11,43 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class OuterModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.OuterModel>
+    public partial class OuterModel : IPersistableModel<OuterModel>
     {
-        protected virtual global::Sample.Models.OuterModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual OuterModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.OuterModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<OuterModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (global::System.IO.Stream dataStream = data.ToStream())
+                    using (Stream dataStream = data.ToStream())
                     {
-                        return global::Sample.Models.OuterModel.DeserializeOuterModel(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
+                        return OuterModel.DeserializeOuterModel(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.OuterModel)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(OuterModel)} does not support reading '{options.Format}' format.");
             }
         }
 
-        internal static global::Sample.Models.OuterModel DeserializeOuterModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static OuterModel DeserializeOuterModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            global::Sample.Models.InnerModel inner = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            InnerModel inner = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
                 if ((localName == "inner"))
                 {
-                    inner = global::Sample.Models.InnerModel.DeserializeInnerModel(child, options);
+                    inner = InnerModel.DeserializeInnerModel(child, options);
                     continue;
                 }
             }
-            return new global::Sample.Models.OuterModel(inner, additionalBinaryDataProperties);
+            return new OuterModel(inner, additionalBinaryDataProperties);
         }
     }
 }

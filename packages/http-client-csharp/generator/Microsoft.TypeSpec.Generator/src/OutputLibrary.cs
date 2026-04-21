@@ -18,6 +18,8 @@ namespace Microsoft.TypeSpec.Generator
             internal set => _typeProviders = value;
         }
 
+        internal bool AreTypeProvidersBuilt => _typeProviders is not null;
+
         internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models));
 
         private static TypeProvider[] BuildEnums()

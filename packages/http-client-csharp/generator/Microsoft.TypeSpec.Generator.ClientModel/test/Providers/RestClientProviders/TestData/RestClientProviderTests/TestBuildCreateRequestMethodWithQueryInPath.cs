@@ -8,14 +8,14 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateAbortCopyFromUrlRequest(string copyid, global::System.ClientModel.Primitives.RequestOptions options)
+        internal PipelineMessage CreateAbortCopyFromUrlRequest(string copyid, RequestOptions options)
         {
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("comp", "copy", true);
             uri.AppendQuery("copyid", copyid, true);
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

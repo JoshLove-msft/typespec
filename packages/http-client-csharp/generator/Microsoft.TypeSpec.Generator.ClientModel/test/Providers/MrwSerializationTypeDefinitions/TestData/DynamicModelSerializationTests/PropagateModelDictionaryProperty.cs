@@ -11,15 +11,15 @@ namespace Sample
     public partial class DynamicModel
     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateGet(global::System.ReadOnlySpan<byte> jsonPath, out global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
+        private bool PropagateGet(ReadOnlySpan<byte> jsonPath, out JsonPatch.EncodedValue value)
         {
-            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
             value = default;
 
             if (local.StartsWith("p1"u8))
             {
                 int propertyLength = "p1"u8.Length;
-                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
                 {
@@ -32,14 +32,14 @@ namespace Sample
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateSet(global::System.ReadOnlySpan<byte> jsonPath, global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
+        private bool PropagateSet(ReadOnlySpan<byte> jsonPath, JsonPatch.EncodedValue value)
         {
-            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
 
             if (local.StartsWith("p1"u8))
             {
                 int propertyLength = "p1"u8.Length;
-                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.AnotherDynamic item))
                 {

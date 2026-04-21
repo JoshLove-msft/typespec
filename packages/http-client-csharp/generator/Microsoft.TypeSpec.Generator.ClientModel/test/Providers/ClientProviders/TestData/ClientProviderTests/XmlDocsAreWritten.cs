@@ -13,7 +13,7 @@ namespace Sample
     /// <summary> TestClient description. </summary>
     public partial class TestClient
     {
-        private readonly global::System.Uri _endpoint;
+        private readonly Uri _endpoint;
         private readonly string _queryParam;
 
         /// <summary> Initializes a new instance of TestClient for mocking. </summary>
@@ -26,7 +26,7 @@ namespace Sample
         /// <param name="queryParam"> queryParam description. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="queryParam"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam"/> is an empty string, and was expected to be non-empty. </exception>
-        public TestClient(global::System.Uri endpoint, string queryParam) : this(endpoint, queryParam, new global::Sample.TestClientOptions())
+        public TestClient(Uri endpoint, string queryParam) : this(endpoint, queryParam, new TestClientOptions())
         {
         }
 
@@ -35,22 +35,22 @@ namespace Sample
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="queryParam"> queryParam description. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options)
+        internal TestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string queryParam, TestClientOptions options)
         {
-            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
-            global::Sample.Argument.AssertNotNullOrEmpty(queryParam, nameof(queryParam));
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNullOrEmpty(queryParam, nameof(queryParam));
 
-            options ??= new global::Sample.TestClientOptions();
+            options ??= new TestClientOptions();
 
             _endpoint = endpoint;
             _queryParam = queryParam;
             if ((authenticationPolicy != null))
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly) }, Array.Empty<PipelinePolicy>());
             }
         }
 
@@ -60,12 +60,12 @@ namespace Sample
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="queryParam"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam"/> is an empty string, and was expected to be non-empty. </exception>
-        public TestClient(global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options) : this(null, endpoint, queryParam, options)
+        public TestClient(Uri endpoint, string queryParam, TestClientOptions options) : this(null, endpoint, queryParam, options)
         {
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
+        public ClientPipeline Pipeline { get; }
 
         /// <summary>
         /// [Protocol Method] Foo description
@@ -78,10 +78,10 @@ namespace Sample
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult Foo(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult Foo(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateFooRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateFooRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -95,16 +95,16 @@ namespace Sample
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FooAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> FooAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateFooRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateFooRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Foo description. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult Foo(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult Foo(CancellationToken cancellationToken = default)
         {
             return this.Foo(cancellationToken.ToRequestOptions());
         }
@@ -112,7 +112,7 @@ namespace Sample
         /// <summary> Foo description. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FooAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> FooAsync(CancellationToken cancellationToken = default)
         {
             return await this.FooAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }

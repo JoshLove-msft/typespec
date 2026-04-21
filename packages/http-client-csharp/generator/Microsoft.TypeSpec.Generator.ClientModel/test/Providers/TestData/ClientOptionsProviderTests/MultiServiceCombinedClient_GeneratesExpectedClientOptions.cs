@@ -9,28 +9,28 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class TestClientOptions : ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceAServiceVersion LatestServiceAVersion = global::Sample.TestClientOptions.ServiceAServiceVersion.V2_0;
-        private const global::Sample.TestClientOptions.ServiceBServiceVersion LatestServiceBVersion = global::Sample.TestClientOptions.ServiceBServiceVersion.V4_0;
+        private const TestClientOptions.ServiceAServiceVersion LatestServiceAVersion = TestClientOptions.ServiceAServiceVersion.V2_0;
+        private const TestClientOptions.ServiceBServiceVersion LatestServiceBVersion = TestClientOptions.ServiceBServiceVersion.V4_0;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceAServiceVersion serviceAServiceVersion = LatestServiceAVersion, global::Sample.TestClientOptions.ServiceBServiceVersion serviceBServiceVersion = LatestServiceBVersion)
+        public TestClientOptions(TestClientOptions.ServiceAServiceVersion serviceAServiceVersion = LatestServiceAVersion, TestClientOptions.ServiceBServiceVersion serviceBServiceVersion = LatestServiceBVersion)
         {
             ServiceAApiVersion = serviceAServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceAServiceVersion.V1_0 => "1.0",
-                global::Sample.TestClientOptions.ServiceAServiceVersion.V2_0 => "2.0",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.ServiceAServiceVersion.V1_0 => "1.0",
+                TestClientOptions.ServiceAServiceVersion.V2_0 => "2.0",
+                _ => throw new NotSupportedException()
             };
             ServiceBApiVersion = serviceBServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceBServiceVersion.V3_0 => "3.0",
-                global::Sample.TestClientOptions.ServiceBServiceVersion.V4_0 => "4.0",
-                _ => throw new global::System.NotSupportedException()
+                TestClientOptions.ServiceBServiceVersion.V3_0 => "3.0",
+                TestClientOptions.ServiceBServiceVersion.V4_0 => "4.0",
+                _ => throw new NotSupportedException()
             };
         }
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        [ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
             ServiceAApiVersion = "2.0";

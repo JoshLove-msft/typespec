@@ -14,20 +14,20 @@ namespace Sample.Models
 {
     public partial class DynamicModel
     {
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        private global::System.ClientModel.Primitives.JsonPatch _patch;
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        [ExperimentalAttribute("SCME0001")]
+        private JsonPatch _patch;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         public DynamicModel(string p1)
         {
-            global::Sample.Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p1, nameof(p1));
 
             P1 = p1;
-            _additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            _additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string p1, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties, in global::System.ClientModel.Primitives.JsonPatch patch)
+        internal DynamicModel(string p1, IDictionary<string, BinaryData> additionalProperties, in JsonPatch patch)
         {
             P1 = p1;
             _additionalBinaryDataProperties = additionalProperties;
@@ -35,13 +35,13 @@ namespace Sample.Models
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
+        [JsonIgnoreAttribute]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [ExperimentalAttribute("SCME0001")]
+        public ref JsonPatch Patch => ref _patch;
 
         public string P1 { get; set; }
 
-        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> AdditionalProperties => _additionalBinaryDataProperties;
+        public IDictionary<string, BinaryData> AdditionalProperties => _additionalBinaryDataProperties;
     }
 }

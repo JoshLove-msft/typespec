@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public virtual CodeFile Write()
         {
-            using var writer = new CodeWriter();
+            using var writer = new CodeWriter(_provider);
             using (var ns = writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);

@@ -8,14 +8,14 @@ using System.Text.Json;
 
 namespace Sample.Models
 {
-    public partial class TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.TestModel>
+    public partial class TestModel : IJsonModel<TestModel>
     {
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<TestModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(TestModel)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("kebab-case"u8);
             writer.WriteStringValue(KebabCase);
@@ -27,9 +27,9 @@ namespace Sample.Models
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
                     {
-                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                        JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }

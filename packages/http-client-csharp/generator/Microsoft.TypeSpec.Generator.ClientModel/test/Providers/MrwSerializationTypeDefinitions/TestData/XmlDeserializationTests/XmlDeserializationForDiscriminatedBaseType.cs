@@ -10,14 +10,14 @@ namespace Sample
 {
     public partial class Pet
     {
-        internal static global::Sample.Models.Pet DeserializePet(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Pet DeserializePet(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            global::System.Xml.Linq.XElement discriminatorElement = element.Element("kind");
+            XElement discriminatorElement = element.Element("kind");
             if ((discriminatorElement != null))
             {
                 switch (((string)discriminatorElement))

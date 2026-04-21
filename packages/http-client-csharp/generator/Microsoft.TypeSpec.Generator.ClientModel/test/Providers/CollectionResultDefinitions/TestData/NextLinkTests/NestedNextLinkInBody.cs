@@ -10,24 +10,24 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
+    internal partial class CatClientGetCatsCollectionResult : CollectionResult
     {
-        private readonly global::Sample.CatClient _client;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly CatClient _client;
+        private readonly RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(CatClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
-            global::System.Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateGetCatsRequest(_options);
+            Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 nextPageUri = ((global::Sample.Models.Page)result).NestedNext?.NextCat;
@@ -39,12 +39,12 @@ namespace Sample
             }
         }
 
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
+            Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
             if ((nextPage != null))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {

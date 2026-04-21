@@ -9,23 +9,23 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class TestClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class TestClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint { get; set; }
+        public Uri Endpoint { get; set; }
 
-        public global::Sample.TestClientOptions Options { get; set; }
+        public TestClientOptions Options { get; set; }
 
         protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["Endpoint"], global::System.UriKind.Absolute, out global::System.Uri endpoint))
+            if (Uri.TryCreate(section["Endpoint"], UriKind.Absolute, out Uri endpoint))
             {
                 this.Endpoint = endpoint;
             }
             global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
-                this.Options = new global::Sample.TestClientOptions(optionsSection);
+                this.Options = new TestClientOptions(optionsSection);
             }
         }
     }

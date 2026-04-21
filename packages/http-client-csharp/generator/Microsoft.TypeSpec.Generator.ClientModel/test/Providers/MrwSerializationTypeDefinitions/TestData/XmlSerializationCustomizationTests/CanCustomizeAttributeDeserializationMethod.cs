@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class MockInputModel
     {
-        internal static global::Sample.Models.MockInputModel DeserializeMockInputModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.MockInputModel DeserializeMockInputModel(XElement element, ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -21,7 +21,7 @@ namespace Sample
 
             string id = default;
             string name = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {

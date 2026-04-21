@@ -8,10 +8,10 @@ using Sample.Models;
 namespace Sample
 {
 #pragma warning disable CS0618 // global::Sample.Models.CustomizedObsoleteModel is obsolete and may be removed in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.CustomizedObsoleteModel))]
+    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.CustomizedObsoleteModel))]
 #pragma warning restore CS0618 // global::Sample.Models.CustomizedObsoleteModel is obsolete and may be removed in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
-    public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RegularModel))]
+    public partial class SampleContext : ModelReaderWriterContext
     {
     }
 }

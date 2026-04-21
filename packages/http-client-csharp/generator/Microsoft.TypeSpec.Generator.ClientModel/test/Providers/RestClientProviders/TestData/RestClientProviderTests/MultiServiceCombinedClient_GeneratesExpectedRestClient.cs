@@ -8,28 +8,28 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateServiceAOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
+        internal PipelineMessage CreateServiceAOperationRequest(RequestOptions options)
         {
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("apiVersion", _serviceAApiVersion, true);
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
 
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateServiceBOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
+        internal PipelineMessage CreateServiceBOperationRequest(RequestOptions options)
         {
-            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("apiVersion", _serviceBApiVersion, true);
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

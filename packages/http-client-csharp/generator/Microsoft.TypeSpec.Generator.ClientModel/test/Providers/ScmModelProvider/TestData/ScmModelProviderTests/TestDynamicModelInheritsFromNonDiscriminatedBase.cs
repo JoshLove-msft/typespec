@@ -10,30 +10,30 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class Dog : global::Sample.Models.Animal
+    public partial class Dog : Animal
     {
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        private global::System.ClientModel.Primitives.JsonPatch _patch;
+        [ExperimentalAttribute("SCME0001")]
+        private JsonPatch _patch;
 
         public Dog(string species, bool barks) : base(species)
         {
-            global::Sample.Argument.AssertNotNull(species, nameof(species));
+            Argument.AssertNotNull(species, nameof(species));
 
             Barks = barks;
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal Dog(string species, in global::System.ClientModel.Primitives.JsonPatch patch, bool barks) : base(species, default)
+        internal Dog(string species, in JsonPatch patch, bool barks) : base(species, default)
         {
             Barks = barks;
             _patch = patch;
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
-        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
+        [JsonIgnoreAttribute]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [ExperimentalAttribute("SCME0001")]
+        public ref JsonPatch Patch => ref _patch;
 
         public bool Barks { get; set; }
     }

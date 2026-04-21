@@ -339,8 +339,10 @@ namespace Microsoft.TypeSpec.Generator
             var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
             var tree = declarationNode.SyntaxTree;
             var document = project.GetDocument(documentId)!;
-            var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
-                .WithAdditionalAnnotations(Simplifier.Annotation);
+            // No Simplifier.Annotation here: changing an accessibility keyword does not introduce
+            // anything reducible, so re-annotating would force Simplifier.ReduceAsync to revisit the
+            // whole document on the second pass for no benefit. See microsoft/typespec#10424.
+            var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode);
             document = document.WithSyntaxRoot(newRoot);
             return document.Project;
         }

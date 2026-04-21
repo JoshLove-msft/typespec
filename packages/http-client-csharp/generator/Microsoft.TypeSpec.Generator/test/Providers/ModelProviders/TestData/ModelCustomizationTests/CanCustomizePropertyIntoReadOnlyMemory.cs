@@ -9,7 +9,7 @@ namespace Sample
 {
     public static partial class SampleModelFactory
     {
-        public static global::Sample.Models.MockInputModel MockInputModel(global::System.ReadOnlyMemory<byte> prop1 = default)
+        public static global::Sample.Models.MockInputModel MockInputModel(ReadOnlyMemory<byte> prop1 = default)
         {
             return new global::Sample.Models.MockInputModel(prop1, additionalBinaryDataProperties: null);
         }

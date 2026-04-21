@@ -11,9 +11,9 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TestOperationAsync(global::Sample.Models.ModelWithQuery body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> TestOperationAsync(global::Sample.Models.ModelWithQuery body, CancellationToken cancellationToken = default)
         {
-            global::Sample.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
             return await this.TestOperationAsync(body.Foo, body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
