@@ -12,9 +12,9 @@ namespace Sample.Models
 {
     public partial class DynamicModel
     {
-        BinaryData IPersistableModel<DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        void IJsonModel<DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.DynamicModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -29,12 +29,12 @@ namespace Sample.Models
             writer.WriteEndObject();
         }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(DynamicModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$.someSpan"u8))
@@ -45,13 +45,13 @@ namespace Sample.Models
                     writer.WriteRawValue(Patch.GetJson("$.someSpan"u8));
                 }
             }
-            else if (((options.Format != "W") && Optional.IsDefined(SomeSpan)))
+            else if (((options.Format != "W") && global::Sample.Optional.IsDefined(SomeSpan)))
             {
                 writer.WritePropertyName("someSpan"u8);
                 writer.WriteStartArray();
                 for (int i = 0; (i < SomeSpan.Span.Length); i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.someSpan[{i}]")))
+                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.someSpan[{i}]")))
                     {
                         continue;
                     }

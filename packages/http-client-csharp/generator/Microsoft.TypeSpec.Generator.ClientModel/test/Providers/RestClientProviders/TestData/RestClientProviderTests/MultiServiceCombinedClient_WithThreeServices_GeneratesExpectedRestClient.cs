@@ -8,39 +8,39 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal PipelineMessage CreateKeyVaultOperationRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateKeyVaultOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("apiVersion", _keyVaultApiVersion, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateStorageOperationRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateStorageOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("apiVersion", _storageApiVersion, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateComputeOperationRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateComputeOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("apiVersion", _computeApiVersion, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Sample.Models
 {
-    public partial class Cat : Pet
+    public partial class Cat : global::Sample.Models.Pet
     {
         public Cat(bool meows) : base("cat")
         {
@@ -14,7 +14,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal Cat(string kind, in JsonPatch patch, bool meows) : base(kind, patch)
+        internal Cat(string kind, in global::System.ClientModel.Primitives.JsonPatch patch, bool meows) : base(kind, patch)
         {
             Meows = meows;
         }

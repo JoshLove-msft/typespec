@@ -13,7 +13,7 @@ namespace Sample
     public partial class ModelSerializationExtensions
     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public static void WriteDictionaryWithPatch<T>(this Utf8JsonWriter writer, ModelReaderWriterOptions options, ref JsonPatch patch, ReadOnlySpan<byte> propertyName, ReadOnlySpan<byte> prefix, IDictionary<string, T> dictionary, Action<Utf8JsonWriter, T, ModelReaderWriterOptions> write, Func<T, JsonPatch> getPatchFromItem)
+        public static void WriteDictionaryWithPatch<T>(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, ref global::System.ClientModel.Primitives.JsonPatch patch, global::System.ReadOnlySpan<byte> propertyName, global::System.ReadOnlySpan<byte> prefix, global::System.Collections.Generic.IDictionary<string, T> dictionary, global::System.Action<global::System.Text.Json.Utf8JsonWriter, T, global::System.ClientModel.Primitives.ModelReaderWriterOptions> write, global::System.Func<T, global::System.ClientModel.Primitives.JsonPatch> getPatchFromItem)
         {
             if (!propertyName.IsEmpty)
             {
@@ -23,11 +23,11 @@ namespace Sample
             writer.WriteStartObject();
 #if NET8_0_OR_GREATER
             const int maxPropertyNameLength = 256;
-            Span<byte> buffer = stackalloc byte[maxPropertyNameLength];
+            global::System.Span<byte> buffer = stackalloc byte[maxPropertyNameLength];
 #endif
             foreach (var item in dictionary)
             {
-                if (((getPatchFromItem != null) && getPatchFromItem(item.Value).TryGetJson("$"u8, out ReadOnlyMemory<byte> patchedJson)))
+                if (((getPatchFromItem != null) && getPatchFromItem(item.Value).TryGetJson("$"u8, out global::System.ReadOnlyMemory<byte> patchedJson)))
                 {
                     if (!patchedJson.IsEmpty)
                     {
@@ -39,10 +39,10 @@ namespace Sample
 
                 bool patchContains;
 #if NET8_0_OR_GREATER
-                int bytesWritten = Encoding.UTF8.GetBytes(item.Key, buffer);
-                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.Contains(prefix, Encoding.UTF8.GetBytes(item.Key)) : patch.Contains(prefix, buffer.Slice(0, bytesWritten));
+                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
+                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.Contains(prefix, buffer.Slice(0, bytesWritten));
 #else
-                patchContains = patch.Contains(prefix, Encoding.UTF8.GetBytes(item.Key));
+                patchContains = patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
                 if (!patchContains)
                 {

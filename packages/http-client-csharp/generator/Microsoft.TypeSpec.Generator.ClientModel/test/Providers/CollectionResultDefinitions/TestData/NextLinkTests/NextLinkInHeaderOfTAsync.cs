@@ -11,29 +11,29 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
-        private readonly CatClient _client;
-        private readonly RequestOptions _options;
+        private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResultOfT(CatClient client, RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetCatsRequest(_options);
-            Uri nextPageUri = null;
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
+            global::System.Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 if ((result.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
                 {
-                    nextPageUri = new Uri(value, UriKind.RelativeOrAbsolute);
+                    nextPageUri = new global::System.Uri(value, global::System.UriKind.RelativeOrAbsolute);
                 }
                 else
                 {
@@ -43,11 +43,11 @@ namespace Sample
             }
         }
 
-        public override ContinuationToken GetContinuationToken(ClientResult page)
+        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             if ((page.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(value));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }
             else
             {
@@ -55,12 +55,12 @@ namespace Sample
             }
         }
 
-        protected override async IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(ClientResult page)
+        protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)
         {
             foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).Cats)
             {
                 yield return item;
-                await Task.Yield();
+                await global::System.Threading.Tasks.Task.Yield();
             }
         }
     }

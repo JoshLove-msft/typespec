@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
@@ -20,7 +20,7 @@ namespace Sample
             }
 
             string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {

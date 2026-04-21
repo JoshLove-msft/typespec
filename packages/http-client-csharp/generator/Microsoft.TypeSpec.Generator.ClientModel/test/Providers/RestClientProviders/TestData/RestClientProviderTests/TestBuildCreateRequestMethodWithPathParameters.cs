@@ -9,9 +9,9 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateSampleOpRequest(string p1, IEnumerable<int> p2, IDictionary<string, int> p3, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/", false);
             uri.AppendPath(p1, true);
@@ -19,8 +19,8 @@ namespace Sample
             uri.AppendPathDelimited(p2, ",", escape: true);
             uri.AppendPath("/", false);
             uri.AppendPathDelimited(p3, ",", escape: true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

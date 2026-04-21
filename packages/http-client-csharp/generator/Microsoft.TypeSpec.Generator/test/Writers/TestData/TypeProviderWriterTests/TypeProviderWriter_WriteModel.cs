@@ -10,17 +10,17 @@ namespace Sample.Models
 {
     public partial class TestModel
     {
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         public TestModel(string requiredString, int requiredInt)
         {
-            Argument.AssertNotNull(requiredString, nameof(requiredString));
+            global::Sample.Argument.AssertNotNull(requiredString, nameof(requiredString));
 
             RequiredString = requiredString;
             RequiredInt = requiredInt;
         }
 
-        internal TestModel(string requiredString, int requiredInt, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal TestModel(string requiredString, int requiredInt, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             RequiredString = requiredString;
             RequiredInt = requiredInt;

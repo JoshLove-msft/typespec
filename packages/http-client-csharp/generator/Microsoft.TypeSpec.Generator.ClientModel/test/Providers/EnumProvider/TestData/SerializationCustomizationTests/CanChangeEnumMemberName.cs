@@ -8,21 +8,21 @@ namespace Sample.Models
 {
     internal static partial class MockInputModelExtensions
     {
-        public static MockInputModel ToMockInputModel(this int value)
+        public static global::Sample.Models.MockInputModel ToMockInputModel(this int value)
         {
             if ((value == 1))
             {
-                return MockInputModel.Red;
+                return global::Sample.Models.MockInputModel.Red;
             }
             if ((value == 2))
             {
-                return MockInputModel.Green;
+                return global::Sample.Models.MockInputModel.Green;
             }
             if ((value == 3))
             {
-                return MockInputModel.SkyBlue;
+                return global::Sample.Models.MockInputModel.SkyBlue;
             }
-            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown MockInputModel value.");
+            throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown MockInputModel value.");
         }
     }
 }

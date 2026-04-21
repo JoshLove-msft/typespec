@@ -11,26 +11,26 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResultOfT : AsyncCollectionResult<global::Sample.Models.Cat>
+    internal partial class CatClientGetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
-        private readonly CatClient _client;
+        private readonly global::Sample.CatClient _client;
         private readonly string _myToken;
-        private readonly RequestOptions _options;
+        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResultOfT(CatClient client, string myToken, RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _myToken = myToken;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_myToken, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
@@ -42,12 +42,12 @@ namespace Sample
             }
         }
 
-        public override ContinuationToken GetContinuationToken(ClientResult page)
+        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             string nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
             }
             else
             {
@@ -55,12 +55,12 @@ namespace Sample
             }
         }
 
-        protected override async IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(ClientResult page)
+        protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)
         {
             foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).NestedItems?.Cats)
             {
                 yield return item;
-                await Task.Yield();
+                await global::System.Threading.Tasks.Task.Yield();
             }
         }
     }

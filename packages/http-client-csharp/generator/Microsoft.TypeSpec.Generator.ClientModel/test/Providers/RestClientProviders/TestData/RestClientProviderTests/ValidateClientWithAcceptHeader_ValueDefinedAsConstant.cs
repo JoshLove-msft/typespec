@@ -8,12 +8,12 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateSingleServiceMethodInputClientOperationRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSingleServiceMethodInputClientOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("accept", "image/png");
             message.Apply(options);
             return message;

@@ -23,11 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             return CSharpCompilation.Create(
                 assemblyName: "TestAssembly",
                 syntaxTrees: [.. files],
-                references: [
-                    .. metadataReferenceTypes?.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location)) ?? [],
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location),
-                ]);
+                references: [.. metadataReferenceTypes?.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location)) ?? [], MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)

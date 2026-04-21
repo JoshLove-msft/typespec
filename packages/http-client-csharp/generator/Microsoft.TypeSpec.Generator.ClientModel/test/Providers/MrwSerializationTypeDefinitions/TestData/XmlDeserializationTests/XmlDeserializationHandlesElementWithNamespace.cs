@@ -12,23 +12,23 @@ namespace Sample
 {
     public partial class TestXmlModel
     {
-        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(XElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))
             {
                 return null;
             }
 
-            XNamespace categoryNs = "https://example.com/ns1";
+            global::System.Xml.Linq.XNamespace categoryNs = "https://example.com/ns1";
 
             string id = default;
             string category = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                XNamespace ns = child.Name.Namespace;
+                global::System.Xml.Linq.XNamespace ns = child.Name.Namespace;
 
                 if ((localName == "id"))
                 {

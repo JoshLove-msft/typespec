@@ -12,28 +12,28 @@ namespace Sample.Models
 {
     public partial class DynamicModel
     {
-        [ExperimentalAttribute("SCME0001")]
-        private JsonPatch _patch;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        private global::System.ClientModel.Primitives.JsonPatch _patch;
 
         public DynamicModel(string p1)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
+            global::Sample.Argument.AssertNotNull(p1, nameof(p1));
 
             P1 = p1;
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string p1, in JsonPatch patch)
+        internal DynamicModel(string p1, in global::System.ClientModel.Primitives.JsonPatch patch)
         {
             P1 = p1;
             _patch = patch;
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        [JsonIgnoreAttribute]
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
-        [ExperimentalAttribute("SCME0001")]
-        public ref JsonPatch Patch => ref _patch;
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
 
         public string P1 { get; set; }
     }

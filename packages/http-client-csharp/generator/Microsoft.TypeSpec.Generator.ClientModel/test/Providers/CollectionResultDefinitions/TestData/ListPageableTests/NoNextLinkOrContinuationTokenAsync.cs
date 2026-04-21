@@ -8,26 +8,26 @@ using System.Collections.Generic;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsAsyncCollectionResult : AsyncCollectionResult
+    internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
     {
-        private readonly CatClient _client;
+        private readonly global::Sample.CatClient _client;
         private readonly string _animalKind;
-        private readonly RequestOptions _options;
+        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResult(CatClient client, string animalKind, RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _animalKind = animalKind;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
-            yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
+            yield return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
 
-        public override ContinuationToken GetContinuationToken(ClientResult page)
+        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             return null;
         }

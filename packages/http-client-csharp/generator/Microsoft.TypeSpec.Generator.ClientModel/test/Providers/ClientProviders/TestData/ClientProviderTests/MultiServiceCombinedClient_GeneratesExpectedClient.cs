@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private readonly string _serviceAApiVersion;
         private readonly string _serviceBApiVersion;
 
@@ -20,75 +20,75 @@ namespace Sample
         {
         }
 
-        public TestClient(Uri endpoint) : this(endpoint, new TestClientOptions())
+        public TestClient(global::System.Uri endpoint) : this(endpoint, new global::Sample.TestClientOptions())
         {
         }
 
-        internal TestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-            options ??= new TestClientOptions();
+            options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             _serviceAApiVersion = options.ServiceAApiVersion;
             _serviceBApiVersion = options.ServiceBApiVersion;
         }
 
-        public TestClient(Uri endpoint, TestClientOptions options) : this(null, endpoint, options)
+        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
         {
         }
 
-        public ClientPipeline Pipeline { get; }
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult ServiceAOperation(RequestOptions options)
+        public virtual global::System.ClientModel.ClientResult ServiceAOperation(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateServiceAOperationRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateServiceAOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async Task<ClientResult> ServiceAOperationAsync(RequestOptions options)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ServiceAOperationAsync(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateServiceAOperationRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateServiceAOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual ClientResult ServiceAOperation(CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult ServiceAOperation(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.ServiceAOperation(cancellationToken.ToRequestOptions());
         }
 
-        public virtual async Task<ClientResult> ServiceAOperationAsync(CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ServiceAOperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return await this.ServiceAOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
-        public virtual ClientResult ServiceBOperation(RequestOptions options)
+        public virtual global::System.ClientModel.ClientResult ServiceBOperation(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateServiceBOperationRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateServiceBOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async Task<ClientResult> ServiceBOperationAsync(RequestOptions options)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ServiceBOperationAsync(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateServiceBOperationRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateServiceBOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual ClientResult ServiceBOperation(CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult ServiceBOperation(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.ServiceBOperation(cancellationToken.ToRequestOptions());
         }
 
-        public virtual async Task<ClientResult> ServiceBOperationAsync(CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ServiceBOperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return await this.ServiceBOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }

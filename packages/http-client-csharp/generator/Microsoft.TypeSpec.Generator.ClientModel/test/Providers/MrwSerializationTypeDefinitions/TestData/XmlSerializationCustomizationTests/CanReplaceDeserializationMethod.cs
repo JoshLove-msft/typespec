@@ -11,56 +11,56 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MockInputModel : IPersistableModel<MockInputModel>
+    public partial class MockInputModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>
     {
-        protected virtual MockInputModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual global::Sample.Models.MockInputModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (Stream dataStream = data.ToStream())
+                    using (global::System.IO.Stream dataStream = data.ToStream())
                     {
-                        return MockInputModel.DeserializeMockInputModel(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                        return global::Sample.Models.MockInputModel.DeserializeMockInputModel(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(MockInputModel)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support reading '{options.Format}' format.");
             }
         }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (MemoryStream stream = new MemoryStream(256))
+                    using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStream(256))
                     {
-                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
+                        using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
                         {
                             this.WriteXml(writer, options, "MockInputModel");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
-                            return BinaryData.FromStream(stream);
+                            return global::System.BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
+                            return new global::System.BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(MockInputModel)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{options.Format}' format.");
             }
         }
 
-        BinaryData IPersistableModel<MockInputModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        MockInputModel IPersistableModel<MockInputModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        global::Sample.Models.MockInputModel global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<MockInputModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "X";
 
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
             if ((nameHint != null))
             {
@@ -75,21 +75,21 @@ namespace Sample.Models
             }
         }
 
-        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(MockInputModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
 
-            if (Optional.IsDefined(Prop1))
+            if (global::Sample.Optional.IsDefined(Prop1))
             {
                 writer.WriteStartElement("prop1");
                 writer.WriteValue(Prop1);
                 writer.WriteEndElement();
             }
-            if (Optional.IsDefined(Prop2))
+            if (global::Sample.Optional.IsDefined(Prop2))
             {
                 writer.WriteStartElement("prop2");
                 writer.WriteValue(Prop2);

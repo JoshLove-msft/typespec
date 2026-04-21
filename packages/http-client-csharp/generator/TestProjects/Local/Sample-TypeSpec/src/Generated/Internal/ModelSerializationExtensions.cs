@@ -276,7 +276,7 @@ namespace SampleTypeSpec
         public static BinaryData GetUtf8Bytes(this JsonElement element)
         {
 #if NET9_0_OR_GREATER
-            return new BinaryData(JsonMarshal.GetRawUtf8Value(element).ToArray());
+            return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
 #else
             return BinaryData.FromString(element.GetRawText());
 #endif
@@ -320,7 +320,7 @@ namespace SampleTypeSpec
 
             string key;
 #if NET6_0_OR_GREATER
-            key = Encoding.UTF8.GetString(local.Slice(0, bytesConsumed));
+            key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed));
 #else
             key = Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
 #endif

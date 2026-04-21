@@ -10,16 +10,16 @@ using Sample;
 
 namespace Sample.Models
 {
-    public readonly partial struct TestModel : IJsonModel<TestModel>, IJsonModel<object>
+    public readonly partial struct TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.TestModel>, global::System.ClientModel.Primitives.IJsonModel<object>
     {
-        internal static TestModel DeserializeTestModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.TestModel DeserializeTestModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == JsonValueKind.Null))
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return default;
             }
             string stringProperty = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("stringProperty"u8))
@@ -29,10 +29,10 @@ namespace Sample.Models
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new TestModel(stringProperty, additionalBinaryDataProperties);
+            return new global::Sample.Models.TestModel(stringProperty, additionalBinaryDataProperties);
         }
     }
 }

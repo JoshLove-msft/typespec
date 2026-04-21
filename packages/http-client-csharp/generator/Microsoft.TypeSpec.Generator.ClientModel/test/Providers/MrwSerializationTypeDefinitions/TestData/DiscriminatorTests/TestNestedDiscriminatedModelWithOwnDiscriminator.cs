@@ -9,92 +9,92 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class Tree : Plant, IJsonModel<Tree>
+    public partial class Tree : global::Sample.Models.Plant, global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>
     {
         internal Tree()
         {
         }
 
-        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override global::Sample.Models.Plant PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return Tree.DeserializeTree(document.RootElement, options);
+                        return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Tree)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{options.Format}' format.");
             }
         }
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::Sample.SampleContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Tree)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support writing '{options.Format}' format.");
             }
         }
 
-        BinaryData IPersistableModel<Tree>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => ((Tree)this.PersistableModelCreateCore(data, options));
+        global::Sample.Models.Tree global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Tree)this.PersistableModelCreateCore(data, options));
 
-        string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
-        void IJsonModel<Tree>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Tree)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
             writer.WritePropertyName("treeType"u8);
             writer.WriteStringValue(TreeType);
         }
 
-        Tree IJsonModel<Tree>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((Tree)this.JsonModelCreateCore(ref reader, options));
+        global::Sample.Models.Tree global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Tree)this.JsonModelCreateCore(ref reader, options));
 
-        protected override Plant JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override global::Sample.Models.Plant JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Tree)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return Tree.DeserializeTree(document.RootElement, options);
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
         }
 
-        internal static Tree DeserializeTree(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Tree DeserializeTree(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == JsonValueKind.Null))
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
-            if (element.TryGetProperty("treeType"u8, out JsonElement discriminator))
+            if (element.TryGetProperty("treeType"u8, out global::System.Text.Json.JsonElement discriminator))
             {
                 switch (discriminator.GetString())
                 {
                     case "oak":
-                        return OakTree.DeserializeOakTree(element, options);
+                        return global::Sample.Models.OakTree.DeserializeOakTree(element, options);
                 }
             }
-            return UnknownTree.DeserializeUnknownTree(element, options);
+            return global::Sample.Models.UnknownTree.DeserializeUnknownTree(element, options);
         }
     }
 }

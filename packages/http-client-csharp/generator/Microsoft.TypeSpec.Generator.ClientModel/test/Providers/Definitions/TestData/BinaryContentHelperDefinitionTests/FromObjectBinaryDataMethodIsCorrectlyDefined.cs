@@ -1,4 +1,4 @@
-global::Sample.Utf8JsonBinaryContent content = new global::Sample.Utf8JsonBinaryContent();
+﻿global::Sample.Utf8JsonBinaryContent content = new global::Sample.Utf8JsonBinaryContent();
 #if NET6_0_OR_GREATER
 content.JsonWriter.WriteRawValue(value);
 #else

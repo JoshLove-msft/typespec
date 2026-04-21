@@ -8,12 +8,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
-    [ExperimentalAttribute("SCME0002")]
-    public partial class TestClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class TestClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
         public string FullyQualifiedNamespace { get; set; }
 
-        public TestClientOptions Options { get; set; }
+        public global::Sample.TestClientOptions Options { get; set; }
 
         protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
         {
@@ -25,7 +25,7 @@ namespace Sample
             global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
-                this.Options = new TestClientOptions(optionsSection);
+                this.Options = new global::Sample.TestClientOptions(optionsSection);
             }
         }
     }

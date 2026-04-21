@@ -25,36 +25,17 @@ namespace Microsoft.TypeSpec.Generator
         private const char _newLine = '\n';
         private const char _space = ' ';
 
-        // Sentinel used in place of GlobalPrefix when writing types inside XML doc comments. The
-        // ShortenQualifiedNames rewrite intentionally leaves these alone so Roslyn's Simplifier can
-        // handle the cref reduction natively (and preserve cref-specific annotations like `?`); we
-        // swap them back to "global::" right before returning the body.
-        private const string GlobalDocSentinel = "global!doc::";
-        private const string GlobalPrefix = "global::";
-
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
-
-        // Tracks every (namespace, headName) pair we've written as a global::-qualified name.
-        // headName is the outermost named type (DeclaringType.Name for nested, otherwise Name).
-        // Used in ToString() to drop redundant namespace prefixes (replaces the work NameReducer did).
-        private readonly HashSet<(string Namespace, string HeadName)> _emittedTypeRefs = new();
 
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
-        private TypeProvider? _primaryType;
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
         internal CodeWriter()
-            : this(null)
-        {
-        }
-
-        internal CodeWriter(TypeProvider? primaryType)
         {
             _builder = new UnsafeBufferSequence(1024);
-            _primaryType = primaryType;
 
             _scopes = new Stack<CodeScope>();
             _scopes.Push(new CodeScope(this, "", false, 0));
@@ -675,19 +656,8 @@ namespace Microsoft.TypeSpec.Generator
             else
             {
                 UseNamespace(type.Namespace);
-                // Use a distinct sentinel for types referenced from XML doc comments (crefs) so the
-                // ToString rewrite below leaves them fully qualified. Roslyn's cref-aware reducer can
-                // then normalize the cref signature itself (e.g. preserving `?` nullability annotations
-                // on the parameter types) better than our string replacement could.
-                if (_writingXmlDocumentation)
-                {
-                    AppendRaw(GlobalDocSentinel);
-                }
-                else
-                {
-                    _emittedTypeRefs.Add((type.Namespace, type.DeclaringType?.Name ?? type.Name));
-                    AppendRaw(GlobalPrefix);
-                }
+
+                AppendRaw("global::");
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
@@ -975,33 +945,12 @@ namespace Microsoft.TypeSpec.Generator
 
         public string ToString(bool header)
         {
-            using var reader = _builder.ExtractReader();
+            var reader = _builder.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
                 return string.Empty;
 
-            // Materialize body into a single contiguous string so we can rewrite global::Namespace.HeadName
-            // references to short forms. Allocates the final string in one shot via string.Create instead
-            // of going through a StringBuilder middleman.
-            // Only shorten when emitting a full file (header == true) - otherwise we'd return short
-            // names without the matching using directives, which is invalid C# and breaks in-process
-            // expression composition (e.g. CSharpType.ToString, MethodBodyStatement.ToString).
-            if (totalLength > int.MaxValue)
-            {
-                throw new InvalidOperationException(
-                    $"Generated file is too large to materialize as a string. Length was {totalLength}, max is {int.MaxValue}.");
-            }
-            string bodyText = string.Create((int)totalLength, reader, static (span, r) => r.CopyTo(span));
-            if (header)
-            {
-                bodyText = ShortenQualifiedNames(bodyText);
-            }
-            else if (bodyText.Contains(GlobalDocSentinel))
-            {
-                bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
-            }
-
-            var builder = new StringBuilder(bodyText.Length + 256);
+            var builder = new StringBuilder((int)totalLength);
             IEnumerable<string> namespaces = _usingNamespaces
                 .OrderByDescending(ns => ns.StartsWith("System"))
                 .ThenBy(ns => ns, StringComparer.Ordinal);
@@ -1038,341 +987,8 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            builder.Append(bodyText);
+            reader.CopyTo(builder, default);
             return builder.ToString();
-        }
-
-        // Replaces fully-qualified `global::Namespace.HeadName...` occurrences in the body with the
-        // shortest unambiguous form. For head names emitted from a single namespace, drops the entire
-        // `global::Namespace.` prefix (they resolve via the using directives we emit). For head names
-        // emitted from multiple namespaces, drops only `global::` to keep them disambiguated.
-        // Replacements are applied in descending key length order so longer prefixes win over shorter
-        // ones (e.g. `global::ns.FooBar` is rewritten before `global::ns.Foo`).
-        private string ShortenQualifiedNames(string bodyText)
-        {
-            if (_emittedTypeRefs.Count == 0)
-            {
-                // No tracked refs to shorten - just swap any cref sentinels back and return.
-                if (bodyText.Contains(GlobalDocSentinel))
-                {
-                    return bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
-                }
-                return bodyText;
-            }
-
-            // Only shorten references whose namespace is "safe" - either the current namespace
-            // (or an ancestor of it, since C# scoping makes those names directly visible), or a
-            // System.* namespace. Other cross-namespace references are left as `global::Ns.X`
-            // so Roslyn's Simplifier can handle them safely - it has access to the full
-            // SemanticModel including external assemblies (e.g. NuGet packages) and can
-            // correctly account for collisions and visibility that this purely-textual rewriter
-            // cannot. This also keeps PostProcessor.RemoveAsync's reference search reliable,
-            // since SymbolFinder.FindReferencesAsync can miss references when the text resolves
-            // ambiguously (e.g. a generated `OpenAI.X` type referenced by simple name in a
-            // project that also imports the OpenAI NuGet namespace).
-            string[]? currentParts = _currentNamespace?.Split('.');
-
-            // Head names that collide with a namespace segment visible from the current scope
-            // cannot be safely shortened to a bare name: the simple name would bind to a
-            // namespace rather than the type. This includes:
-            // - Segments of the current namespace itself (e.g. inside `Foo.Bar.ContinuationToken`,
-            //   a bare `ContinuationToken` resolves to the enclosing namespace).
-            // - Segments of any sibling namespace visible through ancestor scopes (e.g. inside
-            //   `Foo._Pagination.Link`, a bare `ContinuationToken` resolves to the sibling
-            //   `Foo._Pagination.ContinuationToken` namespace).
-            // Project-wide segments are a safe over-approximation: keeping more references
-            // qualified is correct (Simplifier reduces them with the full SemanticModel) and
-            // avoids CS0118 namespace-vs-type collisions. We fall back to just the current
-            // namespace's segments when the OutputLibrary isn't available (e.g. unit tests).
-            HashSet<string>? namespaceSegmentCollisions = ComputeProjectNamespaceSegments() switch
-            {
-                { } projectSegments => new HashSet<string>(projectSegments, StringComparer.Ordinal),
-                null when currentParts is not null => new HashSet<string>(currentParts, StringComparer.Ordinal),
-                _ => null,
-            };
-
-            // Compute member-name collisions for the same-namespace case: an unqualified
-            // reference like `Foo` inside the primary type's body would resolve to a member
-            // named `Foo` instead of the type, so we need to prepend the current namespace's
-            // last segment in that case.
-            var memberCollisions = ComputePrimaryTypeMemberCollisions();
-
-            // Determine which head names from System.* namespaces are ambiguous and need to
-            // stay partially qualified (e.g. `System.Threading.Tasks.Task` vs `Task` from
-            // another System sub-namespace).
-            HashSet<string>? systemCollisions = null;
-            var seenSystemHeads = new Dictionary<string, string>();
-            foreach (var (ns, headName) in _emittedTypeRefs)
-            {
-                if (!IsSystemNamespace(ns))
-                {
-                    continue;
-                }
-                if (seenSystemHeads.TryGetValue(headName, out var existingNs))
-                {
-                    if (existingNs != ns)
-                    {
-                        systemCollisions ??= new HashSet<string>();
-                        systemCollisions.Add(headName);
-                    }
-                }
-                else
-                {
-                    seenSystemHeads[headName] = ns;
-                }
-            }
-
-            foreach (var (ns, headName) in _emittedTypeRefs.OrderByDescending(t => t.Namespace.Length + t.HeadName.Length))
-            {
-                bool isSameOrAncestorNamespace = IsSameOrAncestorNamespace(ns, currentParts);
-                bool isSystem = IsSystemNamespace(ns);
-                if (!isSameOrAncestorNamespace && !isSystem)
-                {
-                    continue;
-                }
-
-                // If the head name collides with a namespace segment, the bare name would bind
-                // to the namespace. Leave as `global::Ns.X` for Simplifier.
-                if (namespaceSegmentCollisions is not null && namespaceSegmentCollisions.Contains(headName))
-                {
-                    continue;
-                }
-
-                var qualified = $"{GlobalPrefix}{ns}.{headName}";
-                string replacement;
-                if (isSameOrAncestorNamespace)
-                {
-                    replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions);
-                }
-                else if (systemCollisions is not null && systemCollisions.Contains(headName))
-                {
-                    // Ambiguous System head names - keep partially qualified to disambiguate.
-                    replacement = ComputeShortestQualifiedForm(ns, headName, currentParts, memberCollisions: null);
-                }
-                else if (memberCollisions is not null && memberCollisions.Contains(headName))
-                {
-                    // The bare name would resolve to a member of the primary type; keep qualified.
-                    continue;
-                }
-                else
-                {
-                    replacement = headName;
-                }
-                bodyText = bodyText.Replace(qualified, replacement);
-            }
-
-            // Swap the XML-doc sentinel back to "global::" so Roslyn's Simplifier can process those
-            // crefs normally during post-processing.
-            if (bodyText.Contains(GlobalDocSentinel))
-            {
-                bodyText = bodyText.Replace(GlobalDocSentinel, GlobalPrefix);
-            }
-
-            return bodyText;
-        }
-
-        private static bool IsSystemNamespace(string ns)
-        {
-            return ns == "System" || ns.StartsWith("System.", StringComparison.Ordinal);
-        }
-
-        // Cached set of distinct namespace segments across all known TypeProviders. A simple
-        // name that matches one of these may bind to a sibling namespace at some scope and
-        // produce CS0118; we use this to keep such references fully qualified so Simplifier
-        // can resolve them with the full SemanticModel.
-        private static IReadOnlyCollection<string>? _projectNamespaceSegments;
-        private static object? _projectNamespaceSegmentsKey;
-
-        private static IReadOnlyCollection<string>? ComputeProjectNamespaceSegments()
-        {
-            var generator = CodeModelGenerator.Instance;
-            if (generator?.OutputLibrary is not { AreTypeProvidersBuilt: true } outputLibrary)
-            {
-                return null;
-            }
-
-            // Cache the segments for the duration of a single OutputLibrary instance so that we
-            // recompute when a new generation run produces a fresh library (e.g. unit tests).
-            if (ReferenceEquals(_projectNamespaceSegmentsKey, outputLibrary) && _projectNamespaceSegments is not null)
-            {
-                return _projectNamespaceSegments;
-            }
-
-            var segments = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var typeProvider in outputLibrary.TypeProviders)
-            {
-                var ns = typeProvider.Type.Namespace;
-                if (string.IsNullOrEmpty(ns))
-                {
-                    continue;
-                }
-                foreach (var part in ns.Split('.'))
-                {
-                    segments.Add(part);
-                }
-            }
-
-            _projectNamespaceSegments = segments;
-            _projectNamespaceSegmentsKey = outputLibrary;
-            return segments;
-        }
-
-        // Returns true if `ns` is the current namespace or an ancestor of it. C# scoping rules
-        // make types in ancestor namespaces visible by their unqualified names from a more
-        // deeply-nested namespace (e.g. from `Foo.Bar.Models`, a type in `Foo` or `Foo.Bar` can
-        // be referenced by its head name).
-        private static bool IsSameOrAncestorNamespace(string ns, string[]? currentParts)
-        {
-            if (currentParts is null)
-            {
-                return false;
-            }
-            var nsParts = ns.Split('.');
-            if (nsParts.Length > currentParts.Length)
-            {
-                return false;
-            }
-            for (int i = 0; i < nsParts.Length; i++)
-            {
-                if (nsParts[i] != currentParts[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // Returns the shortest unambiguous form of `ns.headName` when viewed from `_currentNamespace`.
-        // Strips the longest prefix of `ns` shared with the current namespace, producing a relative
-        // form like `ServiceA.ServiceA` from inside `Sample` for `Sample.ServiceA.ServiceA`. If the
-        // result would be just the bare head name and that head name is shadowed by a member of the
-        // primary type, prepends the closest namespace segment (e.g. `Models.Extension` from inside
-        // `Foo.Bar.Models` for `Foo.Bar.Models.Extension`). Falls back to the fully-qualified form
-        // when no shorter form is unambiguous.
-        private static string ComputeShortestQualifiedForm(
-            string ns,
-            string headName,
-            string[]? currentParts,
-            HashSet<string>? memberCollisions)
-        {
-            var nsParts = ns.Split('.');
-            int lcp = 0;
-            if (currentParts is not null)
-            {
-                while (lcp < nsParts.Length && lcp < currentParts.Length && nsParts[lcp] == currentParts[lcp])
-                {
-                    lcp++;
-                }
-            }
-
-            // If the full namespace is shared with the current namespace, the bare head name is
-            // ordinarily unambiguous - but if a member of the primary type shadows it, we need to
-            // prepend the last namespace segment (which refers to the current namespace itself).
-            if (lcp == nsParts.Length)
-            {
-                if (memberCollisions is not null && memberCollisions.Contains(headName) && nsParts.Length > 0)
-                {
-                    return $"{nsParts[nsParts.Length - 1]}.{headName}";
-                }
-                return headName;
-            }
-
-            // Strip the shared prefix; the remaining first segment is itself a sub/sibling namespace
-            // visible from the current namespace, which makes the qualifier valid without `global::`.
-            var sb = new StringBuilder();
-            for (int i = lcp; i < nsParts.Length; i++)
-            {
-                sb.Append(nsParts[i]).Append('.');
-            }
-            sb.Append(headName);
-            return sb.ToString();
-        }
-
-        // Returns the set of member names declared on the primary type being written (and any
-        // sibling partial-class TypeProvider parts in the same namespace, e.g. serialization
-        // providers). Type references inside the type whose head name matches a member name
-        // would resolve to the member, so they must remain qualified.
-        private HashSet<string>? ComputePrimaryTypeMemberCollisions()
-        {
-            if (_primaryType is null)
-            {
-                return null;
-            }
-
-            var generator = CodeModelGenerator.Instance;
-            if (generator?.OutputLibrary is not { AreTypeProvidersBuilt: true } outputLibrary)
-            {
-                return null;
-            }
-
-            HashSet<string>? names = null;
-            HashSet<string>? ownNames = null;
-            var primaryNs = _primaryType.Type.Namespace;
-            var primaryName = _primaryType.Type.Name;
-            foreach (var typeProvider in outputLibrary.TypeProviders)
-            {
-                // Include the primary type plus any sibling partial parts (same name + namespace),
-                // such as separate model + serialization providers that compile into one class.
-                if (typeProvider != _primaryType &&
-                    (typeProvider.Type.Name != primaryName || typeProvider.Type.Namespace != primaryNs))
-                {
-                    continue;
-                }
-                // "Own" members (declared on the primary type or its serialization partials) -
-                // we'll filter out the type's own name from these (a constructor named after the
-                // type doesn't shadow the type name within its own body).
-                CollectMemberNames(typeProvider, ref ownNames);
-                foreach (var serialization in typeProvider.SerializationProviders)
-                {
-                    CollectMemberNames(serialization, ref ownNames);
-                }
-                // Inherited members from base types DO shadow the type name - if a base class
-                // exposes a property named the same as this type, that property wins over the
-                // type reference inside instance method bodies.
-                var baseProvider = typeProvider.BaseTypeProvider;
-                while (baseProvider is not null)
-                {
-                    CollectMemberNames(baseProvider, ref names);
-                    baseProvider = baseProvider.BaseTypeProvider;
-                }
-            }
-
-            if (ownNames is not null)
-            {
-                ownNames.Remove(primaryName);
-                if (names is null)
-                {
-                    names = ownNames;
-                }
-                else
-                {
-                    names.UnionWith(ownNames);
-                }
-            }
-
-            return names;
-        }
-
-        private static void CollectMemberNames(TypeProvider typeProvider, ref HashSet<string>? names)
-        {
-            // Only properties, fields, events and nested types can shadow a same-named type
-            // reference within the class body. Methods (including constructors) live in a
-            // separate lookup category and do not shadow types.
-            foreach (var property in typeProvider.Properties)
-            {
-                names ??= new HashSet<string>(StringComparer.Ordinal);
-                names.Add(property.Name);
-            }
-            foreach (var field in typeProvider.Fields)
-            {
-                names ??= new HashSet<string>(StringComparer.Ordinal);
-                names.Add(field.Name);
-            }
-            foreach (var nested in typeProvider.NestedTypes)
-            {
-                names ??= new HashSet<string>(StringComparer.Ordinal);
-                names.Add(nested.Type.Name);
-            }
         }
 
         private void PopScope(CodeScope expected)

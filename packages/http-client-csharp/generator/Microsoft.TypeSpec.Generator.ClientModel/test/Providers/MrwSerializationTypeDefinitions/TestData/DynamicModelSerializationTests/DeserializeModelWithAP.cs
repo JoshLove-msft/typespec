@@ -13,22 +13,22 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == JsonValueKind.Null))
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             global::Sample.Models.Cat cats = default;
-            IDictionary<string, string> additionalProperties = new ChangeTrackingDictionary<string, string>();
+            global::System.Collections.Generic.IDictionary<string, string> additionalProperties = new global::Sample.ChangeTrackingDictionary<string, string>();
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
+            global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("cats"u8))
                 {
-                    if ((prop.Value.ValueKind == JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
@@ -37,11 +37,11 @@ namespace Sample
                 }
                 switch (prop.Value.ValueKind)
                 {
-                    case JsonValueKind.String:
+                    case global::System.Text.Json.JsonValueKind.String:
                         additionalProperties.Add(prop.Name, prop.Value.GetString());
                         continue;
                 }
-                patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
+                patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
             return new global::Sample.Models.DynamicModel(cats, additionalProperties, patch);
         }

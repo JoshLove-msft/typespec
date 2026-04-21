@@ -8,14 +8,14 @@ using System.Text.Json;
 
 namespace Sample.Models
 {
-    public partial class ModelWithNonBodyParameters : IJsonModel<ModelWithNonBodyParameters>
+    public partial class ModelWithNonBodyParameters : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.ModelWithNonBodyParameters>
     {
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<ModelWithNonBodyParameters>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.ModelWithNonBodyParameters>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(ModelWithNonBodyParameters)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.ModelWithNonBodyParameters)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("bar"u8);
             writer.WriteNumberValue(Bar);
@@ -27,9 +27,9 @@ namespace Sample.Models
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
                     {
-                        JsonSerializer.Serialize(writer, document.RootElement);
+                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }

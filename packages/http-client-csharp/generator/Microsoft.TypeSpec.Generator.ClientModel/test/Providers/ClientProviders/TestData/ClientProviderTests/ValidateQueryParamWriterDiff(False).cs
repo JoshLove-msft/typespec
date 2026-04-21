@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual ClientResult Operation(global::Sample.Models.InputEnum queryParam, CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.Operation(queryParam.ToString(), cancellationToken.ToRequestOptions());
         }

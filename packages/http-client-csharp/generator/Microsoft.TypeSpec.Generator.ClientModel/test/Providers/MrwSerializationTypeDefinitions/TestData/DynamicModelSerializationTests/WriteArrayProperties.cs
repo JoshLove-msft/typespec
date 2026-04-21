@@ -12,9 +12,9 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        BinaryData IPersistableModel<global::Sample.Models.DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        void IJsonModel<global::Sample.Models.DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.DynamicModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -29,12 +29,12 @@ namespace Sample
             writer.WriteEndObject();
         }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$.cats"u8))
@@ -45,13 +45,13 @@ namespace Sample
                     writer.WriteRawValue(Patch.GetJson("$.cats"u8));
                 }
             }
-            else if (Optional.IsCollectionDefined(Cats))
+            else if (global::Sample.Optional.IsCollectionDefined(Cats))
             {
                 writer.WritePropertyName("cats"u8);
                 writer.WriteStartArray();
                 for (int i = 0; (i < Cats.Count); i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.cats[{i}]")))
+                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.cats[{i}]")))
                     {
                         continue;
                     }
@@ -74,7 +74,7 @@ namespace Sample
                 writer.WriteStartArray();
                 for (int i = 0; (i < Names.Count); i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.names[{i}]")))
+                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.names[{i}]")))
                     {
                         continue;
                     }
@@ -96,13 +96,13 @@ namespace Sample
                     writer.WriteRawValue(Patch.GetJson("$.optionalNames"u8));
                 }
             }
-            else if (Optional.IsCollectionDefined(OptionalNames))
+            else if (global::Sample.Optional.IsCollectionDefined(OptionalNames))
             {
                 writer.WritePropertyName("optionalNames"u8);
                 writer.WriteStartArray();
                 for (int i = 0; (i < OptionalNames.Count); i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNames[{i}]")))
+                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.optionalNames[{i}]")))
                     {
                         continue;
                     }

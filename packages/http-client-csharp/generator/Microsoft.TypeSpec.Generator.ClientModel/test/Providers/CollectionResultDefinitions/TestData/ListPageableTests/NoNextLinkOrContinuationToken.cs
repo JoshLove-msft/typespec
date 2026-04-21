@@ -8,26 +8,26 @@ using System.Collections.Generic;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResult : CollectionResult
+    internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
-        private readonly CatClient _client;
+        private readonly global::Sample.CatClient _client;
         private readonly string _animalKind;
-        private readonly RequestOptions _options;
+        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(CatClient client, string animalKind, RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _animalKind = animalKind;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
-            yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
+            yield return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
 
-        public override ContinuationToken GetContinuationToken(ClientResult page)
+        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             return null;
         }

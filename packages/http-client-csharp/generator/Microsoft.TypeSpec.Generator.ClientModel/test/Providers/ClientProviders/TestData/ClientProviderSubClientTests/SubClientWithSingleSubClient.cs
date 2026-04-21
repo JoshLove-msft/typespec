@@ -8,9 +8,9 @@ namespace Sample
 {
     public partial class Dog
     {
-        public virtual Husky GetHuskyClient()
+        public virtual global::Sample.Husky GetHuskyClient()
         {
-            return (Volatile.Read(ref _cachedHusky) ?? (Interlocked.CompareExchange(ref _cachedHusky, new Husky(), null) ?? _cachedHusky));
+            return (global::System.Threading.Volatile.Read(ref _cachedHusky) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedHusky, new global::Sample.Husky(), null) ?? _cachedHusky));
         }
     }
 }

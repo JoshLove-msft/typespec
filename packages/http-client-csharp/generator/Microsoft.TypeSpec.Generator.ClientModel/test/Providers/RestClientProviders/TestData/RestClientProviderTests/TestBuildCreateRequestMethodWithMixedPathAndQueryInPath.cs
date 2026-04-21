@@ -8,9 +8,9 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateSampleOpRequest(string p1, string optionalParam, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(string p1, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/items/", false);
             uri.AppendPath(p1, true);
@@ -20,8 +20,8 @@ namespace Sample
             {
                 uri.AppendQuery("optionalParam", optionalParam, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

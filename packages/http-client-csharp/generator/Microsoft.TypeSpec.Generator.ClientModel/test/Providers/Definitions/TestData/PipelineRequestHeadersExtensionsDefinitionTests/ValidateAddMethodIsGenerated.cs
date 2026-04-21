@@ -9,7 +9,7 @@ namespace Sample
 {
     public partial class PipelineRequestHeadersExtensions
     {
-        public static void Add(this PipelineRequestHeaders headers, string prefix, IDictionary<string, string> value)
+        public static void Add(this global::System.ClientModel.Primitives.PipelineRequestHeaders headers, string prefix, global::System.Collections.Generic.IDictionary<string, string> value)
         {
             foreach (var header in value)
             {

@@ -8,7 +8,7 @@ namespace Sample.Models
 {
     public enum TestEnum
     {
-        [ObsoleteAttribute]
+        [global::System.ObsoleteAttribute]
         Value1 = 1,
         Value2 = 2
     }

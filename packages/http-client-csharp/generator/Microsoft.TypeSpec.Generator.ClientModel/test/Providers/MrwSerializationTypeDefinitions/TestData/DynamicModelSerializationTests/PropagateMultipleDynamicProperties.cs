@@ -12,15 +12,15 @@ namespace Sample
     public partial class DynamicModel
     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateGet(ReadOnlySpan<byte> jsonPath, out JsonPatch.EncodedValue value)
+        private bool PropagateGet(global::System.ReadOnlySpan<byte> jsonPath, out global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
         {
-            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
             value = default;
 
             if (local.StartsWith("p1"u8))
             {
                 int propertyLength = "p1"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
                 {
@@ -31,7 +31,7 @@ namespace Sample
             if (local.StartsWith("p2"u8))
             {
                 int propertyLength = "p2"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -41,7 +41,7 @@ namespace Sample
             if (local.StartsWith("p3"u8))
             {
                 int propertyLength = "p3"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -51,7 +51,7 @@ namespace Sample
             if (local.StartsWith("p4"u8))
             {
                 int propertyLength = "p4"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -66,7 +66,7 @@ namespace Sample
             if (local.StartsWith("p5"u8))
             {
                 int propertyLength = "p5"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -86,9 +86,9 @@ namespace Sample
             if (local.StartsWith("p6"u8))
             {
                 int propertyLength = "p6"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P6.TryGetValue(key, out IList<global::Sample.Models.DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
@@ -104,14 +104,14 @@ namespace Sample
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateSet(ReadOnlySpan<byte> jsonPath, JsonPatch.EncodedValue value)
+        private bool PropagateSet(global::System.ReadOnlySpan<byte> jsonPath, global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
         {
-            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
 
             if (local.StartsWith("p1"u8))
             {
                 int propertyLength = "p1"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
                 {
@@ -123,7 +123,7 @@ namespace Sample
             if (local.StartsWith("p2"u8))
             {
                 int propertyLength = "p2"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -134,7 +134,7 @@ namespace Sample
             if (local.StartsWith("p3"u8))
             {
                 int propertyLength = "p3"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -145,7 +145,7 @@ namespace Sample
             if (local.StartsWith("p4"u8))
             {
                 int propertyLength = "p4"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -161,7 +161,7 @@ namespace Sample
             if (local.StartsWith("p5"u8))
             {
                 int propertyLength = "p5"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -182,9 +182,9 @@ namespace Sample
             if (local.StartsWith("p6"u8))
             {
                 int propertyLength = "p6"u8.Length;
-                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P6.TryGetValue(key, out IList<global::Sample.Models.DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }

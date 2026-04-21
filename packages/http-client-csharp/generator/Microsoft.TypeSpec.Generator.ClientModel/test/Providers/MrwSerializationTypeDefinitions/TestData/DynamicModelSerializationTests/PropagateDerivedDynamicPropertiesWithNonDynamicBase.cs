@@ -10,9 +10,9 @@ namespace Sample
     public partial class DerivedModel
     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateGet(ReadOnlySpan<byte> jsonPath, out JsonPatch.EncodedValue value)
+        private bool PropagateGet(global::System.ReadOnlySpan<byte> jsonPath, out global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
         {
-            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
             value = default;
 
             if (local.StartsWith("derivedProp"u8))
@@ -24,9 +24,9 @@ namespace Sample
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private bool PropagateSet(ReadOnlySpan<byte> jsonPath, JsonPatch.EncodedValue value)
+        private bool PropagateSet(global::System.ReadOnlySpan<byte> jsonPath, global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
         {
-            ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
+            global::System.ReadOnlySpan<byte> local = jsonPath.SliceToStartOfPropertyName();
 
             if (local.StartsWith("derivedProp"u8))
             {

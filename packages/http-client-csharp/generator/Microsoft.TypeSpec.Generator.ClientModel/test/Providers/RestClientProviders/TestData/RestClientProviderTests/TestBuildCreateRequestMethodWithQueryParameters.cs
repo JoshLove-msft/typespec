@@ -10,29 +10,29 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateSampleOpRequest(IEnumerable<string> p1Explode, IEnumerable<string> p1, IEnumerable<int> p2Explode, IEnumerable<int> p2, IDictionary<string, int> p3Explode, IDictionary<string, int> p3, IEnumerable<global::Sample.Models.Foo> p4Explode, IEnumerable<global::Sample.Models.IntFoo> p5Explode, IDictionary<string, global::Sample.Models.Foo> p6Explode, IDictionary<string, global::Sample.Models.IntFoo> p7Explode, IEnumerable<global::Sample.Models.FloatFoo> p8Explode, IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, string optionalParam, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            if (((p1Explode != null) && !((p1Explode is ChangeTrackingList<string> changeTrackingList) && changeTrackingList.IsUndefined)))
+            if (((p1Explode != null) && !((p1Explode is global::Sample.ChangeTrackingList<string> changeTrackingList) && changeTrackingList.IsUndefined)))
             {
                 foreach (var @param in p1Explode)
                 {
                     uri.AppendQuery("p1Explode", @param, true);
                 }
             }
-            if (((p1 != null) && !((p1 is ChangeTrackingList<string> changeTrackingList0) && changeTrackingList0.IsUndefined)))
+            if (((p1 != null) && !((p1 is global::Sample.ChangeTrackingList<string> changeTrackingList0) && changeTrackingList0.IsUndefined)))
             {
                 uri.AppendQueryDelimited("p1", p1, "|", escape: true);
             }
-            if (((p2Explode != null) && !((p2Explode is ChangeTrackingList<int> changeTrackingList1) && changeTrackingList1.IsUndefined)))
+            if (((p2Explode != null) && !((p2Explode is global::Sample.ChangeTrackingList<int> changeTrackingList1) && changeTrackingList1.IsUndefined)))
             {
                 foreach (var @param in p2Explode)
                 {
                     uri.AppendQuery("p2Explode", @param, true);
                 }
             }
-            if (((p2 != null) && !((p2 is ChangeTrackingList<int> changeTrackingList2) && changeTrackingList2.IsUndefined)))
+            if (((p2 != null) && !((p2 is global::Sample.ChangeTrackingList<int> changeTrackingList2) && changeTrackingList2.IsUndefined)))
             {
                 uri.AppendQueryDelimited("p2", p2, " ", escape: true);
             }
@@ -40,16 +40,16 @@ namespace Sample
             {
                 uri.AppendQuery("optionalParam", optionalParam, true);
             }
-            if (((p3Explode != null) && !((p3Explode is ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
+            if (((p3Explode != null) && !((p3Explode is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
             {
                 foreach (var @param in p3Explode)
                 {
                     uri.AppendQuery(@param.Key, @param.Value, true);
                 }
             }
-            if (((p3 != null) && !((p3 is ChangeTrackingDictionary<string, int> changeTrackingDictionary0) && changeTrackingDictionary0.IsUndefined)))
+            if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary0) && changeTrackingDictionary0.IsUndefined)))
             {
-                List<object> list = new List<object>();
+                global::System.Collections.Generic.List<object> list = new global::System.Collections.Generic.List<object>();
                 foreach (var @param in p3)
                 {
                     list.Add(@param.Key);
@@ -57,50 +57,50 @@ namespace Sample
                 }
                 uri.AppendQueryDelimited("p3", list, ",", escape: true);
             }
-            if (((p4Explode != null) && !((p4Explode is ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
+            if (((p4Explode != null) && !((p4Explode is global::Sample.ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
             {
                 foreach (var @param in p4Explode)
                 {
                     uri.AppendQuery("p4Explode", @param.ToSerialString(), true);
                 }
             }
-            if (((p5Explode != null) && !((p5Explode is ChangeTrackingList<global::Sample.Models.IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
+            if (((p5Explode != null) && !((p5Explode is global::Sample.ChangeTrackingList<global::Sample.Models.IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
             {
                 foreach (var @param in p5Explode)
                 {
                     uri.AppendQuery("p5Explode", ((int)@param), true);
                 }
             }
-            if (((p6Explode != null) && !((p6Explode is ChangeTrackingDictionary<string, global::Sample.Models.Foo> changeTrackingDictionary1) && changeTrackingDictionary1.IsUndefined)))
+            if (((p6Explode != null) && !((p6Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.Foo> changeTrackingDictionary1) && changeTrackingDictionary1.IsUndefined)))
             {
                 foreach (var @param in p6Explode)
                 {
                     uri.AppendQuery(@param.Key, @param.ToSerialString(), true);
                 }
             }
-            if (((p7Explode != null) && !((p7Explode is ChangeTrackingDictionary<string, global::Sample.Models.IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
+            if (((p7Explode != null) && !((p7Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
             {
                 foreach (var @param in p7Explode)
                 {
                     uri.AppendQuery(@param.Key, ((int)@param), true);
                 }
             }
-            if (((p8Explode != null) && !((p8Explode is ChangeTrackingList<global::Sample.Models.FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
+            if (((p8Explode != null) && !((p8Explode is global::Sample.ChangeTrackingList<global::Sample.Models.FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
             {
                 foreach (var @param in p8Explode)
                 {
                     uri.AppendQuery("p8Explode", ((float)@param), true);
                 }
             }
-            if (((p9Explode != null) && !((p9Explode is ChangeTrackingList<global::Sample.Models.DoubleFoo> changeTrackingList6) && changeTrackingList6.IsUndefined)))
+            if (((p9Explode != null) && !((p9Explode is global::Sample.ChangeTrackingList<global::Sample.Models.DoubleFoo> changeTrackingList6) && changeTrackingList6.IsUndefined)))
             {
                 foreach (var @param in p9Explode)
                 {
                     uri.AppendQuery("p9Explode", ((double)@param), true);
                 }
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

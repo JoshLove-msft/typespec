@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private readonly string _computeApiVersion;
         private readonly string _keyVaultApiVersion;
         private readonly string _storageApiVersion;
@@ -21,98 +21,98 @@ namespace Sample
         {
         }
 
-        public TestClient(Uri endpoint) : this(endpoint, new TestClientOptions())
+        public TestClient(global::System.Uri endpoint) : this(endpoint, new global::Sample.TestClientOptions())
         {
         }
 
-        internal TestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-            options ??= new TestClientOptions();
+            options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             _computeApiVersion = options.ComputeApiVersion;
             _keyVaultApiVersion = options.KeyVaultApiVersion;
             _storageApiVersion = options.StorageApiVersion;
         }
 
-        public TestClient(Uri endpoint, TestClientOptions options) : this(null, endpoint, options)
+        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
         {
         }
 
-        public ClientPipeline Pipeline { get; }
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult KeyVaultOperation(RequestOptions options)
+        public virtual global::System.ClientModel.ClientResult KeyVaultOperation(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateKeyVaultOperationRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateKeyVaultOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async Task<ClientResult> KeyVaultOperationAsync(RequestOptions options)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> KeyVaultOperationAsync(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateKeyVaultOperationRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateKeyVaultOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual ClientResult KeyVaultOperation(CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult KeyVaultOperation(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.KeyVaultOperation(cancellationToken.ToRequestOptions());
         }
 
-        public virtual async Task<ClientResult> KeyVaultOperationAsync(CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> KeyVaultOperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return await this.KeyVaultOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
-        public virtual ClientResult StorageOperation(RequestOptions options)
+        public virtual global::System.ClientModel.ClientResult StorageOperation(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateStorageOperationRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateStorageOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async Task<ClientResult> StorageOperationAsync(RequestOptions options)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> StorageOperationAsync(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateStorageOperationRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateStorageOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual ClientResult StorageOperation(CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult StorageOperation(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.StorageOperation(cancellationToken.ToRequestOptions());
         }
 
-        public virtual async Task<ClientResult> StorageOperationAsync(CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> StorageOperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return await this.StorageOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
-        public virtual ClientResult ComputeOperation(RequestOptions options)
+        public virtual global::System.ClientModel.ClientResult ComputeOperation(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateComputeOperationRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateComputeOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async Task<ClientResult> ComputeOperationAsync(RequestOptions options)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ComputeOperationAsync(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            using PipelineMessage message = this.CreateComputeOperationRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateComputeOperationRequest(options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual ClientResult ComputeOperation(CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult ComputeOperation(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.ComputeOperation(cancellationToken.ToRequestOptions());
         }
 
-        public virtual async Task<ClientResult> ComputeOperationAsync(CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ComputeOperationAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
             return await this.ComputeOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }

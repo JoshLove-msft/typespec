@@ -11,19 +11,19 @@ namespace Sample
 {
     public partial class MockInputModel
     {
-        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
 
-            if (Optional.IsDefined(Prop1))
+            if (global::Sample.Optional.IsDefined(Prop1))
             {
                 this.SerializationMethod(writer, options);
             }
-            if (Optional.IsDefined(Prop2))
+            if (global::Sample.Optional.IsDefined(Prop2))
             {
                 this.SerializationMethod(writer, options);
             }

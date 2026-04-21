@@ -7,16 +7,16 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class Tiger : Cat
+    public partial class Tiger : global::Sample.Models.Cat
     {
         public Tiger(string name) : base(name)
         {
-            Argument.AssertNotNull(name, nameof(name));
+            global::Sample.Argument.AssertNotNull(name, nameof(name));
 
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal Tiger(string kind, string name, in JsonPatch patch) : base(kind, name, patch)
+        internal Tiger(string kind, string name, in global::System.ClientModel.Primitives.JsonPatch patch) : base(kind, name, patch)
         {
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.

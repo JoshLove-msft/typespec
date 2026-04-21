@@ -13,27 +13,27 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static global::Sample.Models.DynamicModel DeserializeDynamicModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == JsonValueKind.Null))
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
-            IList<global::Sample.Models.Cat> cats = default;
-            IList<string> names = default;
-            IList<string> optionalNames = default;
+            global::System.Collections.Generic.IList<global::Sample.Models.Cat> cats = default;
+            global::System.Collections.Generic.IList<string> names = default;
+            global::System.Collections.Generic.IList<string> optionalNames = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            JsonPatch patch = new JsonPatch((data is null) ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
+            global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("cats"u8))
                 {
-                    if ((prop.Value.ValueKind == JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    List<global::Sample.Models.Cat> array = new List<global::Sample.Models.Cat>();
+                    global::System.Collections.Generic.List<global::Sample.Models.Cat> array = new global::System.Collections.Generic.List<global::Sample.Models.Cat>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(global::Sample.Models.Cat.DeserializeCat(item, options));
@@ -43,10 +43,10 @@ namespace Sample
                 }
                 if (prop.NameEquals("names"u8))
                 {
-                    List<string> array = new List<string>();
+                    global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        if ((item.ValueKind == JsonValueKind.Null))
+                        if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                         {
                             array.Add(null);
                         }
@@ -60,14 +60,14 @@ namespace Sample
                 }
                 if (prop.NameEquals("optionalNames"u8))
                 {
-                    if ((prop.Value.ValueKind == JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    List<string> array = new List<string>();
+                    global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        if ((item.ValueKind == JsonValueKind.Null))
+                        if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                         {
                             array.Add(null);
                         }
@@ -79,9 +79,9 @@ namespace Sample
                     optionalNames = array;
                     continue;
                 }
-                patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
+                patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel((cats ?? new ChangeTrackingList<global::Sample.Models.Cat>()), names, (optionalNames ?? new ChangeTrackingList<string>()), patch);
+            return new global::Sample.Models.DynamicModel((cats ?? new global::Sample.ChangeTrackingList<global::Sample.Models.Cat>()), names, (optionalNames ?? new global::Sample.ChangeTrackingList<string>()), patch);
         }
     }
 }

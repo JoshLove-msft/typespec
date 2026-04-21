@@ -12,7 +12,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private readonly string _subscriptionId;
         private readonly string _serviceAApiVersion;
         private readonly string _serviceBApiVersion;
@@ -23,45 +23,45 @@ namespace Sample
         {
         }
 
-        public TestClient(Uri endpoint, string subscriptionId) : this(endpoint, subscriptionId, new TestClientOptions())
+        public TestClient(global::System.Uri endpoint, string subscriptionId) : this(endpoint, subscriptionId, new global::Sample.TestClientOptions())
         {
         }
 
-        internal TestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string subscriptionId, TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::Sample.Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
 
-            options ??= new TestClientOptions();
+            options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
             _subscriptionId = subscriptionId;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(TestClient).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
             _serviceAApiVersion = options.ServiceAApiVersion;
             _serviceBApiVersion = options.ServiceBApiVersion;
         }
 
-        public TestClient(Uri endpoint, string subscriptionId, TestClientOptions options) : this(null, endpoint, subscriptionId, options)
+        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId, options)
         {
         }
 
-        public ClientPipeline Pipeline { get; }
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
 
         public virtual global::Sample.ServiceA.ServiceA GetServiceAClient()
         {
-            return (Volatile.Read(ref _cachedServiceA) ?? (Interlocked.CompareExchange(ref _cachedServiceA, new global::Sample.ServiceA.ServiceA(Pipeline, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
+            return (global::System.Threading.Volatile.Read(ref _cachedServiceA) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceA, new global::Sample.ServiceA.ServiceA(Pipeline, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
         }
 
         public virtual global::Sample.ServiceB.ServiceB GetServiceBClient()
         {
-            return (Volatile.Read(ref _cachedServiceB) ?? (Interlocked.CompareExchange(ref _cachedServiceB, new global::Sample.ServiceB.ServiceB(Pipeline, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
+            return (global::System.Threading.Volatile.Read(ref _cachedServiceB) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceB, new global::Sample.ServiceB.ServiceB(Pipeline, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
         }
     }
 }

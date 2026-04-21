@@ -11,9 +11,9 @@ namespace Sample
 {
     public partial class DynamicModel
     {
-        BinaryData IPersistableModel<global::Sample.Models.DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        void IJsonModel<global::Sample.Models.DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.DynamicModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -28,15 +28,15 @@ namespace Sample
             writer.WriteEndObject();
         }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            if ((Optional.IsDefined(Cat) && !Patch.Contains("$.cat"u8)))
+            if ((global::Sample.Optional.IsDefined(Cat) && !Patch.Contains("$.cat"u8)))
             {
                 writer.WritePropertyName("cat"u8);
                 writer.WriteObjectValue<global::Sample.Models.Cat>(Cat, options);
@@ -47,9 +47,9 @@ namespace Sample
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(Anything);
 #else
-                using (JsonDocument document = JsonDocument.Parse(Anything))
+                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(Anything))
                 {
-                    JsonSerializer.Serialize(writer, document.RootElement);
+                    global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                 }
 #endif
             }

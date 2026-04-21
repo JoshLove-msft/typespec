@@ -11,11 +11,11 @@ namespace Sample
 {
     public partial class Cat
     {
-        public static explicit operator Cat(ClientResult result)
+        public static explicit operator Cat(global::System.ClientModel.ClientResult result)
         {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return global::Sample.Models.Cat.DeserializeCat(document.RootElement, ModelSerializationExtensions.WireOptions);
+            global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content, global::Sample.ModelSerializationExtensions.JsonDocumentOptions);
+            return global::Sample.Models.Cat.DeserializeCat(document.RootElement, global::Sample.ModelSerializationExtensions.WireOptions);
         }
     }
 }

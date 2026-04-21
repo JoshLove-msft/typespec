@@ -7,16 +7,16 @@ using System.ClientModel.Primitives;
 
 namespace Sample.Models
 {
-    public partial class TestXmlModel : IPersistableModel<TestXmlModel>
+    public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
     {
         internal TestXmlModel()
         {
         }
 
-        BinaryData IPersistableModel<TestXmlModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
-        TestXmlModel IPersistableModel<TestXmlModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        global::Sample.Models.TestXmlModel global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<TestXmlModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "X";
     }
 }

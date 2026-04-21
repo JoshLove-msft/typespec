@@ -9,13 +9,13 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal PipelineMessage CreateTestOperationRequest(IDictionary<string, string> metadata, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateTestOperationRequest(global::System.Collections.Generic.IDictionary<string, string> metadata, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
-            if (((metadata != null) && !((metadata is ChangeTrackingDictionary<string, string> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            if (((metadata != null) && !((metadata is global::Sample.ChangeTrackingDictionary<string, string> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
             {
                 request.Headers.Add("x-ms-meta-", metadata);
             }
