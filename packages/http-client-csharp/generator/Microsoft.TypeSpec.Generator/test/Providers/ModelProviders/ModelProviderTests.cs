@@ -5141,6 +5141,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("EnumCollectionCounter", true)]
         [TestCase("MismatchedGenericCounter", false)]
         [TestCase("MismatchedNullableCollectionCounter", false)]
+        [TestCase("NullableToNonNullableCollectionCounter", false)]
+        [TestCase("NonNullableToNullableCollectionCounter", false)]
         public async Task BackCompat_ExternalClrPropertyTypesPermitCompatibleConstructors(string modelName, bool shouldRestore)
         {
             var enumType = new CSharpType(typeof(Sample.External.ExternalKind)).WithUnderlyingEnumType(typeof(string));
@@ -5160,6 +5162,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "MismatchedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericBase<int>)),
                     new CSharpType(typeof(string))),
                 "MismatchedNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int>)),
+                    new CSharpType(typeof(List<int?>))),
+                "NullableToNonNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int>)),
+                    new CSharpType(typeof(List<int>))),
+                "NonNullableToNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int?>)),
                     new CSharpType(typeof(List<int?>))),
                 _ => (new CSharpType(typeof(Sample.External.GenericBase<string>)), new CSharpType(typeof(string))),
             };
@@ -5186,6 +5192,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 Assert.That(restoredConstructor!.Signature.Parameters.Single().Type.AreNamesEqual(propertyType), Is.True);
                 Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Value = value"));
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NestedNullableValueConstructorChecksBackingField(bool incompatibleBackingField)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32))),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var property = modelProvider.CanonicalView.Properties.Single(p => p.Name == "Values");
+            property.Update(type: new CSharpType(typeof(List<int?>)), body: new AutoPropertyBody(true));
+            property.SynchronizePropertyShape();
+            if (incompatibleBackingField)
+            {
+                property.BackingField = new FieldProvider(
+                    FieldModifiers.Private, new CSharpType(typeof(List<int>)), "_values", modelProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(!incompatibleBackingField));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(List<int?>))), Is.True);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_NestedNullableValueConstructorChecksChainedParameter(bool compatibleParameter)
+        {
+            var inputModel = InputFactory.Model("MockInputModel", properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String),
+                    InputFactory.Property("values", InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32)), isRequired: true),
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_NestedNullableValueConstructorChecksBackingField)));
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == "MockInputModel");
+            var parameter = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)).Signature.Parameters.Single();
+            parameter.Update(type: compatibleParameter ? new CSharpType(typeof(List<int?>)) : new CSharpType(typeof(List<int>)));
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 2);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(compatibleParameter));
+            if (restoredConstructor is not null)
+            {
+                Assert.That(restoredConstructor.Signature.Parameters[1].Type.Equals(new CSharpType(typeof(List<int?>))), Is.True);
             }
         }
 

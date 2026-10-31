@@ -512,15 +512,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var frameworkPropertyType = CreateReflectedType(frameworkProperty.PropertyType, GetFrameworkTypeArguments());
-            return AreClrTypesEqual(
+            return ModelBaseMemberCompatibility.AreClrTypesEqual(
                     property.Type.WithNullable(false), frameworkPropertyType.WithNullable(false)) &&
                 !(parameterType is { IsValueType: true, IsNullable: true } && !frameworkPropertyType.IsNullable);
         }
-
-        private static bool AreClrTypesEqual(CSharpType left, CSharpType right)
-            => left.AreNamesEqual(right) && left.IsValueType == right.IsValueType &&
-                (!left.IsValueType || left.IsNullable == right.IsNullable) &&
-                left.Arguments.Zip(right.Arguments).All(pair => AreClrTypesEqual(pair.First, pair.Second));
 
         private MemberInfo? FindEffectiveFrameworkMember(string name)
         {

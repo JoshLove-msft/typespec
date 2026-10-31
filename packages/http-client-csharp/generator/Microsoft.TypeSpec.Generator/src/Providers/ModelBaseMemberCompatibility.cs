@@ -29,6 +29,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (!previous.IsValueType || previous.IsNullable == current.IsNullable) &&
                 previous.Arguments.Zip(current.Arguments).All(pair => AreTypesCompatible(pair.First, pair.Second));
 
+        public static bool AreClrTypesEqual(CSharpType left, CSharpType right)
+            => left.AreNamesEqual(right) && left.IsValueType == right.IsValueType &&
+                (!left.IsValueType || left.IsNullable == right.IsNullable) &&
+                left.Arguments.Zip(right.Arguments).All(pair => AreClrTypesEqual(pair.First, pair.Second));
+
         public static bool ArePropertiesCompatible(PropertyProvider previous, PropertyProvider current)
             => !previous.HasUnsupportedBaseContract && !current.HasUnsupportedBaseContract &&
                 !previous.IsRef && !current.IsRef && AreTypesCompatible(previous.Type, current.Type) &&

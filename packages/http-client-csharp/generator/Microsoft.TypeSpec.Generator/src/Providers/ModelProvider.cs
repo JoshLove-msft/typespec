@@ -1311,7 +1311,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousParameter in previousParameters)
             {
                 if (targetIndex < targetParameters.Count
-                    && targetParameters[targetIndex].Equals(previousParameter))
+                    && targetParameters[targetIndex].Equals(previousParameter)
+                    && ModelBaseMemberCompatibility.AreClrTypesEqual(targetParameters[targetIndex].Type, previousParameter.Type))
                 {
                     var keptParameter = PartialMethodCustomization.CloneParameterWithName(
                         targetParameters[targetIndex],
@@ -1327,7 +1328,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Each extra parameter (not consumed by the chain target) must map to a settable, wire-backed
                 // property assigned in the restored constructor's body.
                 var property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
-                    && chained.Type.AreNamesEqual(previousParameter.Type)
+                    && ModelBaseMemberCompatibility.AreClrTypesEqual(
+                        chained.Type.WithNullable(false), previousParameter.Type.WithNullable(false))
                     ? chained
                     : null;
 
@@ -1371,7 +1373,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     assignee = backingField;
                     assignmentType = backingField.Type;
                 }
-                if (parameter.Type is { IsValueType: true, IsNullable: true } && !assignmentType.IsNullable)
+                if (parameter.Type is { IsValueType: true, IsNullable: true } && !assignmentType.IsNullable ||
+                    parameter.Type.Arguments.Count != assignmentType.Arguments.Count ||
+                    !parameter.Type.Arguments.Zip(assignmentType.Arguments).All(pair =>
+                        ModelBaseMemberCompatibility.AreClrTypesEqual(pair.First, pair.Second)))
                 {
                     return false;
                 }
@@ -1454,7 +1459,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     break;
                 }
 
-                if (subset[matched].Equals(parameter))
+                if (subset[matched].Equals(parameter) &&
+                    ModelBaseMemberCompatibility.AreClrTypesEqual(subset[matched].Type, parameter.Type))
                 {
                     matched++;
                 }

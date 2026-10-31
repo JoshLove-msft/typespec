@@ -66,4 +66,20 @@ namespace Sample.Models
             Value = value.ConvertAll(item => item.GetValueOrDefault());
         }
     }
+
+    public partial class NullableToNonNullableCollectionCounter : GenericIntermediate<int>
+    {
+        public NullableToNonNullableCollectionCounter(List<int?> value)
+        {
+            Value = value.ConvertAll(item => item.GetValueOrDefault());
+        }
+    }
+
+    public partial class NonNullableToNullableCollectionCounter : GenericIntermediate<int?>
+    {
+        public NonNullableToNullableCollectionCounter(List<int> value)
+        {
+            Value = value.ConvertAll(item => (int?)item);
+        }
+    }
 }
