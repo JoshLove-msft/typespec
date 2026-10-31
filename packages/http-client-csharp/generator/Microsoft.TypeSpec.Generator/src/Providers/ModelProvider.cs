@@ -1357,6 +1357,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
+                if (property.EnclosingType is SystemObjectModelProvider mappedModel &&
+                    !mappedModel.CanAssignProperty(property, parameter.Type))
+                {
+                    return false;
+                }
+
                 ValueExpression assignee = property;
                 var assignmentType = property.Type;
                 if (property.BackingField is { } backingField &&

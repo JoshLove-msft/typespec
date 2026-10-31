@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -5069,6 +5070,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.That(modelProvider.Constructors.Any(c =>
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1), Is.False);
+        }
+
+        [TestCase("MessageException", "message", "System.Exception", false)]
+        [TestCase("SourceException", "source", "System.Exception", true)]
+        [TestCase("MissingException", "missing", "System.Exception", false)]
+        [TestCase("HResultException", "hResult", "System.Exception", false)]
+        [TestCase("ProtectedHResultException", "hResult", "System.Exception", true)]
+        [TestCase("NullableHResultException", "hResult", "System.Exception", false)]
+        [TestCase("InheritedSourceException", "source", "System.ArgumentException", true)]
+        public async Task BackCompat_ExternalPropertyConstructorRestoredOnlyWhenAssignable(
+            string modelName, string propertyName, string externalType, bool shouldRestore)
+        {
+            var baseModel = InputFactory.Model("ExternalException",
+                properties: [InputFactory.Property(propertyName,
+                    modelName is "ProtectedHResultException" or "NullableHResultException"
+                        ? InputPrimitiveType.Int32 : InputPrimitiveType.String)],
+                external: new InputExternalTypeMetadata(externalType, null, null));
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            Assert.That(modelProvider.BaseModelProvider, Is.InstanceOf<SystemObjectModelProvider>());
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.BodyStatements!.ToDisplayString(),
+                    Does.Contain($"{propertyName.ToIdentifierName()} = {propertyName}"));
+            }
         }
 
         [Test]

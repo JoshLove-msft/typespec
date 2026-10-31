@@ -501,6 +501,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private PropertyInfo? FindEffectiveFrameworkProperty(string name)
             => FindEffectiveFrameworkMember(name) as PropertyInfo;
 
+        internal bool CanAssignProperty(PropertyProvider property, CSharpType parameterType)
+        {
+            if (!SystemType.IsFrameworkType ||
+                FindEffectiveFrameworkProperty(property.Name) is not { SetMethod: { } setter } frameworkProperty ||
+                setter.IsStatic || !IsPublicOrProtected(setter) || IsInitOnly(setter) ||
+                frameworkProperty.GetIndexParameters().Length > 0)
+            {
+                return false;
+            }
+
+            var frameworkPropertyType = new CSharpType(frameworkProperty.PropertyType);
+            return ModelBaseMemberCompatibility.AreTypesCompatible(
+                    property.Type.WithNullable(false), frameworkPropertyType.WithNullable(false)) &&
+                !(parameterType is { IsValueType: true, IsNullable: true } && !frameworkPropertyType.IsNullable);
+        }
+
         private MemberInfo? FindEffectiveFrameworkMember(string name)
         {
             const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
