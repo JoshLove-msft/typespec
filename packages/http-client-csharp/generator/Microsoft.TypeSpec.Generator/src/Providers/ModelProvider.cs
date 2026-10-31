@@ -1357,10 +1357,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
-                ValueExpression assignee = property.BackingField is null ||
-                    (property.EnclosingType != this && property.EnclosingType != CustomCodeView)
-                    ? property
-                    : property.BackingField;
+                ValueExpression assignee = property;
+                var assignmentType = property.Type;
+                if (property.BackingField is { } backingField &&
+                    (property.EnclosingType == this || property.EnclosingType == CustomCodeView))
+                {
+                    assignee = backingField;
+                    assignmentType = backingField.Type;
+                }
+                if (parameter.Type is { IsValueType: true, IsNullable: true } && !assignmentType.IsNullable)
+                {
+                    return false;
+                }
+
                 ValueExpression value = parameter;
                 if (CSharpType.RequiresToList(parameter.Type, property.Type))
                 {

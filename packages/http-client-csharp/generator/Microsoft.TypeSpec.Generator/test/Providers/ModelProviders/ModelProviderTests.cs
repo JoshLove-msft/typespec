@@ -5257,6 +5257,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase("NullableCounter", false, true)]
+        [TestCase("NonNullableCounter", false, false)]
+        [TestCase("DerivedNullableCounter", false, true)]
+        [TestCase("DerivedNonNullableCounter", false, false)]
+        [TestCase("NullableCounter", true, false)]
+        [TestCase("DerivedNullableCounter", true, true)]
+        public async Task BackCompat_NullableValueTypeConstructorRestoredOnlyWhenAssignable(
+            string modelName, bool privateBackingField, bool shouldRestore)
+        {
+            var inherited = modelName.StartsWith("Derived", StringComparison.Ordinal);
+            var baseModel = inherited
+                ? InputFactory.Model(modelName["Derived".Length..],
+                    usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                    properties: [InputFactory.Property("count", InputPrimitiveType.Int32)])
+                : null;
+            var inputModel = InputFactory.Model(modelName,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: inherited ? [] : [InputFactory.Property("count", InputPrimitiveType.Int32)],
+                baseModel: baseModel);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: baseModel is null ? [inputModel] : [baseModel, inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            modelProvider.BaseModelProvider?.ProcessTypeForBackCompatibility();
+            var propertyProvider = modelProvider.BaseModelProvider ?? modelProvider;
+            var property = propertyProvider.CanonicalView.Properties.Single(p => p.Name == "Count");
+            if (privateBackingField)
+            {
+                property.BackingField = new FieldProvider(
+                    FieldModifiers.Private, new CSharpType(typeof(int)), "_count", propertyProvider);
+            }
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.Signature.Parameters.Single().Type.IsNullable, Is.True);
+                Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Count = count"));
+            }
+        }
+
         [Test]
         public async Task BackCompat_RenamedPropertyConstructorIsRestored()
         {
