@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -1337,17 +1336,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                var acceptsNull = previousParameter.Type.IsNullable
-                    || previousParameter.NullableReferenceTypeAnnotation == NullableAnnotation.Annotated
-                    || (previousParameter.NullableReferenceTypeAnnotation == NullableAnnotation.None
-                        && !previousParameter.Type.IsValueType && property.InputProperty?.Type is InputNullableType);
                 var restoredParameter = new ParameterProvider(
                     previousParameter.Name,
                     property.AsParameter.Description,
-                    property.AsParameter.Type.WithNullable(acceptsNull),
+                    property.AsParameter.Type.WithNullable(previousParameter.Type.IsNullable),
                     property: property,
                     validation: previousParameter.DefaultValue is null
-                        && !acceptsNull
                         && previousParameter.Type is { IsValueType: false, IsNullable: false }
                         ? ParameterValidationType.AssertNotNull
                         : ParameterValidationType.None);

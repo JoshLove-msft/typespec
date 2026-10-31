@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -40,8 +39,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // the fallback expression as evidence that a historical base member is compatible.
         internal bool HasUnsupportedDefaultValue { get; init; }
         internal bool HasUnsupportedParameterModifiers { get; init; }
-        // Keep source annotations separately because symbol-backed CSharpType does not model nullable references.
-        internal NullableAnnotation NullableReferenceTypeAnnotation { get; init; }
 
         public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
 

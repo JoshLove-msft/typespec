@@ -29,28 +29,4 @@ namespace Sample.Models
             ArgumentNullException.ThrowIfNull(dataUri);
         }
     }
-
-#nullable enable
-    public partial class NullableDataset : AIProjectDataset
-    {
-        public NullableDataset(Uri? dataUri) : base(dataUri!, "nullable")
-        {
-        }
-    }
-
-    public partial class NonNullableDataset : AIProjectDataset
-    {
-        public NonNullableDataset(Uri dataUri) : base(dataUri, "nonnullable")
-        {
-            ArgumentNullException.ThrowIfNull(dataUri);
-        }
-    }
-
-#nullable disable
-    public partial class NullableDisabledDataset : AIProjectDataset
-    {
-        public NullableDisabledDataset(Uri dataUri) : base(dataUri, "nullable")
-        {
-        }
-    }
 }

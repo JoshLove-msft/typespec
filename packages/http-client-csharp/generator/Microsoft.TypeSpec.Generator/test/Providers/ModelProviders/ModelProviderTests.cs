@@ -4961,9 +4961,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("FileDataset", "file", false)]
         [TestCase("FolderDataset", "folder", false)]
         [TestCase("FileDataset", "file", true)]
-        [TestCase("NullableDataset", "nullable", false)]
-        [TestCase("NullableDisabledDataset", "nullable", false)]
-        [TestCase("NonNullableDataset", "nonnullable", false)]
         public async Task BackCompat_InheritedRequiredToOptionalConstructorIsRestored(string modelName, string discriminator, bool privateBackingField)
         {
             var baseModel = InputFactory.Model(
@@ -4971,8 +4968,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
                 properties:
                 [
-                    InputFactory.Property("dataUri", modelName is "NullableDisabledDataset" or "NonNullableDataset"
-                        ? new InputNullableType(InputPrimitiveType.Url) : InputPrimitiveType.Url),
+                    InputFactory.Property("dataUri", InputPrimitiveType.Url),
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 ]);
             var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel, discriminatedKind: discriminator);
@@ -4999,10 +4995,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var parameter = restoredConstructor.Signature.Parameters.Single();
             Assert.That(parameter.Name, Is.EqualTo("dataUri"));
             Assert.That(parameter.Type.AreNamesEqual(new CSharpType(typeof(Uri))), Is.True);
-            var acceptsNull = modelName is "NullableDataset" or "NullableDisabledDataset";
-            Assert.That(parameter.Type.IsNullable, Is.EqualTo(acceptsNull));
-            Assert.That(parameter.Validation, Is.EqualTo(acceptsNull
-                ? ParameterValidationType.None : ParameterValidationType.AssertNotNull));
+            Assert.That(parameter.Type.IsNullable, Is.False);
+            Assert.That(parameter.Validation, Is.EqualTo(ParameterValidationType.AssertNotNull));
             Assert.That(restoredConstructor.Signature.Initializer!.IsBase, Is.False);
             Assert.That(restoredConstructor.Signature.Initializer.Arguments, Is.Empty);
             Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("DataUri = dataUri"));
