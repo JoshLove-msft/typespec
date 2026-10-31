@@ -511,11 +511,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var frameworkPropertyType = new CSharpType(frameworkProperty.PropertyType);
-            return ModelBaseMemberCompatibility.AreTypesCompatible(
+            var frameworkPropertyType = CreateReflectedType(frameworkProperty.PropertyType, GetFrameworkTypeArguments());
+            return AreClrTypesEqual(
                     property.Type.WithNullable(false), frameworkPropertyType.WithNullable(false)) &&
                 !(parameterType is { IsValueType: true, IsNullable: true } && !frameworkPropertyType.IsNullable);
         }
+
+        private static bool AreClrTypesEqual(CSharpType left, CSharpType right)
+            => left.AreNamesEqual(right) && left.IsValueType == right.IsValueType &&
+                (!left.IsValueType || left.IsNullable == right.IsNullable) &&
+                left.Arguments.Zip(right.Arguments).All(pair => AreClrTypesEqual(pair.First, pair.Second));
 
         private MemberInfo? FindEffectiveFrameworkMember(string name)
         {
@@ -769,13 +774,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (SystemType.IsFrameworkType)
             {
                 var frameworkType = SystemType.FrameworkType;
-                var typeArguments = frameworkType.IsGenericTypeDefinition
-                    ? frameworkType.GetGenericArguments()
-                        .Zip(SystemType.Arguments)
-                        .ToDictionary(pair => pair.First, pair => pair.Second)
-                    : [];
+                var typeArguments = GetFrameworkTypeArguments();
 
-                return [.. frameworkType.GetInterfaces().Select(type => CreateInterfaceType(type, typeArguments))];
+                return [.. frameworkType.GetInterfaces().Select(type => CreateReflectedType(type, typeArguments))];
             }
 
             return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
@@ -785,7 +786,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     includeReferencedAssemblies: true)?.Implements ?? []];
         }
 
-        private static CSharpType CreateInterfaceType(
+        private IReadOnlyDictionary<Type, CSharpType> GetFrameworkTypeArguments()
+            => SystemType.FrameworkType.IsGenericTypeDefinition
+                ? SystemType.FrameworkType.GetGenericArguments().Zip(SystemType.Arguments)
+                    .ToDictionary(pair => pair.First, pair => pair.Second)
+                : new Dictionary<Type, CSharpType>();
+
+        private static CSharpType CreateReflectedType(
             Type type,
             IReadOnlyDictionary<Type, CSharpType> typeArguments)
         {
@@ -794,10 +801,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return typeArgument;
             }
 
+            if (Nullable.GetUnderlyingType(type) is { } underlyingType)
+            {
+                return CreateReflectedType(underlyingType, typeArguments).WithNullable(true);
+            }
+
             return type.IsGenericType
                 ? new CSharpType(
                     type.GetGenericTypeDefinition(),
-                    [.. type.GetGenericArguments().Select(argument => CreateInterfaceType(argument, typeArguments))])
+                    [.. type.GetGenericArguments().Select(argument => CreateReflectedType(argument, typeArguments))])
                 : new CSharpType(type);
         }
 

@@ -5133,6 +5133,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 method: "BackCompat_RenamedPropertyConstructorIsRestored")));
         }
 
+        [TestCase("StringGenericCounter", true)]
+        [TestCase("NestedGenericCounter", true)]
+        [TestCase("NullableGenericCounter", true)]
+        [TestCase("GeneratedGenericCounter", true)]
+        [TestCase("EnumCounter", true)]
+        [TestCase("EnumCollectionCounter", true)]
+        [TestCase("MismatchedGenericCounter", false)]
+        [TestCase("MismatchedNullableCollectionCounter", false)]
+        public async Task BackCompat_ExternalClrPropertyTypesPermitCompatibleConstructors(string modelName, bool shouldRestore)
+        {
+            var enumType = new CSharpType(typeof(Sample.External.ExternalKind)).WithUnderlyingEnumType(typeof(string));
+            var generatedType = new CSharpType("ExternalValue", "Sample.External",
+                false, false, null, [], true, false);
+            var (baseType, propertyType) = modelName switch
+            {
+                "NestedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<string>)),
+                    new CSharpType(typeof(List<string>))),
+                "NullableGenericCounter" => (new CSharpType(typeof(Sample.External.NullableGenericBase<int>)),
+                    new CSharpType(typeof(int?))),
+                "GeneratedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericBase<>), generatedType),
+                    generatedType),
+                "EnumCounter" => (new CSharpType(typeof(Sample.External.EnumBase)), enumType),
+                "EnumCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericBase<List<Sample.External.ExternalKind>>)),
+                    new CSharpType(typeof(List<>), enumType)),
+                "MismatchedGenericCounter" => (new CSharpType(typeof(Sample.External.GenericBase<int>)),
+                    new CSharpType(typeof(string))),
+                "MismatchedNullableCollectionCounter" => (new CSharpType(typeof(Sample.External.GenericIntermediate<int>)),
+                    new CSharpType(typeof(List<int?>))),
+                _ => (new CSharpType(typeof(Sample.External.GenericBase<string>)), new CSharpType(typeof(string))),
+            };
+            var baseModel = InputFactory.Model("ExternalBase",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var inputModel = InputFactory.Model(modelName, properties: [], baseModel: baseModel);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, inputModel],
+                createModelCore: input => input == baseModel
+                    ? new SystemObjectModelProvider(baseType, input) : new ModelProvider(input),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>().Single(t => t.Name == modelName);
+            var property = modelProvider.BaseModelProvider!.CanonicalView.Properties.Single(p => p.Name == "Value");
+            property.Update(type: propertyType);
+            property.SynchronizePropertyShape();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var restoredConstructor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.That(restoredConstructor is not null, Is.EqualTo(shouldRestore));
+            if (shouldRestore)
+            {
+                Assert.That(restoredConstructor!.Signature.Parameters.Single().Type.AreNamesEqual(propertyType), Is.True);
+                Assert.That(restoredConstructor.BodyStatements!.ToDisplayString(), Does.Contain("Value = value"));
+            }
+        }
+
         [Test]
         public async Task BackCompat_ConstructorNotRestoredWhenPropertyRemoved()
         {
