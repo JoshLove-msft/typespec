@@ -15,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class LifecycleModelReaderWriterOptionsDefinition : InternalHelperProvider
+    internal sealed class LifecycleModelReaderWriterOptionsDefinition : TypeProvider
     {
         internal static bool HasLifecycleVisibility(InputType type, HashSet<InputType> visited)
         {

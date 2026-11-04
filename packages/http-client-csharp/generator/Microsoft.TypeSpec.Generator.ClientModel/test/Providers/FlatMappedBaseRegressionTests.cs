@@ -25,6 +25,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class FlatMappedBaseRegressionTests
     {
+        [Test]
+        public void ReadOnlyMultipartProjectionRetainsLifecycleHelpers()
+        {
+            var value = InputFactory.Property("value", InputPrimitiveType.Int32, serializedName: "wireValue");
+            var input = InputFactory.Model("DerivedModel", properties:
+                [value, InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.MultipartFormData);
+            var generator = CreateGenerator(input);
+            generator.Object.AddVisitor(new ReadOnlyProjectedPropertyVisitor());
+            var types = generator.Object.OutputLibrary.TypeProviders;
+            var model = types.OfType<ClientModelProvider>().Single();
+            var mappedBase = (SystemObjectModelProvider)model.BaseModelProvider!;
+            Assert.IsFalse(value.IsReadOnly);
+            Assert.IsTrue(mappedBase.CanonicalView.Properties.Single(p => p.Name == "Value").WireInfo!.IsReadOnly);
+            var multipart = model.SerializationProviders.OfType<MultipartFormDataSerializationDefinition>().Single();
+            Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                new TypeProviderWriter(multipart).Write().Content);
+            foreach (var type in types)
+            {
+                type.EnsureBuilt();
+            }
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(types);
+            Assert.IsTrue(types.OfType<LifecycleModelReaderWriterOptionsDefinition>().Any(session.ShouldWriteProvider));
+            Assert.IsTrue(types.OfType<LifecycleVisibilityDefinition>().Any(session.ShouldWriteProvider));
+        }
+
+        private sealed class ReadOnlyProjectedPropertyVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                if (property?.EnclosingType is SystemObjectModelProvider && property.WireInfo is { } wireInfo)
+                {
+                    property.WireInfo = new PropertyWireInformation(wireInfo.SerializationFormat, wireInfo.IsRequired,
+                        true, wireInfo.IsNullable, wireInfo.IsDiscriminator, wireInfo.SerializedName,
+                        wireInfo.IsHttpMetadata, wireInfo.IsApiVersion);
+                }
+                return property;
+            }
+        }
+
         [TestCase("value", true)]
         [TestCase("Value", true)]
         [TestCase("other", false)]

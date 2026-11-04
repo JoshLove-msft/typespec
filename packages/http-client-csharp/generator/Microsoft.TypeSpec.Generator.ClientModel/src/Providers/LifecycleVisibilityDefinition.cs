@@ -18,7 +18,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         internal LifecycleVisibilityDefinition() : base(null)
         {
-            CodeModelGenerator.Instance.AddTypeToKeep(this, isRoot: false);
         }
 
         protected override string BuildName() => "LifecycleVisibility";

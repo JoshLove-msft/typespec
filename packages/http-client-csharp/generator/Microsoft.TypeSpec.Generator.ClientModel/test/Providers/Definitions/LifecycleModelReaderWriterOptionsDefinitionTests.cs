@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -12,6 +13,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 {
     public class LifecycleModelReaderWriterOptionsDefinitionTests
     {
+        [Test]
+        public async Task CustomSerializationHookRetainsLifecycleHelpers()
+        {
+            var model = InputFactory.Model("CustomModel");
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var types = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            foreach (var type in types)
+            {
+                type.EnsureBuilt();
+            }
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(types);
+            Assert.IsTrue(types.OfType<LifecycleModelReaderWriterOptionsDefinition>().Any(session.ShouldWriteProvider));
+            Assert.IsTrue(types.OfType<LifecycleVisibilityDefinition>().Any(session.ShouldWriteProvider));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void OmitsUnusedLifecycleHelpers(bool hasModel)
@@ -31,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 property.Update(visibility: InputVisibility.Create);
             }
-            var model = InputFactory.Model("LifecycleModel", properties: [property]);
+            var model = InputFactory.Model("LifecycleModel", properties: [property],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.MultipartFormData);
             MockHelpers.LoadMockGenerator(inputModels: () => [model]);
 
             AssertLifecycleHelpers(true);
@@ -46,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [TestCase("base")]
         [TestCase("derived")]
         [TestCase("additional")]
-        public void IncludesLifecycleHelpersForRelatedModels(string relationship)
+        public void DetectsLifecycleVisibilityForRelatedModels(string relationship)
         {
             var property = InputFactory.Property("Value", InputPrimitiveType.String);
             property.Update(visibility: InputVisibility.Update);
@@ -67,22 +85,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "additional" => InputFactory.Model("RelatedModel", additionalProperties: lifecycleModel),
                 _ => InputFactory.Model("RelatedModel", properties: [InputFactory.Property("Related", propertyType)])
             };
-            MockHelpers.LoadMockGenerator(inputModels: () => [model]);
-
-            AssertLifecycleHelpers(true);
+            Assert.IsTrue(LifecycleModelReaderWriterOptionsDefinition.HasLifecycleVisibility(model, []));
         }
 
         [TestCase(false)]
         [TestCase(true)]
         public void RequestVisibilityIncludesLifecycleHelpersWithoutLifecycleModels(bool hasVisibility)
         {
+            var bodyType = InputFactory.Array(InputPrimitiveType.Int32);
             var operation = InputFactory.Operation("Send",
-                parameters: [InputFactory.BodyParameter("data", InputPrimitiveType.String, isRequired: true)]);
+                parameters: [InputFactory.BodyParameter("data", bodyType, isRequired: true)]);
             if (hasVisibility)
             {
                 operation.Update(requestVisibility: InputVisibility.Create);
             }
-            var method = InputFactory.BasicServiceMethod("Send", operation);
+            var method = InputFactory.BasicServiceMethod("Send", operation, parameters:
+                [InputFactory.MethodParameter("data", bodyType, location: InputRequestLocation.Body, isRequired: true)]);
             var client = InputFactory.Client("TestClient");
             InputFactory.Client("ChildClient", parent: client, methods: [method]);
             MockHelpers.LoadMockGenerator(clients: () => [client]);
@@ -112,10 +130,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         {
             var generator = ScmCodeModelGenerator.Instance;
             var types = generator.OutputLibrary.TypeProviders;
-            Assert.AreEqual(expected, types.Any(t => t is LifecycleModelReaderWriterOptionsDefinition));
-            Assert.AreEqual(expected, types.Any(t => t is LifecycleVisibilityDefinition));
-            Assert.AreEqual(expected, generator.NonRootTypes.Any(t => t.EndsWith(".LifecycleModelReaderWriterOptions")));
-            Assert.AreEqual(expected, generator.NonRootTypes.Any(t => t.EndsWith(".LifecycleVisibility")));
+            foreach (var type in types)
+            {
+                type.EnsureBuilt();
+            }
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(types);
+            Assert.AreEqual(expected, session.ShouldWriteProvider(types.OfType<LifecycleModelReaderWriterOptionsDefinition>().Single()));
+            Assert.AreEqual(expected, session.ShouldWriteProvider(types.OfType<LifecycleVisibilityDefinition>().Single()));
+            Assert.IsFalse(generator.NonRootTypes.Any(t => t.EndsWith(".LifecycleModelReaderWriterOptions")));
+            Assert.IsFalse(generator.NonRootTypes.Any(t => t.EndsWith(".LifecycleVisibility")));
         }
 
         [Test]
